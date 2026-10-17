@@ -1,0 +1,13 @@
+{
+  "routes": [
+    { "path": "/", "title": "Today" },
+    { "path": "/progress", "title": "Progress" },
+    { "path": "/journal", "title": "Journal" },
+    { "path": "/meditation", "title": "Meditation" },
+    { "path": "/library", "title": "Library" },
+    { "path": "/settings", "title": "Settings" },
+    { "path": "/reset", "title": "I Need a Moment" },
+    { "path": "/garden", "title": "Living Garden" },
+    { "path": "/field-guide", "title": "Personal Recovery Field Guide" }
+  ]
+}

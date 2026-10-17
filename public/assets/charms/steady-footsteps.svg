@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Steady Footsteps charm">
+<circle cx="100" cy="100" r="91" fill="#D9B65E" stroke="#C79A43" stroke-width="5"/>
+<circle cx="100" cy="100" r="78" fill="none" stroke="#FFF8E7" stroke-width="3" opacity=".9"/>
+<ellipse cx="78" cy="90" rx="13" ry="23" transform="rotate(-24 78 90)" fill="#624B1F"/><circle cx="66" cy="64" r="7" fill="#624B1F"/><ellipse cx="123" cy="115" rx="13" ry="23" transform="rotate(24 123 115)" fill="#624B1F"/><circle cx="136" cy="88" r="7" fill="#624B1F"/>
+</svg>

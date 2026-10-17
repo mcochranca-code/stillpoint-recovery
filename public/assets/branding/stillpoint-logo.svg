@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title id="title">Stillpoint Recovery logo</title><desc id="desc">A green seedling rising above calm layered hills inside a circle.</desc>
+<defs><clipPath id="c"><circle cx="256" cy="222" r="174"/></clipPath><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F5E7B9"/><stop offset="1" stop-color="#F7F4EA"/></linearGradient></defs>
+<circle cx="256" cy="222" r="181" fill="#245444"/>
+<circle cx="256" cy="222" r="170" fill="url(#sky)"/>
+<g clip-path="url(#c)">
+<circle cx="256" cy="140" r="44" fill="#D3A34A" opacity=".8"/>
+<path d="M60 260 Q155 188 246 252 T460 242 V420 H60Z" fill="#A8C6A9"/>
+<path d="M55 296 Q150 236 253 292 T466 278 V440 H55Z" fill="#6E9B7C"/>
+<path d="M55 330 Q170 282 260 324 T466 315 V445 H55Z" fill="#245444"/>
+<path d="M256 295 C254 248 256 205 257 164" fill="none" stroke="#153D35" stroke-width="13" stroke-linecap="round"/>
+<path d="M256 217 C207 214 181 187 181 151 C224 151 254 174 256 217Z" fill="#245444"/>
+<path d="M260 190 C263 151 294 123 333 128 C330 170 301 191 260 190Z" fill="#3C785B"/>
+<path d="M256 245 C225 222 201 227 190 249 C216 268 239 266 256 245Z" fill="#153D35"/>
+</g>
+<text x="256" y="458" font-family="Georgia,serif" font-size="44" text-anchor="middle" fill="#153D35">Stillpoint</text>
+<text x="256" y="490" font-family="Arial,sans-serif" font-size="18" letter-spacing="7" text-anchor="middle" fill="#245444">RECOVERY</text>
+</svg>

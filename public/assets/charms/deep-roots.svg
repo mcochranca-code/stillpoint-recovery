@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Deep Roots charm">
+<circle cx="100" cy="100" r="91" fill="#8EAE7B" stroke="#C79A43" stroke-width="5"/>
+<circle cx="100" cy="100" r="78" fill="none" stroke="#FFF8E7" stroke-width="3" opacity=".9"/>
+<path d="M100 48V94M100 73L72 59M100 85L129 65M100 94L75 119M100 94L124 123M100 94V143" stroke="#31533C" stroke-width="8" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,18 @@
+/* Stillpoint Recovery design tokens */
+:root {
+  --stillpoint-forest: #245444;
+  --stillpoint-deep: #153D35;
+  --stillpoint-sage: #7FA58A;
+  --stillpoint-pale-sage: #DCE9DC;
+  --stillpoint-cream: #F7F4EA;
+  --stillpoint-paper: #FFFEFA;
+  --stillpoint-gold: #C79A43;
+  --stillpoint-sky: #4B91C5;
+  --stillpoint-blue: #285F8F;
+  --stillpoint-stone: #A7B0AD;
+  --stillpoint-ink: #193C35;
+  --stillpoint-muted: #62766F;
+  --stillpoint-radius-card: 18px;
+  --stillpoint-radius-control: 12px;
+  --stillpoint-shadow-card: 0 8px 28px rgba(27, 62, 52, 0.08);
+}

@@ -1,0 +1,70 @@
+# Stillpoint Recovery — Implementation Plan
+
+## Product and serving model
+
+Build the approved local-first recovery companion as a client-only React + TypeScript + Vite PWA. The initialized project is intentionally flexible and has no starter files, server, or managed database; keep `features.server` and `features.database` disabled. Browser code must never send sobriety dates, journals, reflection activity, meditation records, garden progress, or other recovery data to external services. No account, analytics, advertising tracker, external AI, public profile, or required network connection is part of core use.
+
+Use Tailwind CSS for the responsive system, Framer Motion for restrained transitions, Lucide React for consistent accessible icons, and Dexie over IndexedDB for authoritative structured records. Use a lightweight router for five primary views plus secondary `/reset`, `/garden`, `/field-guide`, and settings pages; maintain `/manus-routes.json` before dev-server start. Keep ephemeral UI state in React and reserve LocalStorage for low-risk UI preferences only. Use Vitest and Testing Library for domain and interaction coverage. Do not add encryption or claim browser storage is encrypted.
+
+Implement IndexedDB entities for preferences, recovery profile/date history, daily activity, personal goals and day-based personal milestones, journal entries and drafts, reflection records/favorites, scripture records/favorites, meditation sessions, garden progress, field-guide notes, reset choices, trusted contacts, user-entered support resources, and earned charms/personal memories. Give records stable IDs and explicit schema versioning/migrations. Centralize persistence in repositories; validate imported JSON, safely handle duplicate IDs/schema versions, recover drafts and surface storage failures. Export/import and clear-all are explicit user actions with confirmation and explanation. Date-only recovery entries mean local midnight on the selected calendar date; persist the resulting instant and original local date/zone metadata so elapsed time is calculated from timestamps while calendar-day choices remain intelligible during travel/DST. User-entered journal date/times are interpreted as local wall time and stored as timestamp instants.
+
+## Product views and behavior
+
+- **Onboarding/Today:** skippable first-run privacy explanation and optional configuration (date/time, focus, intention, counter format, theme/accessibility/reminders/discreet mode), followed by a usable dashboard even when no sobriety date is supplied. Show compassionate elapsed time/next milestone, deterministic daily original reflection, scripture, quick actions and a visible one-tap “I need a moment” entry. Discreet mode masks the exact duration and sensitive labels; neutral reminders are opt-in.
+- **Progress:** separate date-derived duration from participation measures; show meditation/journal/reflection/scripture totals, historical charms, weekly activity, timeline, accessible chart alternatives and week/month/year filters. Offer user-defined day-count personal milestones with persistent reached dates, independent of standard milestones and goals. Recovery-date edits never erase prior records or achievements. Lapse/date history is recorded only when the user chooses.
+- **Journal:** nine entry types, title/plain-text body, date/time, optional mood/tags/gratitude/trigger/coping fields, guided prompts, recoverable autosaved drafts, saved-state feedback, create/edit/delete/search, private export and confirmed permanent deletion. No activity streak is required.
+- **Reflection and scripture:** locally bundle at least 90 original date-deterministic readings, expandable to 365. Each has title, reading, principle, application, question, save-to-journal and mark-reflected actions, favorites/history and optional device speech. Never attribute original content to recovery fellowships. Provide named recovery themes. Scripture uses clearly labeled public-domain KJV quotations, contextual explanations and applications; include the ten requested references, favorites/browse-by-principle, and scripture filters for emotional needs (e.g. loneliness, temptation, anxiety, grief, forgiveness, resentment, gratitude and hope). Explanations and applications are original; hardship is never framed as evidence of weak faith.
+- **Journey Collection and Living Garden:** award the 12 named example charms once and preserve them across date edits/lapses; show criteria, earned date, progress and category filters. Let users attach a short private memory to an earned charm. Build an evolving garden from recovery-supportive activity: reflections grow leaves, journaling enriches soil, meditation adds water, and milestones unlock plants/scenery. Missed days never wither or remove anything. Offer woodland and desert-bloom styles, with milestones unlocking decorative objects/seasonal scenery. Garden state is a visual record of care, not a sobriety score.
+- **90-Second Reset:** one-tap “I need a moment” flow from Today and a PWA shortcut. Let the user name what is present (craving, panic, shame, anger, loneliness, spiritual discouragement or other) and choose grounding, gentle breath, prayer/quiet reflection, brief writing or viewing/calling a trusted contact. Lead through a short optional practice, then offer a user-chosen next step such as leave a triggering space or reach out. Do not promise the feeling/craving will disappear after 90 seconds. Provide natural-breathing and stop options; no external contact/message is sent.
+- **Personal Recovery Field Guide:** private local playbook aggregating user-chosen triggers, coping strategies, trusted contacts, favorite verses/reflections/prayers and notes about what helped. Users can manually add/edit/delete strategies and review their own entries. Do not infer, score, diagnose or predict relapse patterns; make clear that saved writing remains on the device.
+- **Comeback Protocol:** after a user voluntarily changes their recovery date, offer a kind optional support check-in: what support would help now, one manageable next step, and a link to a chosen reset, journal prompt or trusted person. Preserve previous records/charms and avoid “broken streak” language. The flow can be skipped.
+- **Meditation:** implement ten named guided exercises with their own instructions, pacing and suitable supplied visualization. Support 2/5/10/20 minutes; phase labels/countdown; total remaining time; start/pause/resume/end/restart; optional device voice cues (no remote audio dependency); hide/reduce animation; timestamp-based elapsed-time reconciliation across backgrounding; completion only at full duration, persisted exactly once. Keep breathing gentle, holds optional and natural-breath/stop options visible. Explain it is optional and not a substitute for professional, medical or emergency support.
+- **Library/Settings/Data:** browsing saved reflections/scripture by principle/emotional need, exercises, charms, garden, field guide and settings. Support user-configured contacts/resources; do not show unverified emergency resources. Preferences include light/dark/system mode, an independent persistent palette switcher for Stillpoint, Catppuccin, Monokai, Obsidian and Lucide, text sizing, contrast, reduced motion, discreet mode, timer and opt-in reminders constrained by browser capabilities. Palette identity and brightness mode remain independently selectable. Data tools clearly disclose local storage limits.
+
+## Design system
+
+Reuse supplied Stillpoint assets and original specification rather than inventing a new brand direction. **Movement:** quiet contemporary devotional journal blended with premium restorative wellness editorial. **Principles:** nonjudgmental language; spacious clarity; private-by-default interactions; calm and legible accessibility. **Color philosophy:** warm ivory creates a welcoming paper-like canvas; muted sage suggests steady growth; deep forest/navy anchors trust; soft gold marks meaningful moments; pale blue and warm gray support rest and contrast. **Layout:** editorial asymmetric, mobile-first stacked reading flow with focused cards and persistent bottom navigation; desktop uses a restrained sidebar and clear content column, avoiding dense metric grids. **Signature motifs:** supplied branch/sunrise mark, softly layered landscape horizons, circular breathing/path cues and a garden that grows without decay. **Interaction:** explicit reversible choices, confirmations for destructive data changes, visible saved state, no guilt or urgency. **Animation:** slow fades and gentle scale/orb/plant transitions only; no flash or abrupt motion; honor `prefers-reduced-motion` and app preference. **Typography:** readable sans (system/Inter-like) for interface, restrained serif for devotional headings, generous line height and clear hierarchy. **Brand essence:** a private, gentle daily recovery companion; steady, compassionate, hopeful. **Voice:** plain and kind—e.g. “One day is enough for today.” and “Your progress remains yours, even when your path changes.” **Wordmark/logo:** supplied Stillpoint growing-branch/sunrise logo. **Signature color:** muted sage.
+
+Support semantic HTML, keyboard access and visible focus, labeled controls, accessible dialogs and chart summaries, high contrast, comfortable touch targets, zoom/text resizing, error announcements and reduced motion, aiming at WCAG 2.2 AA. Sensitive exact duration is maskable by discreet mode, while controls and accessible labels remain understandable.
+
+## Project structure
+
+```text
+public/
+  assets/                 supplied branding, app icon, backgrounds, meditation, charms and icons
+  manifest.webmanifest    install metadata and supported app shortcuts
+  sw.js                   versioned offline app-shell/asset caching
+  manus-routes.json       declared page-route inventory
+src/
+  app/                    router, shell, navigation, onboarding, boundaries
+  components/             accessible cards, dialogs, forms, buttons and status UI
+  features/today/         sobriety timer, reflection, scripture and quick actions
+  features/progress/      statistics, weekly views, timeline and charms
+  features/journal/       editor, drafts, history, search and delete
+  features/meditation/    exercise catalog, timer engine, visualizations, history
+  features/library/       reflection/scripture/emotional-need browsing and collection links
+  features/reset/         one-tap 90-second support flow and next step
+  features/garden/        evolving non-punitive growth visualization and styles
+  features/field-guide/   user-controlled coping playbook and saved support notes
+  features/settings/     accessibility, discreet mode, reminders, backup and deletion
+  data/                   original readings, KJV entries, exercises, themes and charm definitions
+  db/                     Dexie schema, migrations, repositories and import/export
+  domain/                 local date policy, timer math, milestones and achievement rules
+  styles.css              global design tokens, palette themes and reduced-motion rules
+tests/                     domain, import/export, timer and UI tests
+```
+
+## Build workflow
+
+1. Establish this plan and outcome-based TODO; configure host-managed TypeScript diagnostics; pin package manager and review lifecycle scripts before dependency installation.
+2. Build Vite/Tailwind design system, route manifest, app shell, navigation, onboarding, empty states, install manifest and offline foundation; start Preview only after meaningful content and verify configured port 3000.
+3. Implement typed IndexedDB schema/migrations, repositories, backup validation, date/timer calculations, compassionate date editing/history, comeback choice and milestone engine.
+4. Add local reflections/KJV scripture including emotional-need filters, journal operations/draft recovery, and field-guide aggregation/editing.
+5. Add charm criteria/personal memories, progress summaries/timeline and the Living Garden growth/styling.
+6. Implement all meditation pacing/controls and the one-tap 90-Second Reset with timestamp-aware safe controls and exactly-once session history.
+7. Finish settings, discreet mode, accessibility, neutral optional reminders, supported PWA shortcuts, offline cache, data management and privacy/support copy.
+8. Run type diagnostics, lint, production build and automated tests; inspect source and repair confirmed issues. Deliver source, setup steps, preview link and concise feature/limitation/test summary. Do not imply successful publication unless confirmed.
+
+## Material constraints
+
+Browser-local persistence can be lost if site data is cleared or the PWA removed; provide prominent backup/restore. Browser storage is not encrypted. No dependable closed-app reminder scheduler or cloud sync exists without a backend; offline behavior is bounded by successfully cached resources. A PWA cannot guarantee native home-screen widgets across devices. The supplied pack has no ambient audio asset, so voice cues use only an available device speech engine and silent alternatives remain. Contacting another person is always user-initiated; the app never sends messages. No app lock or local encrypted backup will be claimed without a verified implementation. Scripture quotations use KJV. All recovery content is supportive and non-clinical.

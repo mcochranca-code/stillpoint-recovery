@@ -1,0 +1,25 @@
+{
+  "id": "/",
+  "name": "Stillpoint Recovery",
+  "short_name": "Stillpoint",
+  "description": "A private, gentle daily recovery companion.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F7F4EA",
+  "theme_color": "#F7F4EA",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/branding/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Today", "short_name": "Today", "url": "/", "icons": [{ "src": "/assets/branding/app-icon.svg", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "I need a moment", "short_name": "Reset", "url": "/reset", "icons": [{ "src": "/assets/meditation/grounding-ripples.svg", "sizes": "any", "type": "image/svg+xml" }] },
+    { "name": "Living Garden", "short_name": "Garden", "url": "/garden", "icons": [{ "src": "/assets/charms/steady-footsteps.svg", "sizes": "any", "type": "image/svg+xml" }] }
+  ]
+}
