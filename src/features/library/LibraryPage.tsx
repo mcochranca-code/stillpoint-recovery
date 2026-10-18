@@ -4,6 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { BookOpen, Compass, Heart, Leaf, Search, Settings2, Sparkles, Wind } from 'lucide-react';
 import { useAppContext } from '../../app/AppContext';
 import { CharmGallery } from '../../components/CharmGallery';
+import { NaDailyReadingCard } from '../today/NaDailyReadingCard';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { updateDailyActivity } from '../../db/repository';
@@ -92,7 +93,8 @@ export function LibraryPage() {
 
   return (
     <div className="page-stack">
-      <header className="page-header"><div><p className="eyebrow">Read, practice, and return</p><h1>Library & tools.</h1><p>Original readings and optional practices, all available from this device.</p></div><Compass size={26} aria-hidden="true" /></header>
+      <header className="page-header"><div><p className="eyebrow">Read, practice, and return</p><h1>Library & tools.</h1><p>Stillpoint reflections and local practices stay on this device; the official NA reading opens at NA.org.</p></div><Compass size={26} aria-hidden="true" /></header>
+      <NaDailyReadingCard />
       <div className="signature-links" aria-label="Stillpoint signature tools">
         <Link to="/reset" className="signature-link"><span><Wind size={19} /></span><strong>I need a moment<small>90-second reset</small></strong></Link>
         <Link to="/garden" className="signature-link"><span><Leaf size={19} /></span><strong>Living Garden<small>Growth without streaks</small></strong></Link>

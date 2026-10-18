@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Bookmark, BookOpen, CalendarDays, Check, Clock3, EyeOff, Heart, Leaf, Settings2, Volume2, Wind } from 'lucide-react';
 import { useAppContext } from '../../app/AppContext';
 import { useDialogFocus } from '../../app/useDialogFocus';
+import { NaDailyReadingCard } from './NaDailyReadingCard';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { syncReachedMilestones } from '../../db/milestones';
@@ -29,6 +30,7 @@ export function TodayPage() {
   const [savingDate, setSavingDate] = useState(false);
   const [comebackOpen, setComebackOpen] = useState(false);
   const [spoken, setSpoken] = useState(false);
+  const [reflectionExpanded, setReflectionExpanded] = useState(false);
   const dateDialogFocusRef = useDialogFocus<HTMLElement>(dateDialog, () => setDateDialog(false));
   const comebackFocusRef = useDialogFocus<HTMLElement>(comebackOpen, () => setComebackOpen(false));
   const navigate = useNavigate();
@@ -158,29 +160,38 @@ export function TodayPage() {
         <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} /> Show private details</button>}<Link to="/reset" className="button button-secondary"><Wind size={16} /> I need a moment</Link><Link to="/settings" className="icon-button" aria-label="Open settings"><Settings2 size={18} /></Link></div>
       </header>
 
-      <section className="card sobriety-card" aria-labelledby="sobriety-heading">
+      <section className="card sobriety-card sobriety-hero" aria-labelledby="sobriety-heading">
         <div className="sobriety-copy">
           <p className="eyebrow">{discreet ? 'Your private space' : 'Your recovery, your pace'}</p>
           <h2 id="sobriety-heading" className={discreet ? 'sensitive-heading' : ''}>{discreet ? 'Private timer' : parts ? 'Time you have chosen for yourself' : 'A date, if and when it helps'}</h2>
-          {discreet ? <p className="timer-caption">Recovery details are hidden from this view. You can reveal them only when you choose.</p> : parts ? <><div className="sobriety-duration" aria-label={`${parts.days} days, ${parts.hours} hours, ${parts.minutes} minutes elapsed`}><span className="sensitive-exact">{preferences?.counterStyle === 'days' ? <><strong>{parts.days}</strong><span>{parts.days === 1 ? 'day' : 'days'}</span></> : <><strong>{parts.days}</strong><span>days</span><i aria-hidden="true">·</i><strong>{String(parts.hours).padStart(2, '0')}</strong><span>hr</span><i aria-hidden="true">·</i><strong>{String(parts.minutes).padStart(2, '0')}</strong><span>min</span>{preferences?.liveCounter && <><i aria-hidden="true">·</i><strong className="seconds-value">{String(parts.seconds).padStart(2, '0')}</strong><span>sec</span></>}</>}</span></div><p className="timer-caption">Since {formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}. A measure of time—not a measure of your worth.</p></> : <p className="timer-caption">Your dashboard is ready without a date. You can add one later, if a counter feels useful.</p>}
+          {discreet ? <p className="timer-caption">Recovery details are hidden from this view. You can reveal them only when you choose.</p> : parts ? <>
+            <div className="sobriety-duration" aria-label={`${parts.days} days, ${parts.hours} hours, ${parts.minutes} minutes${preferences?.liveCounter ? `, ${parts.seconds} seconds` : ''} elapsed`}>
+              <span className="counter-primary sensitive-exact"><strong className="counter-days">{parts.days}</strong><span className="counter-days-label">{parts.days === 1 ? 'day' : 'days'} in recovery</span></span>
+              {preferences?.counterStyle !== 'days' && <span className="counter-subunits sensitive-exact" aria-hidden="true"><span><strong>{String(parts.hours).padStart(2, '0')}</strong><small>hours</small></span><span><strong>{String(parts.minutes).padStart(2, '0')}</strong><small>minutes</small></span>{preferences?.liveCounter && <span><strong className="seconds-value">{String(parts.seconds).padStart(2, '0')}</strong><small>seconds</small></span>}</span>}
+            </div>
+            <p className="timer-caption">Since {formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}. A measure of time—not a measure of your worth.</p>
+          </> : <><div className="counter-placeholder"><strong>—</strong><span>days in recovery</span></div><p className="timer-caption">Your dashboard is ready without a date. Add one later, if a counter feels useful.</p></>}
           <button className="button button-secondary" onClick={() => { setEditDate(profile?.localStartDate ?? localDateKey(new Date())); setEditTime(profile?.localStartTime ?? '00:00'); setDateDialog(true); }}><CalendarDays size={16} /> {discreet ? 'Review private date' : parts ? 'Adjust recovery date' : 'Set a recovery date'}</button>
         </div>
         <div className="sobriety-progress" aria-label={discreet ? 'Recovery timer and milestone details are hidden' : next ? `${progress}% progress toward ${next.label}` : 'Milestone overview'}>
           {discreet ? <div className="progress-ring"><span><EyeOff size={20} /><small>hidden</small></span></div> : <>
           <div className="progress-ring" style={{ '--progress': `${progress * 3.6}deg` } as React.CSSProperties}>
-            <span><strong>{parts?.days ?? '—'}</strong><small>days</small></span>
+            <span><strong>{parts ? `${progress}%` : '—'}</strong><small>to milestone</small></span>
           </div>
           <div className="milestone-copy"><strong>{parts ? nextLabel : 'Your next step is enough'}</strong><small>{parts && next ? (nextDays ? `About ${nextDays}d ${nextRemainder}h to go` : `About ${nextHours}h to go`) : 'Set a date whenever it feels right'}</small></div>
           </>}
         </div>
       </section>
 
+      <NaDailyReadingCard />
+
       <div className="today-grid">
         <section className="card reflection-card" aria-labelledby="reflection-heading">
-          <div className="card-header"><div><p className="eyebrow">An original daily recovery reflection</p><h2 id="reflection-heading">JUST FOR TODAY</h2></div><button className="icon-button" aria-label={reflectionActivity?.favorite ? 'Remove reflection from saved items' : 'Save reflection'} onClick={() => void toggleReflectionFavorite()}><Bookmark size={18} fill={reflectionActivity?.favorite ? 'currentColor' : 'none'} /></button></div>
+          <div className="card-header"><div><p className="eyebrow">An original daily recovery reflection</p><h2 id="reflection-heading">TODAY’S STILLPOINT REFLECTION</h2></div><button className="icon-button" aria-label={reflectionActivity?.favorite ? 'Remove reflection from saved items' : 'Save reflection'} onClick={() => void toggleReflectionFavorite()}><Bookmark size={18} fill={reflectionActivity?.favorite ? 'currentColor' : 'none'} /></button></div>
           <div className="reflection-art" aria-hidden="true"><img src="/assets/backgrounds/sunrise-hills.svg" alt="" /><span>{reflection.theme}</span></div>
           <h3 className="reflection-title">{reflection.title}</h3>
-          <p className="reflection-reading">{reflection.reading}</p>
+          <p id="original-reflection-reading" aria-hidden={!reflectionExpanded} className={`reflection-reading${reflectionExpanded ? '' : ' is-collapsed'}`}>{reflection.reading}</p>
+          <button className="text-button reflection-expand" aria-expanded={reflectionExpanded} aria-controls="original-reflection-reading" onClick={() => setReflectionExpanded((expanded) => !expanded)}>{reflectionExpanded ? 'Show less' : 'Read full original reflection'}</button>
           <div className="principle-callout"><span>ONE PRINCIPLE</span><strong>{reflection.principle}</strong></div>
           <div className="reflection-details"><p><strong>For today</strong>{reflection.practice}</p><p><strong>A question to carry</strong>{reflection.question}</p></div>
           <div className="action-row">

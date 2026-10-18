@@ -47,3 +47,8 @@ Stillpoint does not transmit recovery data. Browser notifications are optional a
 - `src/data/` — local reflection, scripture, exercise, charm and palette catalogs.
 - `public/` — supplied assets, manifest, service worker and page route declaration.
 - `tests/` and `src/**/*.test.*` — Vitest, Testing Library and fake IndexedDB regression tests.
+
+
+## NA Just for Today reader
+
+Today and Library show a separate, dated link to the current Just for Today reading on the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). The Stillpoint-authored daily reflection remains separate and expandable; no NA reading text is copied or cached by this app. NA World Services’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) says recovery literature may only be reproduced with permission and recommends that other websites link to the official source rather than repost it. Its [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/) likewise directs websites to link to NAWS material. The reading link opens only when the user chooses it and sends no Stillpoint recovery data.
