@@ -35,7 +35,7 @@ A date-only sobriety date is interpreted as local midnight on the selected calen
 
 ## Privacy and support boundaries
 
-Stillpoint does not transmit recovery data. Browser notifications are optional and use neutral wording; reliable closed-app delivery depends on browser support. Optional speech cues use the device’s speech engine. No contact is called or messaged by the app. Meditation and devotional content are optional encouragement, not diagnosis, treatment, medical advice or emergency support. For urgent help, use local emergency services or a trusted person.
+Stillpoint does not upload recovery data to an app server or analytics service. Any share is user-initiated, previewed, and limited to the official NA reading link or milestone details the user selects; journal entries are never attached. Browser notifications are optional and use neutral wording; reliable closed-app delivery depends on browser support. Optional speech cues use the device’s speech engine. No contact is called or messaged by the app. Meditation and devotional content are optional encouragement, not diagnosis, treatment, medical advice or emergency support. For urgent help, use local emergency services or a trusted person.
 
 ## Project structure
 
@@ -51,4 +51,11 @@ Stillpoint does not transmit recovery data. Browser notifications are optional a
 
 ## NA Just for Today reader
 
-Today and Library show a separate, dated link to the current Just for Today reading on the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). The Stillpoint-authored daily reflection remains separate and expandable; no NA reading text is copied or cached by this app. NA World Services’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) says recovery literature may only be reproduced with permission and recommends that other websites link to the official source rather than repost it. Its [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/) likewise directs websites to link to NAWS material. The reading link opens only when the user chooses it and sends no Stillpoint recovery data.
+Today and Library show a separate, dated link to the current Just for Today reading on the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS selects and displays its own publication date; around timezone boundaries it may differ from the device-local date shown in Stillpoint. The Stillpoint-authored daily reflection remains separate and expandable; no NA reading text is copied, cached, or exported by this app. NA World Services’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) says recovery literature may only be reproduced with permission and recommends that other websites link to the official source rather than repost it. Its [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/) likewise directs websites to link to NAWS material. Users may share the official link only; the app does not send recovery data.
+
+
+## Optional ambience and sharing
+
+Three short, original local soundscapes (rain, woodland, shoreline) are available for meditation and the Stillpoint reflection. They are silent/off by default, start only after a user action, and stop when the meditation pauses/ends or the user leaves the view. Silent practice remains available. They use bundled files rather than a remote stream.
+
+Sharing is also explicit: the NA card shares the official NAWS URL and attribution only; its copyrighted reading text is never copied or exported. Progress milestone shares show a preview of selected fields before the device share sheet, copy, or text-file fallback. No journal entries or contacts are included.

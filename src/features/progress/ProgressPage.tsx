@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowRight, CalendarDays, CircleCheck, Plus, Sprout } from 'lucide-react';
+import { ArrowRight, CalendarDays, CircleCheck, Plus, Share2, Sprout } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../../app/AppContext';
 import { CharmGallery } from '../../components/CharmGallery';
+import { MilestoneShareDialog, type MilestoneShareTarget } from '../../components/MilestoneShareDialog';
 import { db } from '../../db/database';
 import { elapsedParts, formatLocalDate, localDateKey, nextMilestone, periodStart } from '../../domain/time';
 import type { PersonalGoal, PersonalMilestone } from '../../domain/types';
@@ -20,6 +21,7 @@ export function ProgressPage() {
   const [goalUnit, setGoalUnit] = useState('quiet pauses');
   const [milestoneLabel, setMilestoneLabel] = useState('');
   const [milestoneDays, setMilestoneDays] = useState('30');
+  const [shareTarget, setShareTarget] = useState<MilestoneShareTarget | null>(null);
   const [now, setNow] = useState(Date.now());
   const activities = useLiveQuery(() => db.dailyActivity.toArray(), []) ?? [];
   const sessions = useLiveQuery(() => db.meditationSessions.toArray(), []) ?? [];
@@ -127,10 +129,10 @@ export function ProgressPage() {
   }
 
   const timeline = [
-    ...milestones.map((item) => ({ id: item.id, at: item.reachedAt, title: `${item.label} milestone`, description: 'A moment along the recovery-date timeline.' })),
-    ...changes.map((item) => ({ id: item.id, at: item.recordedAt, title: 'Recovery date updated', description: 'A date-change record you chose to keep locally.' })),
-    ...awards.map((item) => ({ id: item.id, at: item.earnedAt, title: `${item.charmId.replaceAll('-', ' ')} charm collected`, description: 'A recovery-supportive action or milestone.' })),
-    ...personalMilestones.filter((item) => item.achievedAt).map((item) => ({ id: item.id, at: item.achievedAt!, title: `${item.label} · personal milestone`, description: `A milestone you set for ${item.daysAfterStart} days.` })),
+    ...milestones.map((item) => ({ id: item.id, at: item.reachedAt, title: `${item.label} milestone`, description: 'A moment along the recovery-date timeline.', share: { id: item.id, label: item.label, dateLabel: formatLocalDate(item.reachedAt) } })),
+    ...changes.map((item) => ({ id: item.id, at: item.recordedAt, title: 'Recovery date updated', description: 'A date-change record you chose to keep locally.', share: undefined })),
+    ...awards.map((item) => ({ id: item.id, at: item.earnedAt, title: `${item.charmId.replaceAll('-', ' ')} charm collected`, description: 'A recovery-supportive action or milestone.', share: undefined })),
+    ...personalMilestones.filter((item) => item.achievedAt).map((item) => ({ id: item.id, at: item.achievedAt!, title: `${item.label} · personal milestone`, description: `A milestone you set for ${item.daysAfterStart} days.`, share: { id: item.id, label: item.label, dateLabel: formatLocalDate(item.achievedAt!) } })),
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 12);
 
   return (
@@ -174,7 +176,7 @@ export function ProgressPage() {
           </section>
           <section className="card">
             <div className="card-header"><div><p className="eyebrow">Your story, kept here</p><h2>Recent journey moments</h2></div></div>
-            {timeline.length ? <ol className="timeline">{timeline.map((item) => <li key={item.id}><span className="timeline-dot" /><div><strong>{preferences?.discreetMode ? 'A saved personal moment' : item.title}</strong><small>{preferences?.discreetMode ? 'Details hidden in discreet mode' : `${formatLocalDate(item.at)} · ${item.description}`}</small></div></li>)}</ol> : <div className="empty-state">Your timeline will grow with moments you choose to record. Nothing is erased by a change in your recovery date.</div>}
+            {timeline.length ? <ol className="timeline">{timeline.map((item) => <li key={item.id}><span className="timeline-dot" /><div><strong>{preferences?.discreetMode ? 'A saved personal moment' : item.title}</strong><small>{preferences?.discreetMode ? 'Details hidden in discreet mode' : `${formatLocalDate(item.at)} · ${item.description}`}</small></div>{item.share && !preferences?.discreetMode && <button className="icon-button timeline-share" type="button" aria-label={`Share milestone ${item.share.label}`} onClick={() => setShareTarget(item.share!)}><Share2 size={15} aria-hidden="true" /></button>}</li>)}</ol> : <div className="empty-state">Your timeline will grow with moments you choose to record. Nothing is erased by a change in your recovery date.</div>}
           </section>
           <section className="card">
             <div className="card-header"><div><p className="eyebrow">A gentle intention</p><h2>Personal goals</h2><p>Small goals are yours to shape; missed days carry no penalty.</p></div></div>
@@ -183,6 +185,7 @@ export function ProgressPage() {
           </section>
         </div>
       </>}
+      <MilestoneShareDialog milestone={shareTarget} onClose={() => setShareTarget(null)} />
     </div>
   );
 }

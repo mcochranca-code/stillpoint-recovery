@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Check, Heart, Pause, Play, RotateCcw, Square, Volume2, VolumeX, Wind } from 'lucide-react';
 import { useAppContext } from '../../app/AppContext';
+import { AmbientAudioPlayer } from '../../components/AmbientAudioPlayer';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { updateDailyActivity } from '../../db/repository';
@@ -204,6 +205,8 @@ export function MeditationPage() {
           </div>
         </section>}
       </>}
+
+      <AmbientAudioPlayer context="meditation" sessionStatus={completed?.status === 'completed' ? 'complete' : active?.status ?? 'idle'} />
 
       <section className="card safety-note"><div className="safety-icon"><Heart size={19} /></div><div><strong>Comfort comes first.</strong><p>These practices are gentle and optional. There is no need to hold your breath or follow a rhythm. You can stop or return to ordinary breathing at any time. Meditation is not a replacement for medical care, professional treatment, peer support, or emergency help.</p></div></section>
 

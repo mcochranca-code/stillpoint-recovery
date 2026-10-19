@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { BookOpen, CalendarDays, ExternalLink } from 'lucide-react';
+import { BookOpen, CalendarDays, ExternalLink, Share2 } from 'lucide-react';
+import { buildNaSharePayload, shareOrCopy } from '../../domain/sharing';
 
 export const NA_JUST_FOR_TODAY_URL = 'https://na.org/daily-meditations/';
 
@@ -23,6 +24,15 @@ function useLocalDateLabel(): string {
 
 export function NaDailyReadingCard() {
   const dateLabel = useLocalDateLabel();
+  const [shareStatus, setShareStatus] = useState('');
+
+  async function shareOfficialLink() {
+    const result = await shareOrCopy(buildNaSharePayload(NA_JUST_FOR_TODAY_URL));
+    if (result === 'shared') setShareStatus('The official NA reader link was handed to your selected share destination. No reading text was shared by the app.');
+    else if (result === 'copied') setShareStatus('The official NA reader link was copied. No reading text was copied.');
+    else if (result === 'cancelled') setShareStatus('Share canceled. Nothing was sent.');
+    else setShareStatus('Sharing is unavailable in this browser. Open the official reading link above.');
+  }
 
   return (
     <section className="card na-reader-card" aria-labelledby="na-reader-heading">
@@ -31,22 +41,28 @@ export function NaDailyReadingCard() {
         <h2 id="na-reader-heading">NA Just for Today</h2>
         <p className="na-reader-date"><CalendarDays size={15} aria-hidden="true" /> Today on this device: {dateLabel}</p>
         <p className="na-reader-description">
-          NA World Services pairs each date with a Just for Today meditation. Open the official reader to see its current dated entry in full.
+          Open NA World Services’ official reader to see its current dated entry in full. Its publication date can differ from this device’s date near timezone boundaries.
         </p>
-        <a
-          className="button button-primary na-reader-link"
-          href={NA_JUST_FOR_TODAY_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Open today's official Narcotics Anonymous Just for Today reading at NA.org; opens in a new tab"
-        >
-          <BookOpen size={17} aria-hidden="true" />
-          Open today’s NA reading
-          <ExternalLink size={15} aria-hidden="true" />
-          <span className="sr-only">Opens in a new tab</span>
-        </a>
+        <div className="na-reader-actions">
+          <a
+            className="button button-primary na-reader-link"
+            href={NA_JUST_FOR_TODAY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open today's official Narcotics Anonymous Just for Today reading at NA.org; opens in a new tab"
+          >
+            <BookOpen size={17} aria-hidden="true" />
+            Open today’s NA reading
+            <ExternalLink size={15} aria-hidden="true" />
+            <span className="sr-only">Opens in a new tab</span>
+          </a>
+          <button className="button button-secondary na-reader-share" type="button" onClick={() => void shareOfficialLink()}>
+            <Share2 size={16} aria-hidden="true" /> Share official link
+          </button>
+        </div>
+        <p className="na-reader-share-status" role="status">{shareStatus}</p>
         <p className="na-reader-note">
-          NA literature remains at its official source. Stillpoint links to NA.org rather than copying the copyrighted reading; this link does not send your recovery information.
+          NA literature remains at its official source. Sharing includes the NAWS title and URL only; it does not copy the copyrighted reading or send your recovery information.
         </p>
       </div>
       <div className="na-reader-stamp" aria-label="365-day daily reader">

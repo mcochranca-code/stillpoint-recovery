@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Bookmark, BookOpen, CalendarDays, Check, Clock3, EyeOff, Heart, Leaf, Settings2, Volume2, Wind } from 'lucide-react';
 import { useAppContext } from '../../app/AppContext';
 import { useDialogFocus } from '../../app/useDialogFocus';
+import { AmbientAudioPlayer } from '../../components/AmbientAudioPlayer';
 import { NaDailyReadingCard } from './NaDailyReadingCard';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
@@ -199,6 +200,7 @@ export function TodayPage() {
             <button className="button button-secondary" onClick={() => void saveReflectionToJournal()}><BookOpen size={16} /> Save to journal</button>
             <button className="icon-button" onClick={speakReflection} aria-label={spoken ? 'Stop reading reflection aloud' : 'Read reflection aloud'} title="Read aloud"><Volume2 size={17} className={spoken ? 'icon-on' : ''} /></button>
           </div>
+          <details className="reflection-ambient-details"><summary><Volume2 size={15} aria-hidden="true" /> Optional ambient soundscape</summary><AmbientAudioPlayer context="reflection" /></details>
           <p className="content-integrity">Original reflection inspired by the one-day-at-a-time principle; not affiliated with a recovery fellowship.</p>
         </section>
 

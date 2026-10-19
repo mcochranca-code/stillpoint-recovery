@@ -7,7 +7,7 @@ const longLocalDate = () => new Date().toLocaleDateString(undefined, {
 });
 
 describe('NA Just for Today card', () => {
-  it('links to the official reader without reproducing NA text and labels the current local date', () => {
+  it('links to the official reader, explains date behavior, and offers link-only sharing', () => {
     render(<NaDailyReadingCard />);
 
     expect(screen.getByRole('heading', { name: 'NA Just for Today' })).toBeTruthy();
@@ -18,7 +18,9 @@ describe('NA Just for Today card', () => {
     expect(link.getAttribute('target')).toBe('_blank');
     expect(link.getAttribute('rel')).toBe('noopener noreferrer');
     expect(screen.getByText(`Today on this device: ${longLocalDate()}`)).toBeTruthy();
-    expect(screen.getByText(/links to NA\.org rather than copying the copyrighted reading/i)).toBeTruthy();
+    expect(screen.getByText(/publication date can differ from this device’s date near timezone boundaries/i)).toBeTruthy();
+    expect(screen.getByRole('button', { name: /share official link/i })).toBeTruthy();
+    expect(screen.getByText(/Sharing includes the NAWS title and URL only/i)).toBeTruthy();
   });
 
   it('refreshes its date label at local midnight while the card remains mounted', async () => {
