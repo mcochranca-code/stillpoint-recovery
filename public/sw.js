@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stillpoint-shell-v3';
+const CACHE_NAME = 'stillpoint-shell-v4';
 const CORE_ASSETS = [
   '/',
   '/manifest.webmanifest',

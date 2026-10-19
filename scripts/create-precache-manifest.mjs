@@ -19,7 +19,7 @@ async function walk(directory) {
 }
 
 const publicAssets = (await walk(path.join(root, 'public', 'assets')))
-  .filter((file) => /\.(?:svg|png|jpe?g|webp|gif|css|woff2?)$/i.test(file))
+  .filter((file) => /\.(?:svg|png|jpe?g|webp|gif|css|woff2?|mp3)$/i.test(file))
   .map((file) => `/${path.posix.join('assets', path.relative(path.join(root, 'public', 'assets'), file).split(path.sep).join('/'))}`);
 
 const core = ['/', '/manifest.webmanifest', '/manus-routes.json', '/precache-manifest.json'];
