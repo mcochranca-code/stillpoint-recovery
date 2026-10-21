@@ -1,17 +1,134 @@
-# Stillpoint Recovery
+<div align="center">
+  <img src="public/assets/branding/app-icon.svg" alt="Stillpoint Recovery mark" width="76" height="76">
+  <h1>Stillpoint Recovery</h1>
+  <p><strong>A quieter place to keep choosing what matters.</strong></p>
+  <p>One day at a time. On your device. At your pace.</p>
+  <p>
+    <code>LOCAL-FIRST</code> &nbsp; <code>INSTALLABLE PWA</code> &nbsp; <code>NO ACCOUNT</code> &nbsp; <code>BUILT FOR GENTLENESS</code>
+  </p>
+  <p>
+    <a href="https://github.com/mcochranca-code/stillpoint-recovery/archive/refs/heads/main.zip"><strong>Download the source ZIP</strong></a>
+    &nbsp; · &nbsp;
+    <a href="#take-a-look-around">Explore the app</a>
+    &nbsp; · &nbsp;
+    <a href="#run-it-on-your-device">Run it on your device</a>
+  </p>
+</div>
 
-Stillpoint is a local-first, installable recovery companion built with React, TypeScript, Vite, Tailwind CSS, Dexie/IndexedDB and a small service worker. Core features do not require an account, server, managed database, external AI, analytics or network connection after the application shell and assets have been cached.
+<p align="center">
+  <img src="docs/media/hero-still.png" alt="Stillpoint app preview with a calm recovery dashboard, progress ring, daily reflection and quiet-practice card" width="100%">
+</p>
 
-## Run locally
+<p align="center"><sub>The screen artwork uses illustrative sample values. Your own recovery information is not included in these images.</sub></p>
 
-Requirements: Node.js and pnpm 11.25.0 (pinned in `package.json`).
+<details>
+<summary><strong>Play the optional motion previews</strong> — slow, soft, and non-flashing</summary>
+
+<p><img src="docs/media/hero.gif" alt="A gentle motion preview of the Stillpoint dashboard and progress ring" width="100%"></p>
+<p align="center"><sub>Dashboard motion: a quiet floating card, a softly moving progress ring, and a warm horizon.</sub></p>
+
+<p><img src="docs/media/breathing.gif" alt="A softly expanding meditation orb with the words at your pace" width="720"></p>
+<p align="center"><sub>Meditation motion is optional. Silence and natural breathing are always welcome.</sub></p>
+
+<p><a href="docs/media/hero-still.png">View the still hero instead</a>. The motion files are small, locally included, and created from source-controlled HTML and CSS—no hosted animation service.</p>
+</details>
+
+---
+
+## A recovery companion without the pressure
+
+Recovery is personal. Stillpoint is designed to make room for reflection and supportive routines without turning your life into a score. There is no leaderboard, guilt loop, forced streak, or requirement to share your story.
+
+### Take a look around
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="docs/media/today.webp"><img src="docs/media/today.webp" alt="Today screen showing a visual recovery counter, NA Just for Today link, original daily reflection and scripture" width="100%"></a>
+      <h3>Today — one moment at a time</h3>
+      <p>A visual, live day counter sits alongside an original daily reflection, optional scripture, and the official NA Just for Today reader link. Adjust or hide the counter whenever you want.</p>
+    </td>
+    <td width="50%" valign="top">
+      <a href="docs/media/progress.webp"><img src="docs/media/progress.webp" alt="Progress screen with activity over time, recovery milestones and a personal goal area" width="100%"></a>
+      <h3>Progress — your own measure</h3>
+      <p>See calendar milestones, recorded activities, meditation time, journal entries, and personal goals. Activity is presented as context, not a prediction or a judgment.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <a href="docs/media/meditation.webp"><img src="docs/media/meditation.webp" alt="Meditation studio with selectable 2, 5, 10 and 20 minute sessions and gentle practices" width="100%"></a>
+      <h3>Meditation — gentle by design</h3>
+      <p>Choose a 2, 5, 10, or 20 minute practice. Optional local soundscapes stay silent until you choose them, and every session works without audio.</p>
+    </td>
+    <td width="50%" valign="top">
+      <a href="docs/media/library.webp"><img src="docs/media/library.webp" alt="Library screen with the official NA link, original reflections, scripture, principles, meditation and collection tabs" width="100%"></a>
+      <h3>Library — return to what helps</h3>
+      <p>Browse original reflections, public-domain scripture, recovery principles, meditation practices, and the Journey Collection of supportive milestones.</p>
+    </td>
+  </tr>
+</table>
+
+<p align="center"><sub>Product screenshots use a local demo profile with sample activity. No private journal content or personal contacts are shown.</sub></p>
+
+<h3 align="center">Make the space your own</h3>
+<p align="center"><a href="docs/media/settings.webp"><img src="docs/media/settings.webp" alt="Settings screen displaying the five Stillpoint color palettes and accessibility controls" width="720"></a></p>
+<p align="center"><sub>Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—plus text size, contrast, reduced motion, and discreet display.</sub></p>
+
+## Small practices. Useful details.
+
+- **90 original daily reflections** offer a principle, a small practice, and a question to carry. They are written for Stillpoint and are not presented as fellowship literature.
+- **NA Just for Today** opens the daily reading on the official [Narcotics Anonymous World Services site](https://na.org/daily-meditations/). Stillpoint does not copy, cache, or redistribute the copyrighted reading.
+- **Private journaling** supports gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing—with editable entries, search, and recoverable drafts.
+- **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline.
+- **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
+- **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you.
+- **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
+
+## Motion is part of the design—not decoration
+
+The app uses small CSS transitions for feedback and a slow, expanding meditation orb for optional practice. The README motion previews are source-controlled HTML/CSS compositions and open only when you choose them. Their motion draws from the same gentle visual language as the product: quiet floating, a soft pulse, and a gradual ring—never flashing or strobing.
+
+Stillpoint also honors reduced-motion preferences. The meditation artwork uses an eight-second ease-in/ease-out cycle, and the interface disables nonessential animation when reduced motion is requested:
+
+```css
+@keyframes stillpoint-breathe {
+  0%, 100% { transform: scale(.88); opacity: .82; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .breathing-orb {
+    animation: stillpoint-breathe 8s ease-in-out infinite;
+    transform-origin: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+```
+
+The compact [hero HTML/CSS](.github/readme-media/source/hero.html), [meditation vignette](.github/readme-media/source/breathing.html), [app motion stylesheet](public/assets/meditation/meditation-motion.css), and [render script](.github/readme-media/render.sh) are available in the repository. The motion examples were informed by [Prismic’s CSS animation examples](https://prismic.io/blog/css-animation-examples); they are adapted to Stillpoint’s palette, product, and reduced-motion behavior.
+
+## Run it on your device
+
+Stillpoint is a web app, not an App Store or Play Store download. You can download the repository as a ZIP using the button at the top, or clone it and run it locally. Once the local app opens in your browser, use the browser’s **Install app** or **Add to Home Screen** option if available.
+
+Requirements: Node.js and the pnpm version pinned in `package.json`.
 
 ```sh
+git clone https://github.com/mcochranca-code/stillpoint-recovery.git
+cd stillpoint-recovery
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-The Vite server uses port 3000. For a production build and local preview:
+Open `http://localhost:3000`. The app can be used without entering a recovery date; optional setup can be skipped. For a production build and local preview:
 
 ```sh
 pnpm typecheck
@@ -21,41 +138,43 @@ pnpm build
 pnpm preview
 ```
 
-The build creates `dist/` and `dist/precache-manifest.json`. The manifest generator lists all bundled chunks and local public assets so the service worker can cache the app for offline use. A hosted deployment should serve the static `dist/` directory with SPA fallback for the declared application routes, while missing `/assets/*` paths remain real 404s.
+The production build creates `dist/`, a web app manifest, a service worker, and a precache manifest for local app assets. Offline availability depends on the app shell and assets being successfully cached by your browser.
 
-## What is included
+## Your information stays in your browser
 
-The five main areas are Today, Progress, Journal, Meditation and Library. Secondary experiences include the Living Garden, 90-Second Reset and Personal Recovery Field Guide. Progress includes optional day-based personal milestones in addition to the standard recovery timeline and non-sobriety goals. Settings provide the Stillpoint, Catppuccin, Monokai, Obsidian and Lucide color palettes independently from light/dark/system appearance, plus accessibility, reminder, backup and data-deletion options. User-entered support contacts and resources remain local and are neither verified nor contacted by the app. The supplied Stillpoint asset pack is under `public/assets/`.
+Stillpoint stores recovery dates, preferences, journals, reflections, scripture activity, meditation sessions, earned charms, and related notes in this browser’s IndexedDB. The app does not require an account or cloud sync. It does not upload journal content to an app backend.
 
-Recovery dates, preferences, journal entries and drafts, reflections, scripture activity, meditation sessions, charms and their private memories, personal goals/milestones, Field Guide notes, support resources, and Reset choices are stored in IndexedDB through Dexie. IndexedDB in this browser is **not encrypted**. Clearing browser/site data or uninstalling the PWA may permanently remove this information. Export backups regularly and keep them somewhere private. JSON backups are versioned, validated and merged with duplicate IDs skipped; profile/preferences restore as singletons. The schema migrates legacy records locally without deleting prior entries.
+**Local does not mean encrypted.** Browser storage is not encrypted by Stillpoint. Clearing site data or uninstalling the PWA can erase saved information. Export a backup regularly and keep it somewhere private. Imported backups are validated and merged with duplicate IDs skipped.
 
-## Date and timer policy
+Date-only recovery dates are interpreted as local midnight. If you add a start time, the chosen local time is converted to a saved timestamp. Editing the date preserves past journal entries, sessions, and earned charms.
 
-A date-only sobriety date is interpreted as local midnight on the selected calendar date. If an optional start time is entered, that local wall-clock time is converted to a stored timestamp; elapsed time is calculated from that timestamp. Journal entries also let you choose a local date and time, which is saved as an instant and displayed using the current device locale/time zone. The recovery profile’s original local calendar date and IANA time-zone label are saved for context. When the device timezone changes, elapsed recovery duration still uses the saved start instant while calendar formatting follows the current device locale/timezone. Users may edit the recovery date; historical journal entries, meditation sessions and earned charms are preserved.
+Stillpoint is a personal reflection companion—not medical care, treatment, diagnosis, or an emergency service. Spiritual content and meditation are optional encouragement, never a measure of faith or worth and never a replacement for professional or peer support.
 
-## Privacy and support boundaries
+## Respect for NA literature
 
-Stillpoint does not upload recovery data to an app server or analytics service. Any share is user-initiated, previewed, and limited to the official NA reading link or milestone details the user selects; journal entries are never attached. Browser notifications are optional and use neutral wording; reliable closed-app delivery depends on browser support. Optional speech cues use the device’s speech engine. No contact is called or messaged by the app. Meditation and devotional content are optional encouragement, not diagnosis, treatment, medical advice or emergency support. For urgent help, use local emergency services or a trusted person.
+The Just for Today card links to the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS controls the reading and its publication date, which may differ from the device’s local date near timezone boundaries. Stillpoint does not rehost the text. See NAWS’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) and [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/).
 
-## Project structure
+## License
 
-- `src/app/` — provider, routes, responsive navigation, onboarding and accessible dialog focus management.
-- `src/features/` — Today, Progress, Journal, Meditation, Library, Settings, Reset, Garden and Field Guide pages.
-- `src/components/` — reusable charm gallery and shared presentation pieces.
-- `src/db/` — Dexie schema/migrations, repositories, milestones, charm persistence and JSON backups.
-- `src/domain/` — data types, date math, achievement criteria and shared domain calculations.
-- `src/data/` — local reflection, scripture, exercise, charm and palette catalogs.
-- `public/` — supplied assets, manifest, service worker and page route declaration.
-- `tests/` and `src/**/*.test.*` — Vitest, Testing Library and fake IndexedDB regression tests.
+This repository does not currently include a license file. Public visibility lets people view and download the source, but does not automatically grant rights to reuse or redistribute it. Add a license before describing the project as open source.
 
+## Built with
 
-## NA Just for Today reader
+React · TypeScript · Vite · Tailwind CSS · Framer Motion · Dexie/IndexedDB · Vitest
 
-Today and Library show a separate, dated link to the current Just for Today reading on the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS selects and displays its own publication date; around timezone boundaries it may differ from the device-local date shown in Stillpoint. The Stillpoint-authored daily reflection remains separate and expandable; no NA reading text is copied, cached, or exported by this app. NA World Services’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) says recovery literature may only be reproduced with permission and recommends that other websites link to the official source rather than repost it. Its [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/) likewise directs websites to link to NAWS material. Users may share the official link only; the app does not send recovery data.
+<details>
+<summary><strong>Project map</strong></summary>
 
+- `src/app/` — application shell, routes, onboarding, and dialog focus management.
+- `src/features/` — Today, Progress, Journal, Meditation, Library, Settings, Reset, Garden, and Field Guide.
+- `src/components/` — reusable interface components and dialogs.
+- `src/db/` — IndexedDB schema, migrations, repositories, milestones, and JSON backups.
+- `src/domain/` — typed data, date math, sharing, achievement criteria, and domain calculations.
+- `src/data/` — local reflections, scripture, exercises, charms, and palettes.
+- `public/` — supplied brand assets, local soundscapes, PWA manifest, and service worker.
+- `docs/media/` — still and motion visuals used by this README.
+- `.github/readme-media/` — editable HTML/CSS motion sources and their renderer.
 
-## Optional ambience and sharing
+</details>
 
-Three short, original local soundscapes (rain, woodland, shoreline) are available for meditation and the Stillpoint reflection. They are silent/off by default, start only after a user action, and stop when the meditation pauses/ends or the user leaves the view. Silent practice remains available. They use bundled files rather than a remote stream.
-
-Sharing is also explicit: the NA card shares the official NAWS URL and attribution only; its copyrighted reading text is never copied or exported. Progress milestone shares show a preview of selected fields before the device share sheet, copy, or text-file fallback. No journal entries or contacts are included.
+<p align="center"><sub>Made for the day you are in. Not affiliated with Narcotics Anonymous World Services.</sub></p>
