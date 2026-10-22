@@ -825,3 +825,52 @@ textarea { resize: vertical; line-height: 1.65; }
   .na-reader-actions .button { justify-content: center; }
   .share-dialog-actions .button { flex: 1 1 9rem; }
 }
+
+
+/* Standalone virtual milestone card preview */
+.virtual-card-section { display: grid; gap: .55rem; margin: 1.1rem 0; }
+.share-preview-heading { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: .25rem .75rem; }
+.share-preview-heading .eyebrow { margin: 0; }
+.share-preview-heading > span { color: var(--muted); font-size: .7rem; }
+.virtual-card-preview { position: relative; isolation: isolate; display: flex; flex-direction: column; justify-content: space-between; width: min(100%, 390px); aspect-ratio: 4 / 5; min-height: 340px; margin: 0 auto; overflow: hidden; padding: clamp(1.15rem, 5vw, 2rem); border: 1px solid rgba(36,84,68,.18); border-radius: 1.35rem; background: linear-gradient(150deg,#fffefa 4%,#f7f4ea 70%,#e7efe6); color: #193c35; box-shadow: 0 16px 38px rgba(27,62,52,.13); }
+.virtual-card-sun { position: absolute; z-index: -2; top: -5.8rem; right: -3.2rem; width: 14rem; height: 14rem; border-radius: 50%; background: rgba(211,163,74,.2); }
+.virtual-card-landscape { position: absolute; z-index: -1; inset: auto 0 0; width: 100%; height: 38%; pointer-events: none; }
+.virtual-card-brand { display: flex; align-items: center; gap: .65rem; }
+.virtual-card-mark { width: 2.7rem; height: 2.7rem; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; background: #245444; color: #fffefa; }
+.virtual-card-brand > span:last-child { display: grid; gap: .1rem; }
+.virtual-card-brand strong { font: 600 1.05rem Georgia,serif; letter-spacing: -.02em; }
+.virtual-card-brand small { color: #5c7068; font-size: .5rem; font-weight: 750; letter-spacing: .17em; }
+.virtual-card-content { width: min(100%, 18rem); margin: auto 0; padding: 1.25rem 0 1.7rem; }
+.virtual-card-eyebrow { margin: 0 0 .55rem; color: #52745b; font-size: .55rem; font-weight: 750; letter-spacing: .18em; text-transform: uppercase; }
+.virtual-card-content h3 { margin: 0 0 .7rem; color: #193c35; font: 400 clamp(1.55rem,5vw,2.2rem)/1.08 Georgia,serif; letter-spacing: -.035em; overflow-wrap: anywhere; }
+.virtual-card-message { margin: 0; color: #405e53; font: 400 clamp(.85rem,2.7vw,1.05rem)/1.55 Georgia,serif; white-space: pre-wrap; overflow-wrap: anywhere; }
+.virtual-card-date { display: inline-block; margin: .85rem 0 0; padding: .38rem .65rem; border: 1px solid rgba(36,84,68,.18); border-radius: 999px; background: rgba(255,254,250,.82); color: #486355; font-size: .58rem; letter-spacing: .05em; }
+.virtual-card-footer { display: flex; align-items: center; justify-content: space-between; gap: .55rem; padding-top: .7rem; border-top: 1px solid rgba(36,84,68,.17); color: #486355; font-size: .48rem; font-weight: 750; letter-spacing: .11em; text-transform: uppercase; }
+.share-dialog-card .virtual-card-section > .fine-print { margin: 0; }
+@media (max-width: 560px) {
+  .virtual-card-preview { width: min(100%, 330px); min-height: 310px; border-radius: 1.1rem; }
+  .virtual-card-footer { font-size: .42rem; }
+}
+
+
+/* Copyright-safe links to Our Daily Bread's official resources */
+.odb-resource-card {
+  display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start;
+  gap: clamp(16px,3vw,30px); padding: clamp(20px,3vw,30px);
+  border-left: 4px solid var(--primary); background: linear-gradient(112deg,var(--surface),var(--feature-glow));
+}
+.odb-resource-copy { display: grid; justify-items: start; gap: .7rem; }
+.odb-resource-copy .eyebrow { margin: 0; color: var(--primary); }
+.odb-resource-copy h2 { max-width: 45rem; margin: 0; font: 400 clamp(1.35rem,2.6vw,1.9rem)/1.2 Georgia,serif; }
+.odb-resource-description, .odb-resource-prompt { max-width: 54rem; margin: 0; color: var(--muted); font-size: .875rem; line-height: 1.65; }
+.odb-resource-prompt { padding-left: .8rem; border-left: 2px solid var(--primary); color: var(--ink); }
+.odb-resource-links { display: flex; flex-wrap: wrap; gap: .65rem; }
+.odb-resource-link { display: inline-flex; align-items: center; gap: .5rem; min-height: 2.75rem; }
+.odb-source-note { max-width: 70rem; margin: 0; color: var(--muted); font-size: .65rem; line-height: 1.6; }
+.odb-resource-mark { width: 3rem; height: 3rem; display: grid; place-items: center; border: 1px solid var(--border); border-radius: 1rem; background: var(--primary-soft); color: var(--primary); }
+@media (max-width: 560px) {
+  .odb-resource-card { grid-template-columns: minmax(0,1fr); }
+  .odb-resource-mark { grid-row: 1; justify-self: end; margin-bottom: -3.7rem; }
+  .odb-resource-links { width: 100%; }
+  .odb-resource-link { flex: 1 1 auto; justify-content: center; }
+}

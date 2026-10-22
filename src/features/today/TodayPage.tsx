@@ -7,6 +7,7 @@ import { useAppContext } from '../../app/AppContext';
 import { useDialogFocus } from '../../app/useDialogFocus';
 import { AmbientAudioPlayer } from '../../components/AmbientAudioPlayer';
 import { NaDailyReadingCard } from './NaDailyReadingCard';
+import { OdbResourcesCard } from './OdbResourcesCard';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { syncReachedMilestones } from '../../db/milestones';
@@ -185,6 +186,7 @@ export function TodayPage() {
       </section>
 
       <NaDailyReadingCard />
+      <OdbResourcesCard />
 
       <div className="today-grid">
         <section className="card reflection-card" aria-labelledby="reflection-heading">

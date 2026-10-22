@@ -4,12 +4,14 @@
   <p><strong>A quieter place to keep choosing what matters.</strong></p>
   <p>One day at a time. On your device. At your pace.</p>
   <p>
-    <code>LOCAL-FIRST</code> &nbsp; <code>INSTALLABLE PWA</code> &nbsp; <code>NO ACCOUNT</code> &nbsp; <code>BUILT FOR GENTLENESS</code>
+    <code>LOCAL-FIRST</code> &nbsp; <code>INSTALLABLE PWA</code> &nbsp; <code>NO ACCOUNT</code> &nbsp; <code>MIT LICENSE · SOURCE</code> &nbsp; <code>BUILT FOR GENTLENESS</code>
   </p>
   <p>
     <a href="https://github.com/mcochranca-code/stillpoint-recovery/archive/refs/heads/main.zip"><strong>Download the source ZIP</strong></a>
     &nbsp; · &nbsp;
-    <a href="#take-a-look-around">Explore the app</a>
+    <a href="https://stillpoint-wulrzf.manus.space"><strong>Open the live app</strong></a>
+    &nbsp; · &nbsp;
+    <a href="#take-a-look-around">See the screenshots</a>
     &nbsp; · &nbsp;
     <a href="#run-it-on-your-device">Run it on your device</a>
   </p>
@@ -78,10 +80,11 @@ Recovery is personal. Stillpoint is designed to make room for reflection and sup
 
 - **90 original daily reflections** offer a principle, a small practice, and a question to carry. They are written for Stillpoint and are not presented as fellowship literature.
 - **NA Just for Today** opens the daily reading on the official [Narcotics Anonymous World Services site](https://na.org/daily-meditations/). Stillpoint does not copy, cache, or redistribute the copyrighted reading.
+- **Our Daily Bread resources** link to the publisher’s official [Reading Plans](https://odb.org/page/reading-plans) and [podcast catalogue](https://odb.org/podcasts/) for Discover the Word. Stillpoint adds an original companion prompt, not publisher text.
 - **Private journaling** supports gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing—with editable entries, search, and recoverable drafts.
 - **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline.
 - **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
-- **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you.
+- **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
 - **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
 
 ## Motion is part of the design—not decoration
@@ -150,13 +153,17 @@ Date-only recovery dates are interpreted as local midnight. If you add a start t
 
 Stillpoint is a personal reflection companion—not medical care, treatment, diagnosis, or an emergency service. Spiritual content and meditation are optional encouragement, never a measure of faith or worth and never a replacement for professional or peer support.
 
+## Our Daily Bread resources
+
+The Today card opens the publisher’s official Reading Plans and podcast catalogue for Discover the Word. Source links were checked on October 22, 2026. Stillpoint does not reproduce, cache, proxy, or automatically fetch ODB readings, plan descriptions, episode descriptions, transcripts, or artwork. The links open in a new tab with no referrer; Stillpoint does not attach a recovery profile, sobriety date, or journal text. A normal visit may still expose connection details to the publisher, whose privacy, cookie, analytics, and terms practices apply.
+
 ## Respect for NA literature
 
 The Just for Today card links to the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS controls the reading and its publication date, which may differ from the device’s local date near timezone boundaries. Stillpoint does not rehost the text. See NAWS’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) and [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/).
 
 ## License
 
-This repository does not currently include a license file. Public visibility lets people view and download the source, but does not automatically grant rights to reuse or redistribute it. Add a license before describing the project as open source.
+The original application source code is available under the [MIT License](LICENSE). Its scope does not grant rights to bundled or user-supplied media, brand assets, third-party marks, Our Daily Bread or NAWS content, or dependency packages governed by their own licenses. Check the relevant rights before redistributing those materials.
 
 ## Built with
 
