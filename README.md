@@ -9,8 +9,6 @@
   <p>
     <a href="https://github.com/mcochranca-code/stillpoint-recovery/archive/refs/heads/main.zip"><strong>Download the source ZIP</strong></a>
     &nbsp; · &nbsp;
-    <a href="https://stillpoint-wulrzf.manus.space"><strong>Open the live app</strong></a>
-    &nbsp; · &nbsp;
     <a href="#take-a-look-around">See the screenshots</a>
     &nbsp; · &nbsp;
     <a href="#run-it-on-your-device">Run it on your device</a>
@@ -62,6 +60,8 @@ flowchart LR
     Choice --> Reset[90-second Reset]
     Choice --> Practice[Meditation]
     Choice --> Review[Progress or Garden]
+    Choice --> Meet[AA/NA meeting list]
+    Meet --> Snapshot[Locally bundled county listings]
     Reflect --> Local[Saved locally on this device]
     Write --> Local
     Reset --> Local
@@ -90,7 +90,7 @@ The choices are invitations rather than requirements. No route depends on a stre
     <td width="50%" valign="top">
       <a href="docs/media/meditation.webp"><img src="docs/media/meditation.webp" alt="Meditation studio with selectable 2, 5, 10 and 20 minute sessions and gentle practices" width="100%"></a>
       <h3>Meditation — gentle by design</h3>
-      <p>Choose a 2, 5, 10, or 20 minute practice. Optional local soundscapes stay silent until you choose them, and every session works without audio.</p>
+      <p>Choose a 2, 5, 10, or 20 minute practice. Box Breathing follows a highlighted sphere around the square in phase with the text cues; optional local soundscapes stay silent until you choose them.</p>
     </td>
     <td width="50%" valign="top">
       <a href="docs/media/library.webp"><img src="docs/media/library.webp" alt="Library screen with the official NA link, original reflections, scripture, principles, meditation and collection tabs" width="100%"></a>
@@ -99,6 +99,9 @@ The choices are invitations rather than requirements. No route depends on a stre
     </td>
   </tr>
 </table>
+
+<h3>Local peer support — when you want it</h3>
+<p>The Meetings tab includes a dated, offline-friendly snapshot of public AA and NA listings for Stanislaus County, with fellowship, day, city, and text filters. Listings were checked on October 23, 2026; see the <a href="docs/meeting-sources.md">source and privacy notes</a>. Confirm time and place with the <a href="https://cviaa.org/aa/meetings/">official Central Valley Intergroup AA directory</a> or <a href="https://svgna.org/svgna-meeting-schedule">official SVGNA schedule</a> before traveling. The app does not request location or record attendance; opening an external directory or map may disclose normal connection metadata.</p>
 
 <p align="center"><sub>Product screenshots use a local demo profile with sample activity. No private journal content or personal contacts are shown.</sub></p>
 
@@ -112,36 +115,37 @@ The choices are invitations rather than requirements. No route depends on a stre
 - **NA Just for Today** opens the daily reading on the official [Narcotics Anonymous World Services site](https://na.org/daily-meditations/). The app remains an official-link-only integration and does not copy or cache the reading. An authorized archival copy of the book is separately documented under [`docs/copyright/`](docs/copyright/).
 - **Our Daily Bread resources** link to the publisher’s official [Reading Plans](https://odb.org/page/reading-plans) and [podcast catalogue](https://odb.org/podcasts/) for Discover the Word. Stillpoint adds an original companion prompt, not publisher text.
 - **Private journaling** supports gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing—with editable entries, search, and recoverable drafts.
-- **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline.
+- **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline. In active Box Breathing, a highlighted sphere moves around the square in time with the inhale/hold/exhale/rest cues.
+- **Meetings** adds a dated, offline-friendly AA/NA snapshot for Stanislaus County with fellowship, weekday, city and text filters. The listings were checked October 23, 2026; see [source and privacy notes](docs/meeting-sources.md), and confirm details with the official directories before traveling.
 - **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
 - **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
 - **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
 
 ## How the pieces fit together
 
-Stillpoint is a client-only React application. Features read and write through typed repositories backed by Dexie and IndexedDB; the browser is the system of record. Static content such as reflections, exercises, scripture references, themes, and charm definitions is bundled with the app.
+Stillpoint is a client-only React application. Features read and write through typed repositories backed by Dexie and IndexedDB; the browser is the system of record. Static content such as reflections, exercises, scripture references, themes, charm definitions, and the dated meeting snapshot is bundled with the app.
 
 ```mermaid
 flowchart TD
-    UI[React routes and accessible components] --> Features[Feature pages\nToday · Progress · Journal · Meditation\nLibrary · Reset · Garden · Field Guide · Settings]
+    UI[React routes and accessible components] --> Features[Feature pages\nToday · Progress · Journal · Meditation\nMeetings · Library · Reset · Garden · Field Guide · Settings]
     Features --> Domain[Typed domain rules\ndates · timers · milestones · sharing]
     Features --> Repositories[Database repositories]
     Repositories --> IndexedDB[(IndexedDB\nStillpointRecovery)]
-    Static[Bundled local content\nreflections · exercises · scripture · charms] --> Features
+    Static[Bundled local content\nreflections · exercises · scripture · charms · meeting snapshot] --> Features
     IndexedDB --> Backup[Versioned JSON backup]
     Backup -->|User chooses a file| Restore[Validated import and merge]
     Restore --> IndexedDB
-    External[Official NAWS and ODB links] -. explicit click only .-> Browser[New browser tab]
+    External[Official NAWS, ODB, AA/NA directories and maps] -. explicit click only .-> Browser[New browser tab]
     Browser -. no recovery payload .-> External
 ```
 
-There is no application API, account system, analytics pipeline, or cloud database in the core experience. An external resource is opened only when the user chooses its link; the app does not fetch or rehost publisher content.
+There is no application API, account system, analytics pipeline, or cloud database in the core experience. Meeting filters run locally over the bundled snapshot; no location or attendance is collected. An external directory or map opens only after the user chooses its link; the app does not fetch or rehost publisher content.
 
 ## Motion is part of the design—not decoration
 
-The app uses small CSS transitions for feedback and a slow, expanding meditation orb for optional practice. The README motion previews are source-controlled HTML/CSS compositions and open only when you choose them. Their motion draws from the same gentle visual language as the product: quiet floating, a soft pulse, and a gradual ring—never flashing or strobing.
+The app uses small CSS transitions for feedback and gentle meditation visuals. In an active Box Breathing session, the highlighted sphere follows the inhale, optional hold, exhale, and rest phases around a square, using the same elapsed-time clock as the phase label. Pause freezes its position; reduced motion keeps it still. The README motion previews are source-controlled HTML/CSS compositions and open only when you choose them. Motion is quiet and non-flashing.
 
-Stillpoint also honors reduced-motion preferences. The meditation artwork uses an eight-second ease-in/ease-out cycle, and the interface disables nonessential animation when reduced motion is requested:
+Other meditation-orb artwork uses a slow eight-second ease-in/ease-out cycle. The interface disables nonessential animation when reduced motion is requested:
 
 ```css
 @keyframes stillpoint-breathe {
@@ -166,7 +170,7 @@ Stillpoint also honors reduced-motion preferences. The meditation artwork uses a
 }
 ```
 
-The compact [hero HTML/CSS](.github/readme-media/source/hero.html), [meditation vignette](.github/readme-media/source/breathing.html), [app motion stylesheet](public/assets/meditation/meditation-motion.css), and [render script](.github/readme-media/render.sh) are available in the repository. The motion examples were informed by [Prismic’s CSS animation examples](https://prismic.io/blog/css-animation-examples); they are adapted to Stillpoint’s palette, product, and reduced-motion behavior.
+The compact [hero HTML/CSS](.github/readme-media/source/hero.html), [meditation vignette](.github/readme-media/source/breathing.html), [app motion stylesheet](public/assets/meditation/meditation-motion.css), [phase-position helper](src/features/meditation/breathingVisual.ts), [box-orb styling](src/features/meditation/box-breathing.css), and [render script](.github/readme-media/render.sh) are available in the repository. The motion examples were informed by [Prismic’s CSS animation examples](https://prismic.io/blog/css-animation-examples); they are adapted to Stillpoint’s palette, product, and reduced-motion behavior.
 
 ## Run it on your device
 
@@ -195,7 +199,7 @@ The production build creates `dist/`, a web app manifest, a service worker, and 
 
 ### Install and offline behavior
 
-The manifest uses standalone display mode and provides shortcuts for **Today**, **I need a moment**, and **Living Garden**. The service worker precaches the app shell and generated asset manifest, serves cached assets locally, and falls back to the cached root for navigation when a network request fails. The official NAWS and Our Daily Bread links remain normal external web visits and therefore need a connection when opened.
+The manifest uses standalone display mode and provides shortcuts for **Today**, **I need a moment**, and **Living Garden**. The service worker precaches the app shell and generated asset manifest, serves cached assets locally, and falls back to the cached root for navigation when a network request fails. Official NAWS, Our Daily Bread, AA/NA directory, and map links remain normal external web visits and therefore need a connection when opened.
 
 ```mermaid
 sequenceDiagram
@@ -248,13 +252,14 @@ React · TypeScript · Vite · Tailwind CSS · Framer Motion · Dexie/IndexedDB 
 <summary><strong>Project map</strong></summary>
 
 - `src/app/` — application shell, routes, onboarding, and dialog focus management.
-- `src/features/` — Today, Progress, Journal, Meditation, Library, Settings, Reset, Garden, and Field Guide.
+- `src/features/` — Today, Progress, Journal, Meditation, Meetings, Library, Settings, Reset, Garden, and Field Guide.
 - `src/components/` — reusable interface components and dialogs.
 - `src/db/` — IndexedDB schema, migrations, repositories, milestones, and JSON backups.
 - `src/domain/` — typed data, date math, sharing, achievement criteria, and domain calculations.
-- `src/data/` — local reflections, scripture, exercises, charms, and palettes.
+- `src/data/` — local reflections, scripture, exercises, charms, palettes, and the dated Stanislaus meeting snapshot.
 - `public/` — supplied brand assets, local soundscapes, PWA manifest, and service worker.
 - `docs/media/` — still and motion visuals used by this README.
+- `docs/meeting-sources.md` — source dates, directory links, and privacy boundaries for the bundled county schedule.
 - `docs/copyright/` — authorized third-party literature, attribution notices, and a non-reproducing navigation index.
 - `.github/readme-media/` — editable HTML/CSS motion sources and their renderer.
 
@@ -268,6 +273,7 @@ flowchart LR
     Shell --> Progress[/progress\nactivity · milestones · goals /]
     Shell --> Journal[/journal\nprivate entries · drafts · search /]
     Shell --> Meditation[/meditation\nexercises · timer · sessions /]
+    Shell --> Meetings[/meetings\nAA · NA · local snapshot /]
     Shell --> Library[/library\nreadings · practices · collection /]
     Shell --> Reset[/reset\nbrief grounding flow /]
     Shell --> Garden[/garden\nnon-punitive visual growth /]
@@ -288,7 +294,7 @@ pnpm build        # production bundle plus precache manifest
 pnpm preview      # serve the production build locally
 ```
 
-When changing a feature, keep recovery data local by default, preserve keyboard and reduced-motion behavior, and avoid claiming encryption or clinical outcomes. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before opening a pull request. The automated tests cover date and timer rules, backup validation, sharing previews, content, focus behavior, ambient audio, and external-resource cards.
+When changing a feature, keep recovery data local by default, preserve keyboard and reduced-motion behavior, and avoid claiming encryption or clinical outcomes. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before opening a pull request. The automated tests cover date and timer rules, backup validation, sharing previews, content, focus behavior, ambient audio, external-resource cards, meeting filters, and Box Breathing phase positions.
 
 ## Project wiki
 

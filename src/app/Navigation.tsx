@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { BookOpen, ChartNoAxesColumnIncreasing, Compass, Heart, Home, Settings, Wind } from 'lucide-react';
+import { BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, Compass, Heart, Home, Settings, Wind } from 'lucide-react';
 
 const items = [
   { to: '/', label: 'Today', icon: Home, end: true },
   { to: '/progress', label: 'Progress', icon: ChartNoAxesColumnIncreasing },
   { to: '/journal', label: 'Journal', icon: BookOpen },
   { to: '/meditation', label: 'Meditation', icon: Heart },
+  { to: '/meetings', label: 'Meetings', icon: CalendarDays },
   { to: '/library', label: 'Library', icon: Compass },
 ];
 

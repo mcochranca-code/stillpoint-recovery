@@ -12,7 +12,7 @@ pnpm test
 pnpm build
 ```
 
-The test suite uses Vitest with a JSDOM environment and Testing Library. Coverage includes date and timer math, achievement rules, backup validation and merge behavior, share previews, content integrity, dialog focus, ambient audio, and external-resource cards.
+The test suite uses Vitest with a JSDOM environment and Testing Library. Coverage includes date and timer math, achievement rules, backup validation and merge behavior, share previews, content integrity, dialog focus, ambient audio, external-resource cards, meeting filters, and Box Breathing sphere-path calculations.
 
 ## GitHub Actions
 

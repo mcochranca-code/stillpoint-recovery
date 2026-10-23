@@ -5,6 +5,7 @@
     { "path": "/journal", "title": "Journal" },
     { "path": "/meditation", "title": "Meditation" },
     { "path": "/library", "title": "Library" },
+    { "path": "/meetings", "title": "Stanislaus County Meetings" },
     { "path": "/settings", "title": "Settings" },
     { "path": "/reset", "title": "I Need a Moment" },
     { "path": "/garden", "title": "Living Garden" },

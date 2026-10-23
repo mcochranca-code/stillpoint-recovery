@@ -10,6 +10,8 @@ import { updateDailyActivity } from '../../db/repository';
 import { meditationExercises } from '../../data/exercises';
 import { elapsedParts, formatLocalDate } from '../../domain/time';
 import type { ActiveMeditationSession, MeditationExercise, MeditationSession } from '../../domain/types';
+import { getBoxBreathingOrbPosition } from './breathingVisual';
+import './box-breathing.css';
 
 const durations = [2, 5, 10, 20] as const;
 type Duration = (typeof durations)[number];
@@ -21,11 +23,11 @@ function currentPhase(exercise: MeditationExercise, elapsedSeconds: number, allo
   let inCycle = Math.max(0, elapsedSeconds) % cycle;
   let index = 0;
   for (const phase of safePhases) {
-    if (inCycle < phase.seconds) return { phase, index, remaining: Math.max(1, Math.ceil(phase.seconds - inCycle)) };
+    if (inCycle < phase.seconds) return { phase, index, remaining: Math.max(1, Math.ceil(phase.seconds - inCycle)), progress: Math.min(1, inCycle / phase.seconds) };
     inCycle -= phase.seconds;
     index += 1;
   }
-  return { phase: safePhases[0]!, index: 0, remaining: safePhases[0]!.seconds };
+  return { phase: safePhases[0]!, index: 0, remaining: safePhases[0]!.seconds, progress: 0 };
 }
 
 function phaseClass(label: string) {
@@ -47,11 +49,10 @@ export function MeditationPage() {
   const exercise = meditationExercises.find((item) => item.id === (active?.exerciseId ?? selectedId)) ?? meditationExercises[0]!;
   const elapsedMs = active ? active.elapsedMs + (active.status === 'running' && active.segmentStartedAt ? Math.max(0, now - active.segmentStartedAt) : 0) : 0;
   const totalMs = active ? active.plannedMinutes * 60_000 : duration * 60_000;
-  const elapsedSeconds = Math.floor(elapsedMs / 1000);
   const remainingSeconds = Math.max(0, Math.ceil((totalMs - elapsedMs) / 1000));
   const elapsedDisplay = `${String(Math.floor(remainingSeconds / 60)).padStart(2, '0')}:${String(remainingSeconds % 60).padStart(2, '0')}`;
   const progress = totalMs ? Math.min(100, elapsedMs / totalMs * 100) : 0;
-  const phaseInfo = useMemo(() => currentPhase(exercise, elapsedSeconds, preferences?.allowBreathHolds ?? false), [exercise, elapsedSeconds, preferences?.allowBreathHolds]);
+  const phaseInfo = useMemo(() => currentPhase(exercise, elapsedMs / 1000, preferences?.allowBreathHolds ?? false), [exercise, elapsedMs, preferences?.allowBreathHolds]);
   const activeId = active?.id;
   const activeStatus = active?.status;
   const phaseLabel = phaseInfo.phase.label;
@@ -162,6 +163,8 @@ export function MeditationPage() {
 
   const selectedForPreview = meditationExercises.find((item) => item.id === selectedId) ?? meditationExercises[0]!;
   const displayExercise = active ? exercise : selectedForPreview;
+  const boxPhaseIndex = phaseInfo.phase.label === 'Breathe in' ? 0 : phaseInfo.phase.label === 'Hold' ? 1 : phaseInfo.phase.label === 'Breathe out' ? 2 : phaseInfo.phase.label === 'Rest' ? 3 : phaseInfo.index;
+  const boxOrbPosition = getBoxBreathingOrbPosition(boxPhaseIndex, phaseInfo.progress, preferences?.allowBreathHolds ?? false);
   const visualSrc = displayExercise.visual === 'orb' ? '/assets/meditation/breathing-orb.svg'
     : displayExercise.visual === 'box' ? '/assets/meditation/box-breathing.svg'
       : displayExercise.visual === 'ripples' ? '/assets/meditation/grounding-ripples.svg'
@@ -196,7 +199,7 @@ export function MeditationPage() {
           <div className="active-session-header"><div><p className="eyebrow">{active.status === 'paused' ? 'Paused · take your time' : 'A few minutes for this moment'}</p><h2>{exercise.name}</h2><p>{exercise.description}</p></div><span className="pill">{active.plannedMinutes} minutes</span></div>
           <div className="meditation-session-layout">
             <div className="meditation-visual-stage" aria-hidden="true">
-              {preferences?.hideMeditationVisual ? <div className="visual-hidden"><Wind size={32} /><span>Visual guide hidden</span></div> : <div className={`meditation-visual ${displayExercise.visual} phase-${phaseClass(phaseInfo.phase.label)}${active.status === 'paused' ? ' paused' : ''}`} style={{ transitionDuration: `${phaseInfo.phase.seconds}s` }}><img src={visualSrc} alt="" /></div>}
+              {preferences?.hideMeditationVisual ? <div className="visual-hidden"><Wind size={32} /><span>Visual guide hidden</span></div> : <div className={`meditation-visual ${displayExercise.visual} phase-${phaseClass(phaseInfo.phase.label)}${active.status === 'paused' ? ' paused' : ''}`} style={{ transitionDuration: `${phaseInfo.phase.seconds}s` }}>{displayExercise.visual === 'box' ? <div className="box-breathing-guide"><div className="box-breathing-track"><span className="box-breathing-orb" style={{ left: preferences?.reducedMotion ? '50%' : `${boxOrbPosition.x}%`, top: preferences?.reducedMotion ? '50%' : `${boxOrbPosition.y}%` }} /></div><span className="box-breathing-caption">A moving circle follows each phase</span></div> : <img src={visualSrc} alt="" />}</div>}
             </div>
             <div className="session-readout"><span className="phase-label" aria-live="polite">{active.status === 'paused' ? 'Paused' : phaseInfo.phase.label}</span><strong className="session-time" role="timer" aria-label={`${Math.floor(remainingSeconds / 60)} minutes and ${remainingSeconds % 60} seconds remaining`}>{elapsedDisplay}</strong><span className="phase-caption">{active.status === 'paused' ? 'Your timer will wait until you resume.' : `Next gentle cue in ${phaseInfo.remaining} seconds.`}</span><div className="session-progress" role="progressbar" aria-label="Meditation time elapsed" aria-valuenow={Math.round(progress)} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${progress}%` }} /></div><p className="fine-print">Follow only what feels comfortable. Return to natural breathing or stop whenever you need.</p>
               <div className="session-controls">{active.status === 'running' ? <button className="button button-primary" onClick={() => void pauseSession()}><Pause size={16} /> Pause</button> : <button className="button button-primary" onClick={() => void resumeSession()}><Play size={16} /> Resume</button>}<button className="button button-secondary" onClick={() => void finishEarly(true)}><RotateCcw size={16} /> Restart</button><button className="button button-quiet" onClick={() => void finishEarly()}><Square size={14} /> End session</button></div>
