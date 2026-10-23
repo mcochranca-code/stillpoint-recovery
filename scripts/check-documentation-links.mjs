@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* global AbortController, clearTimeout, console, fetch, setTimeout */
 
 import { execFileSync } from 'node:child_process';
 import { readFile, readdir, stat } from 'node:fs/promises';
