@@ -292,9 +292,12 @@ pnpm lint         # ESLint checks
 pnpm test         # Vitest and Testing Library suite
 pnpm build        # production bundle plus precache manifest
 pnpm preview      # serve the production build locally
+node scripts/check-documentation-links.mjs  # links, PDF anchors, and rights references
 ```
 
-When changing a feature, keep recovery data local by default, preserve keyboard and reduced-motion behavior, and avoid claiming encryption or clinical outcomes. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before opening a pull request. The automated tests cover date and timer rules, backup validation, sharing previews, content, focus behavior, ambient audio, external-resource cards, meeting filters, and Box Breathing phase positions.
+When changing a feature, keep recovery data local by default, preserve keyboard and reduced-motion behavior, and avoid claiming encryption or clinical outcomes. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`, and the documentation checker before opening a pull request. The automated tests cover date and timer rules, backup validation, sharing previews, content, focus behavior, ambient audio, external-resource cards, meeting filters, and Box Breathing phase positions.
+
+The documentation checker runs on documentation changes, pull requests, manual dispatch, and every Monday at 08:17 UTC through [`documentation-links.yml`](.github/workflows/documentation-links.yml). It validates local Markdown links, Wiki-style `.md` links, PDF `#page=` targets, external URLs with retries, the 366-entry NA index, and required copyright/disclaimer references. It reports access-restricted external sites as warnings while failing on missing local files, invalid PDF targets, missing required notices, and confirmed broken external URLs.
 
 ## Project wiki
 

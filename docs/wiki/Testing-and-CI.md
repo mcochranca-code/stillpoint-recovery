@@ -27,6 +27,18 @@ The test suite uses Vitest with a JSDOM environment and Testing Library. Coverag
 
 The workflow has read-only repository permissions, cancels superseded runs on the same ref, and does not publish or deploy automatically. Deployment should be a separate, explicitly authorized workflow.
 
+## Documentation link checks
+
+Run the repository-native checker with:
+
+```sh
+node scripts/check-documentation-links.mjs
+```
+
+The checker scans Markdown in the README, TODO/plan files, wiki, and copyright directory. It verifies local files and Wiki-style `.md` references, same-file and cross-file anchors, PDF `#page=` targets, the 366-entry Just for Today index, required NA attribution and MIT/non-affiliation notices, and external HTTP(S) URLs with three attempts and a timeout. It fails on missing local references, invalid PDF page targets, missing rights notices, and confirmed broken external links; access-restricted responses such as 401, 403, and 429 are reported as warnings.
+
+The separate [`documentation-links.yml`](../../.github/workflows/documentation-links.yml) workflow runs on documentation changes, pull requests, manual dispatch, and every Monday at 08:17 UTC. It installs `poppler-utils` when needed so PDF page bounds are checked in CI.
+
 ## Interpreting failures
 
 - Type errors usually indicate a contract mismatch in `src/domain/`, `src/db/`, or a feature component.
