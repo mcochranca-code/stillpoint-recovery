@@ -113,7 +113,9 @@ Progress labels: `[ ]` open, `[x]` complete only after the behavior exists and e
 - Keep all Stillpoint recovery and journal data on-device. Use `target="_blank"`, `rel="noopener noreferrer"`, and `referrerPolicy="no-referrer"` for source links; no publisher data is fetched without the user opening a link.
 - Evidence: The Today card contains original companion copy, direct official links, no iframe or automatic fetch, and the source-check/privacy notice. Its test verifies both URLs, new-tab protections, no-referrer behavior and disclosure. All 42 tests pass and the production PWA build succeeds.
 
-## 17. Public GitHub MIT license and README — [ ]
+## 17. Public GitHub MIT license, README, wiki and CI — [x]
 - Add a root MIT license for original application source code, with a clear scope notice that it does not relicense user-supplied or bundled media whose separate rights are undocumented, Our Daily Bread/NAWS content or marks, or third-party dependencies governed by their own licenses.
 - Update the public README with a link to the live app, the themed milestone HTML-card capability, official ODB Reading Plans and Discover the Word links, the October 22, 2026 source-check date and external-link privacy notice, and clear code-license and media/content boundaries.
 - Keep the existing motion previews, product screenshots, download instructions, local-first privacy description, and NAWS official-link-only copyright statement accurate.
+- Add a versioned project wiki under `docs/wiki/` covering setup, architecture, privacy, PWA behavior, testing, licensing, contribution, and troubleshooting; add a read-only GitHub Actions workflow that runs the quality checks and verifies the production PWA artifact.
+- Evidence: the root `LICENSE` is standard MIT text, GitHub reports `MIT`, all 42 automated tests pass, and the local typecheck, lint, test, and production build pass.

@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Typecheck, lint, test, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+          run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Build production PWA
+        run: pnpm build
+
+      - name: Verify PWA output
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/index.html
+          test -s dist/manifest.webmanifest
+          test -s dist/sw.js
+          test -s dist/precache-manifest.json
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const manifest = JSON.parse(fs.readFileSync('dist/manifest.webmanifest', 'utf8'));
+          if (manifest.display !== 'standalone') throw new Error('PWA manifest is not standalone');
+          const precache = JSON.parse(fs.readFileSync('dist/precache-manifest.json', 'utf8'));
+          if (!Array.isArray(precache.assets) || precache.assets.length === 0) {
+            throw new Error('Precache manifest has no assets');
+          }
+          console.log(`Verified ${precache.assets.length} precached assets`);
+          NODE
+
+      - name: Upload production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: stillpoint-recovery-dist-${{ github.sha }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14

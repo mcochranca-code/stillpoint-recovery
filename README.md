@@ -18,6 +18,12 @@
 </div>
 
 <p align="center">
+  <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License"></a>
+  <a href="docs/wiki/Home.md"><img src="https://img.shields.io/badge/project-wiki-blue.svg" alt="Project wiki"></a>
+</p>
+
+<p align="center">
   <img src="docs/media/hero-still.png" alt="Stillpoint app preview with a calm recovery dashboard, progress ring, daily reflection and quiet-practice card" width="100%">
 </p>
 
@@ -40,6 +46,30 @@
 ## A recovery companion without the pressure
 
 Recovery is personal. Stillpoint is designed to make room for reflection and supportive routines without turning your life into a score. There is no leaderboard, guilt loop, forced streak, or requirement to share your story.
+
+### What happens when you use it
+
+The main path stays deliberately small: open the app, decide what you need today, and return to a private place that works even when you do not configure a recovery date.
+
+```mermaid
+flowchart LR
+    Open[Open Stillpoint] --> Setup{Optional setup}
+    Setup -->|Skip| Today[Today dashboard]
+    Setup -->|Save preferences| Today
+    Today --> Choice{What would help now?}
+    Choice --> Reflect[Reflection or scripture]
+    Choice --> Write[Journal or field guide]
+    Choice --> Reset[90-second Reset]
+    Choice --> Practice[Meditation]
+    Choice --> Review[Progress or Garden]
+    Reflect --> Local[Saved locally on this device]
+    Write --> Local
+    Reset --> Local
+    Practice --> Local
+    Review --> Local
+```
+
+The choices are invitations rather than requirements. No route depends on a streak, and changing a recovery date does not delete journals, meditation history, or earned charms.
 
 ### Take a look around
 
@@ -86,6 +116,26 @@ Recovery is personal. Stillpoint is designed to make room for reflection and sup
 - **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
 - **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
 - **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
+
+## How the pieces fit together
+
+Stillpoint is a client-only React application. Features read and write through typed repositories backed by Dexie and IndexedDB; the browser is the system of record. Static content such as reflections, exercises, scripture references, themes, and charm definitions is bundled with the app.
+
+```mermaid
+flowchart TD
+    UI[React routes and accessible components] --> Features[Feature pages\nToday · Progress · Journal · Meditation\nLibrary · Reset · Garden · Field Guide · Settings]
+    Features --> Domain[Typed domain rules\ndates · timers · milestones · sharing]
+    Features --> Repositories[Database repositories]
+    Repositories --> IndexedDB[(IndexedDB\nStillpointRecovery)]
+    Static[Bundled local content\nreflections · exercises · scripture · charms] --> Features
+    IndexedDB --> Backup[Versioned JSON backup]
+    Backup -->|User chooses a file| Restore[Validated import and merge]
+    Restore --> IndexedDB
+    External[Official NAWS and ODB links] -. explicit click only .-> Browser[New browser tab]
+    Browser -. no recovery payload .-> External
+```
+
+There is no application API, account system, analytics pipeline, or cloud database in the core experience. An external resource is opened only when the user chooses its link; the app does not fetch or rehost publisher content.
 
 ## Motion is part of the design—not decoration
 
@@ -143,6 +193,27 @@ pnpm preview
 
 The production build creates `dist/`, a web app manifest, a service worker, and a precache manifest for local app assets. Offline availability depends on the app shell and assets being successfully cached by your browser.
 
+### Install and offline behavior
+
+The manifest uses standalone display mode and provides shortcuts for **Today**, **I need a moment**, and **Living Garden**. The service worker precaches the app shell and generated asset manifest, serves cached assets locally, and falls back to the cached root for navigation when a network request fails. The official NAWS and Our Daily Bread links remain normal external web visits and therefore need a connection when opened.
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant App as Stillpoint app
+    participant Cache as Service worker cache
+    participant IDB as IndexedDB
+    participant Web as External resource
+
+    Browser->>App: Load shell
+    App->>Cache: Read precached assets
+    App->>IDB: Open local database
+    IDB-->>App: Preferences and recovery records
+    App-->>Browser: Render route
+    Browser->>Web: Only after an explicit external-link click
+    Web-->>Browser: Publisher page
+```
+
 ## Your information stays in your browser
 
 Stillpoint stores recovery dates, preferences, journals, reflections, scripture activity, meditation sessions, earned charms, and related notes in this browser’s IndexedDB. The app does not require an account or cloud sync. It does not upload journal content to an app backend.
@@ -152,6 +223,10 @@ Stillpoint stores recovery dates, preferences, journals, reflections, scripture 
 Date-only recovery dates are interpreted as local midnight. If you add a start time, the chosen local time is converted to a saved timestamp. Editing the date preserves past journal entries, sessions, and earned charms.
 
 Stillpoint is a personal reflection companion—not medical care, treatment, diagnosis, or an emergency service. Spiritual content and meditation are optional encouragement, never a measure of faith or worth and never a replacement for professional or peer support.
+
+### What is and is not private
+
+The local-first boundary is intentional, but it is not a security promise. Browser storage can be inspected by someone with access to the device or browser profile, and it can disappear when site data is cleared. Backups are ordinary JSON files, so protect them like personal notes. The app also never sends a message to a trusted contact; contact actions are user-initiated.
 
 ## Our Daily Bread resources
 
@@ -163,7 +238,7 @@ The Just for Today card links to the official [NA World Services daily-meditatio
 
 ## License
 
-The original application source code is available under the [MIT License](LICENSE). Its scope does not grant rights to bundled or user-supplied media, brand assets, third-party marks, Our Daily Bread or NAWS content, or dependency packages governed by their own licenses. Check the relevant rights before redistributing those materials.
+The repository root contains the standard [MIT License](LICENSE), and GitHub recognizes the project as MIT-licensed. It covers the original application source code and documentation contributed to this repository. Its scope does not grant rights to bundled or user-supplied media, brand assets, third-party marks, Our Daily Bread or NAWS content, or dependency packages governed by their own licenses. Check the relevant rights before redistributing those materials.
 
 ## Built with
 
@@ -183,5 +258,39 @@ React · TypeScript · Vite · Tailwind CSS · Framer Motion · Dexie/IndexedDB 
 - `.github/readme-media/` — editable HTML/CSS motion sources and their renderer.
 
 </details>
+
+### Route map
+
+```mermaid
+flowchart LR
+    Shell[App shell and navigation] --> Today[/ Today\nreflection · scripture · quick actions /]
+    Shell --> Progress[/progress\nactivity · milestones · goals /]
+    Shell --> Journal[/journal\nprivate entries · drafts · search /]
+    Shell --> Meditation[/meditation\nexercises · timer · sessions /]
+    Shell --> Library[/library\nreadings · practices · collection /]
+    Shell --> Reset[/reset\nbrief grounding flow /]
+    Shell --> Garden[/garden\nnon-punitive visual growth /]
+    Shell --> FieldGuide[/field-guide\nuser-built coping notes /]
+    Shell --> Settings[/settings\npreferences · backup · deletion /]
+```
+
+### Development and contribution
+
+The repository keeps the development loop intentionally conventional:
+
+```sh
+pnpm dev          # Vite development server on port 3000
+pnpm typecheck    # strict TypeScript diagnostics
+pnpm lint         # ESLint checks
+pnpm test         # Vitest and Testing Library suite
+pnpm build        # production bundle plus precache manifest
+pnpm preview      # serve the production build locally
+```
+
+When changing a feature, keep recovery data local by default, preserve keyboard and reduced-motion behavior, and avoid claiming encryption or clinical outcomes. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` before opening a pull request. The automated tests cover date and timer rules, backup validation, sharing previews, content, focus behavior, ambient audio, and external-resource cards.
+
+## Project wiki
+
+The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational documentation close to the implementation. It covers getting started, architecture, data and privacy, PWA/offline behavior, testing and CI, content boundaries, and contribution troubleshooting. Keeping these pages in the repository makes changes reviewable alongside code; they can also seed a GitHub Wiki if that separate space is initialized later.
 
 <p align="center"><sub>Made for the day you are in. Not affiliated with Narcotics Anonymous World Services.</sub></p>
