@@ -5,6 +5,7 @@
 This directory contains an authorized archival copy of *Just for Today: Daily Meditations for Recovering Addicts* for reference and documentation purposes:
 
 - [Download the full PDF](Just-for-Today-NA.pdf)
+- [Open the date-and-title index](Just-for-Today-index.md)
 - Title: *Just for Today*
 - Subtitle: *Daily Meditations for Recovering Addicts*
 - Copyright: © 1991 Narcotics Anonymous World Services, Inc.
