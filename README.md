@@ -109,7 +109,7 @@ The choices are invitations rather than requirements. No route depends on a stre
 ## Small practices. Useful details.
 
 - **90 original daily reflections** offer a principle, a small practice, and a question to carry. They are written for Stillpoint and are not presented as fellowship literature.
-- **NA Just for Today** opens the daily reading on the official [Narcotics Anonymous World Services site](https://na.org/daily-meditations/). Stillpoint does not copy, cache, or redistribute the copyrighted reading.
+- **NA Just for Today** opens the daily reading on the official [Narcotics Anonymous World Services site](https://na.org/daily-meditations/). The app remains an official-link-only integration and does not copy or cache the reading. An authorized archival copy of the book is separately documented under [`docs/copyright/`](docs/copyright/).
 - **Our Daily Bread resources** link to the publisher’s official [Reading Plans](https://odb.org/page/reading-plans) and [podcast catalogue](https://odb.org/podcasts/) for Discover the Word. Stillpoint adds an original companion prompt, not publisher text.
 - **Private journaling** supports gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing—with editable entries, search, and recoverable drafts.
 - **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline.
@@ -234,7 +234,7 @@ The Today card opens the publisher’s official Reading Plans and podcast catalo
 
 ## Respect for NA literature
 
-The Just for Today card links to the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS controls the reading and its publication date, which may differ from the device’s local date near timezone boundaries. Stillpoint does not rehost the text. See NAWS’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) and [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/).
+The Just for Today card links to the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS controls the reading and its publication date, which may differ from the device’s local date near timezone boundaries. The app does not rehost or embed the text. With redistribution authorization provided to the repository maintainer, an unchanged archival copy of *Just for Today: Daily Meditations for Recovering Addicts* is available in [`docs/copyright/Just-for-Today-NA.pdf`](docs/copyright/Just-for-Today-NA.pdf), with its copyright and rights boundary recorded in [`docs/copyright/README.md`](docs/copyright/README.md). See NAWS’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) and [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/).
 
 ## License
 
