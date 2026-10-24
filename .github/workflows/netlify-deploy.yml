@@ -20,7 +20,6 @@ jobs:
 
     env:
       CI: true
-      NODE_ENV: production
 
     steps:
       - name: Checkout repository
@@ -47,10 +46,15 @@ jobs:
         run: pnpm lint
 
       - name: Run tests
+        env:
+          NODE_ENV: test
         run: pnpm test
 
       - name: Build production bundle
         run: pnpm build
+
+      - name: Verify production PWA artifact
+        run: pnpm verify:pwa
 
       - name: Deploy to Netlify
         uses: netlify/actions/cli@master

@@ -33,7 +33,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage --coverage.reporter=text --coverage.reporter=html --coverage.reporter=json-summary",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "verify:pwa": "node scripts/check-pwa-artifact.mjs"
   },
   "dependencies": {
     "dexie": "4.0.10",

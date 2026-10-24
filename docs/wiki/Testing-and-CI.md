@@ -31,10 +31,12 @@ The test suite uses Vitest with a JSDOM environment and Testing Library. Coverag
 2. Restores the pnpm dependency cache.
 3. Runs typecheck, lint, and tests.
 4. Builds the production PWA.
-5. Verifies `index.html`, the standalone manifest, service worker, and a non-empty precache manifest.
+5. Runs `pnpm verify:pwa`, which validates `index.html`, the standalone manifest, route manifest, service worker, and non-empty precache manifest.
 6. Uploads `dist/` as a short-retention build artifact.
 
 The workflow has read-only repository permissions, cancels superseded runs on the same ref, and does not publish or deploy automatically. Deployment should be a separate, explicitly authorized workflow.
+
+`.github/workflows/netlify-deploy.yml` uses the same typecheck, lint, test, build, and `pnpm verify:pwa` gates before deploying `dist/`. Its tests explicitly use `NODE_ENV=test`; the production build itself relies on Vite’s production mode rather than forcing React’s test runner into a production bundle.
 
 ## Documentation link checks
 

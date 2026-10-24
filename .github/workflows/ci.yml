@@ -49,23 +49,7 @@ jobs:
         run: pnpm build
 
       - name: Verify PWA output
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -s dist/index.html
-          test -s dist/manifest.webmanifest
-          test -s dist/sw.js
-          test -s dist/precache-manifest.json
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const manifest = JSON.parse(fs.readFileSync('dist/manifest.webmanifest', 'utf8'));
-          if (manifest.display !== 'standalone') throw new Error('PWA manifest is not standalone');
-          const precache = JSON.parse(fs.readFileSync('dist/precache-manifest.json', 'utf8'));
-          if (!Array.isArray(precache.assets) || precache.assets.length === 0) {
-            throw new Error('Precache manifest has no assets');
-          }
-          console.log(`Verified ${precache.assets.length} precached assets`);
-          NODE
+        run: pnpm verify:pwa
 
       - name: Upload production artifact
         uses: actions/upload-artifact@v4

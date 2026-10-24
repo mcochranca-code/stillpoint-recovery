@@ -201,11 +201,12 @@
           <div class="command"><code>pnpm test</code><span>51 behavior-focused tests</span></div>
           <div class="command"><code>pnpm test:coverage</code><span>V8 HTML and JSON reports</span></div>
           <div class="command"><code>pnpm build</code><span>production PWA and precache manifest</span></div>
+          <div class="command"><code>pnpm verify:pwa</code><span>manifest, routes, service worker, and precache checks</span></div>
           <div class="command"><code>node scripts/check-documentation-links.mjs</code><span>links, PDF anchors, and rights references</span></div>
         </div>
         <div class="grid" style="margin-top: 18px;">
           <article class="card"><div class="kicker">Coverage</div><h3>79.28% lines</h3><p>The V8 workflow reports 79.28% lines/statements, 73.97% branches, and 60% functions for <code>src/</code>, with the HTML report uploaded as a short-retention artifact.</p></article>
-          <article class="card"><div class="kicker">Documentation</div><h3>419 local references</h3><p>The documentation workflow verifies local files, Wiki-style links, Markdown anchors, PDF page targets, required rights notices, and external URLs.</p></article>
+          <article class="card"><div class="kicker">Documentation</div><h3>421 local references</h3><p>The documentation workflow verifies local files, Wiki-style links, Markdown anchors, PDF page targets, required rights notices, and external URLs.</p></article>
           <article class="card"><div class="kicker">Recovery</div><h3>Issue, then resolve</h3><p>Failures in CI, coverage, or documentation checks create one deduplicated GitHub issue per workflow. A successful follow-up run closes the alert.</p></article>
         </div>
       </section>
