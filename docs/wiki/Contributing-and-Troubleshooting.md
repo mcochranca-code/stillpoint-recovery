@@ -1,6 +1,6 @@
 # Contributor Guidelines and Troubleshooting
 
-Stillpoint Recovery is a local-first, installable recovery companion. Contributions should make the product calmer, more understandable, more private, and more dependable without turning it into a service that requires an account or sends recovery data away from the device.
+Stillpoint Recovery is a local-first, installable recovery companion. Contributions should make the product calmer, more understandable, more private, and more dependable without turning it into a service that requires an account or sends recovery data away from the device. For a visual overview, open the [static release and contributor preview](../release-contributor-preview.html).
 
 ## Before you start
 

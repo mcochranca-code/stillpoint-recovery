@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Stillpoint Recovery npm release workflow and contributor guidelines.">
+  <title>Stillpoint Recovery — Release & Contributor Guide</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #eef1ec;
+      --muted: #a9b5aa;
+      --soft: #cad5c7;
+      --bg: #111816;
+      --panel: #17231f;
+      --panel-2: #1d2c27;
+      --line: rgba(211, 231, 215, .14);
+      --accent: #b9e6bb;
+      --accent-strong: #75c887;
+      --warm: #efd6a0;
+      --danger: #efb1a6;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .28);
+      --radius: 22px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 5%, rgba(117, 200, 135, .16), transparent 32rem),
+        radial-gradient(circle at 86% 16%, rgba(239, 214, 160, .10), transparent 25rem),
+        var(--bg);
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-underline-offset: .22em; }
+    a:hover { color: #e4f7df; }
+    code { color: var(--warm); font-family: "SFMono-Regular", Consolas, monospace; font-size: .9em; }
+
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center; gap: 24px;
+      padding: 28px 0 18px;
+    }
+    .brand { display: inline-flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; font-weight: 700; letter-spacing: .02em; }
+    .mark { width: 36px; height: 36px; border: 1px solid rgba(185, 230, 187, .55); border-radius: 12px 12px 12px 4px; position: relative; transform: rotate(-8deg); }
+    .mark::after { content: ""; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-strong); left: 11px; top: 10px; box-shadow: 0 0 0 5px rgba(117, 200, 135, .12); }
+    nav { display: flex; flex-wrap: wrap; gap: 18px; font-size: .9rem; }
+    nav a { color: var(--muted); text-decoration: none; }
+    nav a:hover { color: var(--ink); }
+
+    .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 36px; align-items: end; padding: 72px 0 64px; }
+    .eyebrow { color: var(--accent); text-transform: uppercase; letter-spacing: .16em; font-size: .72rem; font-weight: 800; }
+    h1, h2, h3 { line-height: 1.1; letter-spacing: -.035em; margin: 0; }
+    h1 { max-width: 760px; font-size: clamp(3.4rem, 8vw, 7.3rem); font-weight: 650; }
+    h2 { font-size: clamp(2rem, 4vw, 3.5rem); }
+    h3 { font-size: 1.15rem; letter-spacing: -.015em; }
+    .hero p { max-width: 650px; color: var(--soft); font-size: 1.12rem; margin: 25px 0 0; }
+    .hero-card { padding: 28px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, rgba(29, 44, 39, .92), rgba(23, 35, 31, .72)); box-shadow: var(--shadow); }
+    .hero-card strong { display: block; color: var(--warm); font-size: .78rem; text-transform: uppercase; letter-spacing: .14em; margin-bottom: 15px; }
+    .hero-card p { margin: 0; font-size: 1rem; }
+    .status { display: flex; gap: 9px; align-items: center; margin-top: 24px; color: var(--muted); font-size: .9rem; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent-strong); box-shadow: 0 0 0 6px rgba(117, 200, 135, .12); }
+
+    .section { padding: 72px 0; border-top: 1px solid var(--line); }
+    .section-head { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 30px; }
+    .section-head p { color: var(--muted); max-width: 480px; margin: 0; }
+
+    .pipeline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .step { min-height: 220px; padding: 22px; border: 1px solid var(--line); border-radius: 18px; background: rgba(23, 35, 31, .75); position: relative; }
+    .step::after { content: "→"; position: absolute; right: -17px; top: 28px; color: var(--accent-strong); font-size: 1.4rem; z-index: 2; }
+    .step:last-child::after { display: none; }
+    .step-num { color: var(--warm); font: 700 .78rem/1 "SFMono-Regular", Consolas, monospace; }
+    .step h3 { margin-top: 45px; }
+    .step p { color: var(--muted); font-size: .92rem; margin-bottom: 0; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { padding: 26px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; }
+    .card p, .card li { color: var(--muted); font-size: .94rem; }
+    .card ul { padding-left: 20px; margin-bottom: 0; }
+    .card li + li { margin-top: 8px; }
+    .card .kicker { color: var(--accent); font: 700 .72rem/1 "SFMono-Regular", Consolas, monospace; text-transform: uppercase; letter-spacing: .12em; margin-bottom: 18px; }
+
+    .commands { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .command { display: flex; justify-content: space-between; gap: 18px; align-items: center; padding: 17px 20px; border: 1px solid var(--line); border-radius: 14px; background: #101a17; }
+    .command span { color: var(--muted); font-size: .9rem; }
+    .command code { white-space: nowrap; }
+
+    .callout { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: start; padding: 26px; border-radius: 18px; border: 1px solid rgba(239, 214, 160, .25); background: rgba(239, 214, 160, .07); }
+    .callout-mark { width: 30px; height: 30px; border: 1px solid var(--warm); border-radius: 50%; color: var(--warm); display: grid; place-items: center; font-weight: 800; }
+    .callout p { color: var(--soft); margin: 7px 0 0; }
+
+    .release-table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: .94rem; }
+    .release-table th, .release-table td { padding: 15px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .release-table th { color: var(--warm); font-size: .73rem; text-transform: uppercase; letter-spacing: .12em; }
+    .release-table td { color: var(--muted); }
+    .release-table td:first-child { color: var(--ink); font-weight: 650; }
+
+    footer { padding: 42px 0 70px; color: var(--muted); font-size: .88rem; display: flex; justify-content: space-between; gap: 20px; }
+    footer p { margin: 0; }
+    .links { display: flex; flex-wrap: wrap; gap: 16px; }
+
+    @media (max-width: 900px) {
+      .hero { grid-template-columns: 1fr; padding-top: 48px; }
+      .pipeline { grid-template-columns: repeat(2, 1fr); }
+      .step::after { display: none; }
+      .grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 28px, 1180px); }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      nav { gap: 12px; }
+      h1 { font-size: clamp(3rem, 17vw, 5rem); }
+      .pipeline, .grid, .commands { grid-template-columns: 1fr; }
+      .section { padding: 52px 0; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 16px; }
+      .command { display: block; }
+      .command span { display: block; margin-top: 6px; }
+      .release-table { display: block; overflow-x: auto; white-space: nowrap; }
+      footer { display: block; }
+      footer .links { margin-top: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="../README.md"><span class="mark" aria-hidden="true"></span><span>Stillpoint Recovery</span></a>
+      <nav aria-label="Page navigation">
+        <a href="#release">Release</a>
+        <a href="#contribute">Contribute</a>
+        <a href="#quality">Quality gates</a>
+        <a href="wiki/Contributing-and-Troubleshooting.md">Full wiki guide</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <div class="eyebrow">A calm path from change to release</div>
+          <h1 id="page-title">Ship thoughtfully.</h1>
+          <p>A visual preview of the version-tagged npm release workflow and the contributor practices that protect Stillpoint’s local-first promise.</p>
+        </div>
+        <aside class="hero-card" aria-label="Release readiness summary">
+          <strong>Current package</strong>
+          <p><code>stillpoint-recovery@1.0.0</code> is configured for public npm publishing with provenance. A release requires an exact <code>v1.0.0</code>-style tag and the repository’s <code>NPM_TOKEN</code> secret.</p>
+          <div class="status"><span class="status-dot" aria-hidden="true"></span><span>Quality, coverage, docs, and build checks are automated.</span></div>
+        </aside>
+      </section>
+
+      <section class="section" id="release" aria-labelledby="release-title">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">01 / Release path</div>
+            <h2 id="release-title">One deliberate tag.</h2>
+          </div>
+          <p>The release workflow is intentionally narrow: it validates the version, proves the app still builds, then publishes the allowlisted package with npm provenance.</p>
+        </div>
+        <div class="pipeline" aria-label="npm release pipeline">
+          <article class="step"><div class="step-num">01 — PREPARE</div><h3>Update version</h3><p>Change <code>package.json</code> to the next unused semantic version.</p></article>
+          <article class="step"><div class="step-num">02 — TAG</div><h3>Push vX.Y.Z</h3><p>The workflow runs only for tags matching <code>v*.*.*</code>.</p></article>
+          <article class="step"><div class="step-num">03 — VERIFY</div><h3>Match exactly</h3><p>The tag must equal <code>v${package.version}</code> or publishing stops.</p></article>
+          <article class="step"><div class="step-num">04 — PROVE</div><h3>Run gates</h3><p>Typecheck, lint, 51 tests, and the production PWA build must pass.</p></article>
+          <article class="step"><div class="step-num">05 — PUBLISH</div><h3>Provenance</h3><p>npm publishes the allowlisted package publicly using <code>NPM_TOKEN</code>.</p></article>
+        </div>
+        <div class="callout" style="margin-top: 18px;">
+          <div class="callout-mark" aria-hidden="true">!</div>
+          <div><strong>Package boundary matters.</strong><p>The npm allowlist includes app source, runtime assets, build files, README, and MIT license metadata. The NA PDF, copyright directory, repository workflows, and README-only media are excluded.</p></div>
+        </div>
+      </section>
+
+      <section class="section" id="contribute" aria-labelledby="contribute-title">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">02 / Contributor practice</div>
+            <h2 id="contribute-title">Make the quiet parts count.</h2>
+          </div>
+          <p>Contributors protect user control, privacy, accessibility, and the difference between supportive software and clinical claims.</p>
+        </div>
+        <div class="grid">
+          <article class="card"><div class="kicker">Privacy</div><h3>Local by default</h3><ul><li>No hidden uploads, analytics, account requirements, or remote persistence.</li><li>Keep IndexedDB and backup behavior explicit and reversible.</li><li>Never claim encryption or guaranteed offline persistence without evidence.</li></ul></article>
+          <article class="card"><div class="kicker">Interface</div><h3>Gentle and operable</h3><ul><li>Preserve keyboard access, visible focus, text scaling, and high contrast.</li><li>Respect reduced motion and discreet-mode behavior.</li><li>Confirm destructive actions and explain what will be deleted.</li></ul></article>
+          <article class="card"><div class="kicker">Content</div><h3>Clear rights boundaries</h3><ul><li>Prefer official publisher links for recovery resources.</li><li>Keep third-party literature link-only unless authorization is documented.</li><li>Maintain attribution and non-affiliation notices.</li></ul></article>
+        </div>
+      </section>
+
+      <section class="section" id="quality" aria-labelledby="quality-title">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">03 / Quality rhythm</div>
+            <h2 id="quality-title">Small checks, early.</h2>
+          </div>
+          <p>Run the same gates locally that run on GitHub. The goal is feedback before a change becomes a release.</p>
+        </div>
+        <div class="commands" aria-label="Contributor commands">
+          <div class="command"><code>pnpm typecheck</code><span>strict TypeScript diagnostics</span></div>
+          <div class="command"><code>pnpm lint</code><span>ESLint and accessibility guardrails</span></div>
+          <div class="command"><code>pnpm test</code><span>51 behavior-focused tests</span></div>
+          <div class="command"><code>pnpm test:coverage</code><span>V8 HTML and JSON reports</span></div>
+          <div class="command"><code>pnpm build</code><span>production PWA and precache manifest</span></div>
+          <div class="command"><code>node scripts/check-documentation-links.mjs</code><span>links, PDF anchors, and rights references</span></div>
+        </div>
+        <div class="grid" style="margin-top: 18px;">
+          <article class="card"><div class="kicker">Coverage</div><h3>79.28% lines</h3><p>The V8 workflow reports 79.28% lines/statements, 73.97% branches, and 60% functions for <code>src/</code>, with the HTML report uploaded as a short-retention artifact.</p></article>
+          <article class="card"><div class="kicker">Documentation</div><h3>419 local references</h3><p>The documentation workflow verifies local files, Wiki-style links, Markdown anchors, PDF page targets, required rights notices, and external URLs.</p></article>
+          <article class="card"><div class="kicker">Recovery</div><h3>Issue, then resolve</h3><p>Failures in CI, coverage, or documentation checks create one deduplicated GitHub issue per workflow. A successful follow-up run closes the alert.</p></article>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="checklist-title">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">04 / Pull request checklist</div>
+            <h2 id="checklist-title">Leave a clear trail.</h2>
+          </div>
+          <p>Every change should tell the next contributor what moved, why it matters, and how it was checked.</p>
+        </div>
+        <table class="release-table">
+          <thead><tr><th>Before opening</th><th>What to include</th></tr></thead>
+          <tbody>
+            <tr><td>Branch and scope</td><td>Use a focused branch and keep one behavior or documentation concern per pull request when possible.</td></tr>
+            <tr><td>Behavior</td><td>Describe user-facing changes, privacy impact, migration concerns, and accessibility decisions.</td></tr>
+            <tr><td>Evidence</td><td>List typecheck, lint, tests, coverage, build, and documentation checks that were run.</td></tr>
+            <tr><td>Visual changes</td><td>Include screenshots or a short recording for responsive, reduced-motion, or interaction changes.</td></tr>
+            <tr><td>Boundaries</td><td>Call out changes to external links, copyright, service-worker caching, IndexedDB, backup formats, or release metadata.</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer>
+      <p>Stillpoint Recovery · local-first · installable · MIT-licensed source</p>
+      <div class="links">
+        <a href="../README.md">README</a>
+        <a href="wiki/Testing-and-CI.md">Testing and CI</a>
+        <a href="wiki/Content-and-Licensing.md">Content and licensing</a>
+        <a href="../.github/workflows/release-npm.yml">Release workflow</a>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
