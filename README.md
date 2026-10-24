@@ -307,6 +307,6 @@ The documentation checker runs on documentation changes, pull requests, manual d
 
 ## Project wiki
 
-The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational documentation close to the implementation. It covers getting started, architecture, data and privacy, PWA/offline behavior, testing and CI, content boundaries, and contribution troubleshooting. The [static release and contributor preview](docs/release-contributor-preview.html) presents the npm release path and contributor quality rhythm visually. Keeping these pages in the repository makes changes reviewable alongside code; they can also seed a GitHub Wiki if that separate space is initialized later.
+The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational documentation close to the implementation. It covers getting started, architecture, data and privacy, PWA/offline behavior, testing and CI, content boundaries, and contribution troubleshooting. The [static release and contributor preview](docs/release-contributor-preview.html) presents the npm release path and contributor quality rhythm visually, while the [interactive GitHub dashboard](docs/release-contributor-dashboard.html) reads current public workflow, issue, commit, pull-request, and comment data without a backend or token. Keeping these pages in the repository makes changes reviewable alongside code; they can also seed a GitHub Wiki if that separate space is initialized later.
 
 <p align="center"><sub>Made for the day you are in. Not affiliated with Narcotics Anonymous World Services.</sub></p>
