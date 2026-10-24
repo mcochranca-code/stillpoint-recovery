@@ -19,6 +19,10 @@ The test suite uses Vitest with a JSDOM environment and Testing Library. Coverag
 
 `.github/workflows/coverage.yml` runs on pushes to `main`, pull requests, manual dispatch, and every Monday at 08:47 UTC. It runs all Vitest tests with the V8 provider, scopes instrumentation to `src/**/*.{ts,tsx}`, writes text/HTML/JSON-summary reports, adds line/branch/function percentages to the GitHub job summary, and uploads the complete `coverage/` directory as a 14-day artifact. The workflow reports coverage without enforcing a threshold, so coverage can improve incrementally without masking a failing test suite.
 
+## Failure notifications
+
+`.github/workflows/notify-failures.yml` listens for completed runs of CI, Test coverage, and Documentation links. For a failure, cancellation, or timeout, it creates one deduplicated GitHub issue per workflow and adds later failure-run comments to that issue. A successful follow-up run comments with the recovery run and closes the alert. This provides repository-native notifications for broken links and other automated quality failures without requiring an external mail or chat credential.
+
 ## GitHub Actions
 
 `.github/workflows/ci.yml` runs on pushes to `main` and on pull requests. It:

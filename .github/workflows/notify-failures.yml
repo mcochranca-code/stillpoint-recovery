@@ -1,0 +1,76 @@
+name: Workflow failure notifications
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+      - Test coverage
+      - Documentation links
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+concurrency:
+  group: workflow-failure-notification-${{ github.event.workflow_run.name }}
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    name: Create or resolve workflow alert
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Create or update a failure issue, or close a recovered alert
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          WORKFLOW_NAME: ${{ github.event.workflow_run.name }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          title="[automation] ${WORKFLOW_NAME} workflow failure"
+          export TITLE="${title}"
+          issue_number="$(gh api --paginate "/repos/${REPO}/issues?state=open&per_page=100" \
+            --jq '.[] | select(.title == (env.TITLE)) | .number' 2>/dev/null || true)"
+
+          if [[ "${CONCLUSION}" != "success" && "${CONCLUSION}" != "skipped" ]]; then
+            body=$(cat <<EOF
+          ## Workflow failure detected
+
+          **Workflow:** ${WORKFLOW_NAME}
+          **Conclusion:** ${CONCLUSION}
+          **Branch:** ${RUN_BRANCH}
+          **Commit:** [${RUN_SHA}](https://github.com/${REPO}/commit/${RUN_SHA})
+          **Run:** [Open the failed workflow run](${RUN_URL})
+
+          This issue is maintained automatically by \\`notify-failures.yml\\`. It covers CI, test coverage, and documentation-link checks, including broken-link failures. A successful follow-up run will close this issue.
+          EOF
+          )
+
+            if [[ -n "${issue_number}" ]]; then
+              gh issue comment "${issue_number}" --repo "${REPO}" --body "${body}"
+            else
+              TITLE="${title}" gh issue create --repo "${REPO}" --title "${title}" --body "${body}"
+            fi
+          elif [[ -n "${issue_number}" ]]; then
+            recovery=$(cat <<EOF
+          ✅ **${WORKFLOW_NAME} recovered.**
+
+          Successful run: [${RUN_URL}](${RUN_URL})
+          Commit: [${RUN_SHA}](https://github.com/${REPO}/commit/${RUN_SHA})
+
+          Closing this automated alert.
+          EOF
+          )
+            gh issue comment "${issue_number}" --repo "${REPO}" --body "${recovery}"
+            gh api --method PATCH "/repos/${REPO}/issues/${issue_number}" -f state=closed >/dev/null
+          fi
+        
