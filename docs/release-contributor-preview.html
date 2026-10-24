@@ -92,6 +92,18 @@
     .callout-mark { width: 30px; height: 30px; border: 1px solid var(--warm); border-radius: 50%; color: var(--warm); display: grid; place-items: center; font-weight: 800; }
     .callout p { color: var(--soft); margin: 7px 0 0; }
 
+    .pulse-meta { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0 26px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 999px; color: var(--soft); background: rgba(23, 35, 31, .72); font-size: .82rem; }
+    .pill strong { color: var(--accent); }
+    .status-list { display: grid; gap: 10px; margin-top: 18px; }
+    .status-item { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 13px 15px; border: 1px solid var(--line); border-radius: 12px; background: #101a17; }
+    .status-item a { color: var(--ink); text-decoration: none; }
+    .status-item a:hover { color: var(--accent); }
+    .status-ok { color: var(--accent); font: 700 .76rem/1 "SFMono-Regular", Consolas, monospace; text-transform: uppercase; letter-spacing: .08em; }
+    .issue-links { display: grid; gap: 10px; margin-top: 18px; }
+    .issue-links a { color: var(--soft); font-size: .92rem; }
+    .issue-links a:hover { color: var(--accent); }
+
     .release-table { width: 100%; border-collapse: collapse; margin-top: 22px; font-size: .94rem; }
     .release-table th, .release-table td { padding: 15px 14px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
     .release-table th { color: var(--warm); font-size: .73rem; text-transform: uppercase; letter-spacing: .12em; }
@@ -133,6 +145,7 @@
         <a href="#release">Release</a>
         <a href="#contribute">Contribute</a>
         <a href="#quality">Quality gates</a>
+        <a href="#status">GitHub pulse</a>
         <a href="wiki/Contributing-and-Troubleshooting.md">Full wiki guide</a>
       </nav>
     </header>
@@ -211,10 +224,53 @@
         </div>
       </section>
 
+      <section class="section" id="status" aria-labelledby="status-title">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">04 / GitHub pulse</div>
+            <h2 id="status-title">Green, with work visible.</h2>
+          </div>
+          <p>A static snapshot of the repository status after commit <code>82c4687</code>. The links remain live so contributors can open the current run or issue details.</p>
+        </div>
+        <div class="pulse-meta" aria-label="Repository snapshot metadata">
+          <span class="pill"><strong>Snapshot</strong> 24 Oct 2026</span>
+          <span class="pill"><strong>Open issues</strong> 14</span>
+          <span class="pill"><strong>Open pull requests</strong> 0</span>
+          <span class="pill"><strong>Branch</strong> main</span>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <div class="kicker">CI / CD</div>
+            <h3>Latest checks passed</h3>
+            <div class="status-list">
+              <div class="status-item"><a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/runs/40111440019">CI · typecheck, lint, tests, build</a><span class="status-ok">Passing</span></div>
+              <div class="status-item"><a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/runs/40111439995">Test coverage</a><span class="status-ok">Passing</span></div>
+              <div class="status-item"><a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/runs/40111439963">Documentation links</a><span class="status-ok">Passing</span></div>
+              <div class="status-item"><a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/runs/40111440393">Netlify deploy</a><span class="status-ok">Live</span></div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="kicker">Open work</div>
+            <h3>14 issues, grouped by risk</h3>
+            <div class="issue-links">
+              <a href="https://github.com/mcochranca-code/stillpoint-recovery/issues/11">#11–17 · data integrity, migrations, backup, and corruption recovery</a>
+              <a href="https://github.com/mcochranca-code/stillpoint-recovery/issues/18">#18–20 · quality gates, critical flows, and PWA regression checks</a>
+              <a href="https://github.com/mcochranca-code/stillpoint-recovery/issues/21">#21–24 · privacy model, ADRs, accessibility, and maintainability</a>
+            </div>
+          </article>
+          <article class="card">
+            <div class="kicker">What changed</div>
+            <h3>Live preview is guarded</h3>
+            <p>The Netlify workflow now runs tests in test mode, verifies the standalone PWA artifact, and deploys only after the shared route, service-worker, manifest, and precache checks pass.</p>
+            <p><a href="../.github/workflows/netlify-deploy.yml">Read the deployment workflow</a> · <a href="../README.md">Open the repository README</a></p>
+          </article>
+        </div>
+      </section>
+
       <section class="section" aria-labelledby="checklist-title">
         <div class="section-head">
           <div>
-            <div class="eyebrow">04 / Pull request checklist</div>
+            <div class="eyebrow">05 / Pull request checklist</div>
             <h2 id="checklist-title">Leave a clear trail.</h2>
           </div>
           <p>Every change should tell the next contributor what moved, why it matters, and how it was checked.</p>
