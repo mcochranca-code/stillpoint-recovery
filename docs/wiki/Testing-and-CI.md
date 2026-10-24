@@ -9,10 +9,15 @@ pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint
 pnpm test
+pnpm test:coverage
 pnpm build
 ```
 
 The test suite uses Vitest with a JSDOM environment and Testing Library. Coverage includes date and timer math, achievement rules, backup validation and merge behavior, share previews, content integrity, dialog focus, ambient audio, external-resource cards, meeting filters, and Box Breathing sphere-path calculations.
+
+## Coverage workflow
+
+`.github/workflows/coverage.yml` runs on pushes to `main`, pull requests, manual dispatch, and every Monday at 08:47 UTC. It runs all Vitest tests with the V8 provider, scopes instrumentation to `src/**/*.{ts,tsx}`, writes text/HTML/JSON-summary reports, adds line/branch/function percentages to the GitHub job summary, and uploads the complete `coverage/` directory as a 14-day artifact. The workflow reports coverage without enforcing a threshold, so coverage can improve incrementally without masking a failing test suite.
 
 ## GitHub Actions
 

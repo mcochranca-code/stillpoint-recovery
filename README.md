@@ -290,6 +290,7 @@ pnpm dev          # Vite development server on port 3000
 pnpm typecheck    # strict TypeScript diagnostics
 pnpm lint         # ESLint checks
 pnpm test         # Vitest and Testing Library suite
+pnpm test:coverage # tests plus V8 HTML/JSON coverage reports
 pnpm build        # production bundle plus precache manifest
 pnpm preview      # serve the production build locally
 node scripts/check-documentation-links.mjs  # links, PDF anchors, and rights references
