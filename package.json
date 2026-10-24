@@ -1,7 +1,29 @@
 {
   "name": "stillpoint-recovery",
   "version": "1.0.0",
-  "private": true,
+  "description": "A local-first, installable recovery companion.",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src/",
+    "public/",
+    "scripts/",
+    "index.html",
+    "app.config.ts",
+    "postcss.config.js",
+    "tailwind.config.ts",
+    "tsconfig*.json",
+    "vite.config.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcochranca-code/stillpoint-recovery.git"
+  },
   "type": "module",
   "packageManager": "pnpm@11.25.0",
   "scripts": {

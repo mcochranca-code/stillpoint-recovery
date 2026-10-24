@@ -7,4 +7,4 @@
 - [PWA and Offline](PWA-and-Offline)
 - [Testing and CI](Testing-and-CI)
 - [Content and Licensing](Content-and-Licensing)
-- [Contributing and Troubleshooting](Contributing-and-Troubleshooting)
+- [Contributor Guidelines and Troubleshooting](Contributing-and-Troubleshooting)
