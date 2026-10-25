@@ -97,3 +97,15 @@ Additional constraint for this follow-up: use the project’s supplied vector as
 ## Follow-up: security, meeting search, and deployment
 
 Review the reported high and critical Dependabot alerts against the lockfile audit, update vulnerable dependency chains to patched compatible releases, and rerun all quality checks. Extend the offline meeting search with a Food Addicts option that points to its official live finder without copying results, plus inclusive local meeting start-time bounds that support crossing midnight. Keep query processing local and preserve no-location/privacy guarantees. GitHub Actions secrets remain an explicit release prerequisite for automatic Netlify deploys. Do not add an in-app map until verified per-meeting coordinates and the provider’s usage/quota are available; never geocode private user searches or substitute city centroids.
+
+
+## Follow-up: opt-in interactive meeting map
+
+Add an interactive map inside the existing `/meetings` screen. Generate a static coordinate manifest from the already-bundled public in-person address snapshot using the U.S. Census Geocoder's current address-range benchmark. Include only `Match, Exact` records, but state clearly that Census coordinates are interpolated along address ranges and may not mark a building entrance; exclude online listings, incomplete addresses, non-exact matches, ties and non-matches. Never substitute city centroids or geocode a user-entered query.
+
+Use a lazily loaded Leaflet map with the OpenStreetMap standard HTTPS tile layer, no Mapbox token or paid API. Keep tile requests dormant until the user selects “Load interactive map”; do not request geolocation, transmit local filters or recovery data, prefetch tile areas, or cache tiles through the PWA. Show visible OpenStreetMap attribution and a map-privacy note that tile requests disclose normal network metadata and the viewed map area. Group listings sharing a coordinate in one marker, provide popups plus an accessible location list, and preserve direct official-directory links. Extend the existing CSP only for the required OpenStreetMap tile image host; the current strict-origin referrer policy already permits the tile server's required web Referer.
+
+
+## Follow-up: Zoom format filter and search
+
+Extend the existing offline meeting search with a `Meeting format` selector for all, in-person, online and Zoom. The Zoom filter must use only explicit Zoom wording in the bundled official `address` or `formatNotes`; an `online` mode alone is not evidence of Zoom. Keep free-text matching local and searchable across source address and format notes so “Zoom” returns those same explicit records. If a filtered snapshot has no Zoom result, state that platform details are only shown when the official source identifies them and link back to the current official directory.

@@ -22,6 +22,16 @@ describe('filterMeetingListings', () => {
     expect(filterMeetingListings(sample, { ...base, query: 'open topic' }).map((item) => item.id)).toEqual(['na-tue']);
   });
 
+  it('filters and searches Zoom only when the source format note explicitly names it', () => {
+    const zoomListing: MeetingListing = { id: 'na-zoom', fellowship: 'NA', day: 0, dayName: 'Sunday', time: '8:00 AM', sortMinutes: 480, name: 'Virtual Sunrise', city: 'Modesto', address: 'Online meeting — Zoom meeting ID', mode: 'online', formatNotes: '1hr Click Here To Join', sourceUrl: 'https://example.org/na' };
+    const genericOnline: MeetingListing = { id: 'na-online', fellowship: 'NA', day: 0, dayName: 'Sunday', time: '9:00 AM', sortMinutes: 540, name: 'Virtual Hope', city: 'Modesto', address: 'Online', mode: 'online', formatNotes: 'Online meeting', sourceUrl: 'https://example.org/na' };
+    const listings = [...sample, zoomListing, genericOnline];
+
+    expect(filterMeetingListings(listings, { ...base, format: 'zoom' }).map((item) => item.id)).toEqual(['na-zoom']);
+    expect(filterMeetingListings(listings, { ...base, format: 'online' }).map((item) => item.id)).toEqual(['na-zoom', 'na-online']);
+    expect(filterMeetingListings(listings, { ...base, query: 'Zoom' }).map((item) => item.id)).toEqual(['na-zoom']);
+  });
+
   it('supports the Food Addicts fellowship value when a vetted listing is provided', () => {
     const foodAddicts: MeetingListing = { id: 'fa-sample', fellowship: 'FA', day: 4, dayName: 'Thursday', time: '6:00 PM', sortMinutes: 1080, name: 'FA sample', city: 'Modesto', address: '40 Elm St', mode: 'in-person', formatNotes: '', sourceUrl: 'https://www.foodaddicts.org/find-a-meeting' };
     expect(filterMeetingListings([...sample, foodAddicts], { ...base, fellowship: 'FA' }).map((item) => item.id)).toEqual(['fa-sample']);

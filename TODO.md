@@ -147,9 +147,21 @@ Progress labels: `[ ]` open, `[x]` complete only after the behavior exists and e
 ## 21. Food Addicts and granular meeting time filters — [x]
 - Add Food Addicts as an explicit fellowship filter and source option. Because the official finder is live and its results are not included in the local dataset, label the empty local result honestly and link to the official finder without sending local criteria automatically.
 - Add local start-time after/before bounds, inclusive endpoints and ranges crossing midnight. Preserve offline search, no-location, no-attendance and no-search-transmission behavior.
-- Evidence: 6 meeting-domain tests and 5 page tests pass; the page’s FA filter links to the official live finder and explicitly says an empty snapshot is not evidence of no nearby meetings. Typecheck, lint, all 76 tests, production PWA build, artifact check and Markdown link checks pass.
+- Evidence: 6 meeting-domain tests and 5 page tests pass; the page’s FA filter links to the official live finder and explicitly says an empty snapshot is not evidence of no nearby meetings. Typecheck, lint, all 83 tests, production PWA build, artifact check and Markdown link checks pass.
 
-## 22. Netlify Actions secrets and conditional map feasibility — [ ]
+## 22. Netlify Actions secrets and CI auto-deploy — [ ]
 - Store `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` as repository Actions secrets so the existing guarded workflow can deploy each successful push to `main`. Never commit or share token values in chat.
-- Add an interactive in-app map only when accurate per-meeting coordinates and the map provider’s account usage/quota are verifiably available; do not geocode at runtime or substitute city centroids. Until then, keep the explicit user-initiated external map links.
-- Evidence: GitHub Actions secret APIs returned 403 and no deploy token is available through the current connected account, so no repository secret was created. The Mapbox connector exposes no usage meter and the snapshot has no verified coordinates; the in-app map is deferred rather than guessed or geocoded.
+- Evidence: GitHub Actions secret APIs returned 403 and no deploy token is available through the current connected account, so no repository secret was created. The public Netlify deploy was published directly; future automatic deployments remain skipped until those secrets are configured.
+
+## 23. Opt-in interactive in-app meeting map — [ ]
+- Add an interactive map inside the Meetings screen that follows the current local fellowship/day/city/text/time filters. Show only public in-person listings with a Census Geocoder `Match, Exact` address-range result; omit online, incomplete, non-exact, tied and unmatched locations. Never use city-center approximations. Group listings at the same coordinate, show meeting name/day/time/address and official-directory links in map markers, and provide an accessible keyboard-operable location list.
+- Keep the map unloaded until the user chooses “Load interactive map.” Do not request device location, geocode user-entered search criteria at runtime, or send the local search/filter/recovery data to a map service. Disclose that the tile provider receives map-tile requests and may see the visitor’s ordinary connection metadata and viewed map area; identify address-range pins as approximate and direct users to confirm venue details in the official directory.
+- Use the no-key OpenStreetMap standard HTTPS tile layer with visible attribution; honor tile caching headers and valid browser Referer behavior, and do not prefetch, bulk-download, or PWA-cache tiles for offline use. Do not consume Mapbox credits or use a paid mapping/geocoding API.
+- Evidence: record the Census benchmark/check date, count exact versus omitted records, and confirm the opt-in tile behavior, accessible marker details, security-header allowance, build/tests, and public production deploy.
+
+
+
+## 24. Source-backed Zoom meeting filter and search — [x]
+- Add a local meeting-format selector for all, in-person, online and Zoom. The Zoom option must match only records whose bundled official source address or format note explicitly identifies Zoom; do not infer Zoom from a generic online label.
+- Keep search local across group, city, address and source format notes so typing “Zoom” finds the same explicitly identified listing. When no Zoom listings match, explain that the snapshot only shows source-labeled Zoom details and link to the official directory.
+- Evidence: the snapshot has one explicitly Zoom-labeled online listing and 24 generic online listings. The selector and local “Zoom” search return only the labeled entry; generic online listings are excluded. Seven domain tests, seven page tests and the full 83-test suite pass.

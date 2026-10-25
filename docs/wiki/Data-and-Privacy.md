@@ -35,3 +35,11 @@ Import validates supported backups before writing and merges records in a transa
 The NA World Services Just for Today link and Our Daily Bread links are opened only after a user click. Stillpoint does not copy, cache, proxy, or rehost those publisher readings. An external visit is subject to the publisher’s own privacy, cookies, analytics, and terms practices.
 
 Trusted contacts are user-entered. The app never sends a message or places a call automatically.
+
+## Optional interactive meeting map
+
+The bundled coordinate manifest was derived from public AA/NA meeting-address text using the U.S. Census Geocoder’s `Public_AR_Current` address-range benchmark. Only results marked `Match, Exact` were included. Those coordinates are still interpolated along Census address ranges and may not mark a building entrance. Online listings and non-exact, tied or unmatched addresses are omitted. Stillpoint does not contact the Census Geocoder at runtime; confirm meeting details and entrances with the official listing.
+
+The interactive map component is mounted only after the user selects “Load interactive map.” Its JavaScript and styles are ordinary bundled app assets and may be precached with the PWA, but no OpenStreetMap tile request is made until that choice. The browser then requests the visible tile images from the OpenStreetMap standard tile server. The tile service may receive the visitor’s IP address, ordinary request metadata and the approximate map area; the area may correlate with the locally filtered results. Tile requests do not include the filter values, search text, recovery information or device location. Stillpoint never requests geolocation.
+
+The service worker bypasses cross-origin resources, so OpenStreetMap tiles are not stored by the app and the map tiles are unavailable offline. The local meeting list remains available offline. The map displays OpenStreetMap attribution; see its [tile usage policy](https://operations.osmfoundation.org/policies/tiles/) and [copyright/attribution page](https://www.openstreetmap.org/copyright).

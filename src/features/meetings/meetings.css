@@ -55,3 +55,43 @@
   .meeting-time-filter { grid-template-columns: 1fr; }
   .meeting-time-title, .meeting-time-hint { grid-column: 1; }
 }
+
+
+.meeting-map-panel { display: grid; gap: 10px; margin: 16px 0 12px; padding: 15px; border: 1px solid var(--border); border-radius: 14px; background: var(--canvas); }
+.meeting-map-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.meeting-map-panel-heading .eyebrow { margin: 0 0 3px; }
+.meeting-map-panel-heading h3 { margin: 0; font-size: 14px; }
+.meeting-map-toggle { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 7px; }
+.meeting-map-disclosure { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
+.meeting-map-disclosure a, .meeting-map-popup a { color: var(--primary); text-underline-offset: 2px; }
+.meeting-map-slot:not([hidden]) { margin-top: 2px; }
+.meeting-map-canvas { width: 100%; height: min(50vh, 440px); min-height: 320px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.meeting-map-loading, .meeting-map-service-status { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.meeting-map-directory { margin-top: 10px; border-top: 1px solid var(--border); color: var(--ink); }
+.meeting-map-directory summary { padding: 10px 0 4px; color: var(--primary); cursor: pointer; font-size: 11px; font-weight: 700; }
+.meeting-map-directory ul { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 7px; margin: 8px 0 0; padding: 0; list-style: none; }
+.meeting-map-directory li { min-width: 0; }
+.meeting-map-directory button { width: 100%; display: grid; gap: 4px; padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--ink); text-align: left; cursor: pointer; font: inherit; font-size: 10px; }
+.meeting-map-directory button:hover, .meeting-map-directory button:focus-visible { border-color: var(--focus-ring); outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.meeting-map-directory button small { color: var(--muted); font-size: 9px; }
+.leaflet-container { z-index: 0; border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; }
+.leaflet-control-attribution { border-radius: 5px 0 0; background: color-mix(in srgb, var(--surface) 90%, transparent) !important; color: var(--muted) !important; font-size: 9px !important; }
+.leaflet-control-attribution a { color: var(--primary) !important; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { border: 1px solid var(--border); background: var(--surface); color: var(--ink); }
+.leaflet-popup-content { max-height: 260px; overflow: auto; font: inherit; font-size: 10px; line-height: 1.45; }
+.meeting-map-popup strong { display: block; margin-bottom: 5px; font-size: 11px; }
+.meeting-map-popup p { margin: 0 0 7px; color: var(--muted); }
+.meeting-map-popup ul { display: grid; gap: 8px; margin: 0; padding-left: 17px; }
+.meeting-map-popup li { padding-left: 1px; }
+.meeting-map-popup li span, .meeting-map-popup li a { display: block; }
+.meeting-map-popup li a { margin-top: 2px; }
+
+@media (max-width: 700px) {
+  .meeting-map-panel-heading { align-items: stretch; flex-direction: column; }
+  .meeting-map-toggle { width: 100%; }
+  .meeting-map-canvas { height: 360px; min-height: 280px; }
+}
+
+.meeting-empty-sources { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; margin-top: 4px; }
+.meeting-empty-sources a { display: inline-flex; align-items: center; gap: 5px; color: var(--primary); font-size: 11px; font-weight: 700; text-decoration: none; }
+.meeting-empty-sources a:hover, .meeting-empty-sources a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
