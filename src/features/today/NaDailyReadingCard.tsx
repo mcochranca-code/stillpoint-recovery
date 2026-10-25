@@ -22,6 +22,7 @@ function useLocalDateLabel(): string {
   return now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+/** Render a link-only card for the official NA Just for Today daily reading. */
 export function NaDailyReadingCard() {
   const dateLabel = useLocalDateLabel();
   const [shareStatus, setShareStatus] = useState('');

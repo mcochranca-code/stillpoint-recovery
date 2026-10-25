@@ -17,6 +17,7 @@ const practices = [
 ];
 const nextSteps = ['Move to a different room or leave a triggering place', 'Read a coping note in my Field Guide', 'Write down one small next step', 'Reach out to a trusted person', 'Take a break and return to my usual breathing', 'Choose another step for myself'];
 
+/** Render a short optional grounding flow and its locally saved completion record. */
 export function ResetPage() {
   const { preferences, notify } = useAppContext();
   const [feeling, setFeeling] = useState('');

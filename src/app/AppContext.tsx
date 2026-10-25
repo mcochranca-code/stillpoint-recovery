@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../db/database';
+import { CURRENT_SCHEMA_VERSION, db } from '../db/database';
 import { ensureDefaults } from '../db/repository';
 import type { RecoveryProfile, UserPreferences } from '../domain/types';
 
@@ -16,6 +16,7 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 
+/** Load local preferences/profile and expose their state and update actions to the app. */
 export function AppProvider({ children }: { children: ReactNode }) {
   const preferences = useLiveQuery(() => db.preferences.get('preferences'), []);
   const profile = useLiveQuery(() => db.recoveryProfiles.get('recovery-profile'), []);
@@ -91,10 +92,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ready: initialized && Boolean(preferences) && Boolean(profile),
     storageError,
     updatePreferences: async (updates) => {
-      await db.preferences.update('preferences', { ...updates, updatedAt: new Date().toISOString() });
+      await db.preferences.update('preferences', { schemaVersion: CURRENT_SCHEMA_VERSION, ...updates, updatedAt: new Date().toISOString() });
     },
     updateProfile: async (updates) => {
-      await db.recoveryProfiles.update('recovery-profile', { ...updates, updatedAt: new Date().toISOString() });
+      await db.recoveryProfiles.update('recovery-profile', { schemaVersion: CURRENT_SCHEMA_VERSION, ...updates, updatedAt: new Date().toISOString() });
     },
     notify: (message) => setNotice(message),
   }), [preferences, profile, initialized, storageError]);
@@ -107,6 +108,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 }
 
+/** Read the application context, throwing when used outside its provider. */
 export function useAppContext(): AppContextValue {
   const value = useContext(AppContext);
   if (!value) throw new Error('useAppContext must be used inside AppProvider.');

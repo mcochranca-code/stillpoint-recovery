@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, HeartHandshake, Leaf, ShieldCheck, Sparkles } from 'lucide-react';
-import { db } from '../db/database';
+import { CURRENT_SCHEMA_VERSION, db } from '../db/database';
 import { defaultPreferences } from '../db/repository';
 import { colorThemePresets } from '../data/themes';
 import { dateOnlyToTimestamp, localDateKey } from '../domain/time';
@@ -15,6 +15,7 @@ const focusOptions = [
   { id: 'custom', label: 'A focus of my choice' },
 ];
 
+/** Guide first-time setup while keeping recovery-date entry optional. */
 export default function Onboarding() {
   const { preferences, profile, notify } = useAppContext();
   const [step, setStep] = useState(0);
@@ -52,7 +53,7 @@ export default function Onboarding() {
         selectedDate = startDate;
       }
       await db.recoveryProfiles.put({
-        id: 'recovery-profile', schemaVersion: 1, startAt, localStartDate: selectedDate,
+        id: 'recovery-profile', schemaVersion: CURRENT_SCHEMA_VERSION, startAt, localStartDate: selectedDate,
         localStartTime: selectedTime, startTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         focus: focus === 'custom' ? customFocus.trim() : focus, intention: intention.trim(), updatedAt: new Date().toISOString(),
       });
@@ -83,7 +84,7 @@ export default function Onboarding() {
           <p className="eyebrow">A quiet place to begin again</p>
           <h1 id="onboarding-title">One day is enough for today.</h1>
           <p className="lead">Stillpoint is a private space for reflection, recovery practices and the progress that matters to you.</p>
-          <div className="privacy-note"><ShieldCheck size={20} /><p><strong>Your recovery stays on this device.</strong><br />No account, cloud sync, ads or analytics. Browser storage is not encrypted and can be lost if site data is cleared—use the backup option in Settings to keep a copy.</p></div>
+          <div className="privacy-note"><ShieldCheck size={20} /><p><strong>Your recovery stays in this browser profile on this device.</strong><br />No account, cloud sync, ads or analytics. Storage is not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it—download a private backup in Settings to keep a copy.</p></div>
           <button className="button button-primary button-wide" onClick={() => setStep(1)}>Make this space yours <ArrowRight size={17} /></button>
         </div>}
         {step === 1 && <div className="onboarding-content">

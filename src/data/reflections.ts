@@ -822,6 +822,7 @@ export const reflections: ReflectionContent[] = [
  * Local date parts are converted to a day number so time-of-day and time zone
  * offsets do not change the selection during the day.
  */
+/** Select the bundled reflection assigned to the given local calendar day. */
 export function getDailyReflection(date: Date = new Date()): ReflectionContent {
   const localDate = Number.isNaN(date.getTime()) ? new Date() : date;
   const dayNumber = Math.floor(

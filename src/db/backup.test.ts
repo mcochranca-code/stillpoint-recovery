@@ -1,14 +1,16 @@
 import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { db } from './database';
-import { importBackupText } from './backup';
+import { clearAllLocalData, importBackupText } from './backup';
+import { defaultPreferences, defaultRecoveryProfile } from './repository';
+import type { JournalEntry } from '../domain/types';
 
 const exportDate = '2026-10-17T12:00:00.000Z';
-const validJournalEntry = (id: string, body = 'A private note.') => ({
+const validJournalEntry = (id: string, body = 'A private note.'): JournalEntry => ({
   id, type: 'free-writing', title: 'A note', body, createdAt: exportDate, updatedAt: exportDate,
   tags: [], gratitude: [],
 });
-const backup = (schemaVersion: number, tables: Record<string, unknown[]>) => JSON.stringify({
+const backup = (schemaVersion: number, tables: Record<string, unknown>) => JSON.stringify({
   application: 'stillpoint-recovery', schemaVersion, exportedAt: exportDate, tables,
 });
 
@@ -56,6 +58,45 @@ describe('local JSON backup restore', () => {
     expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'stillpoint', supportResources: [], schemaVersion: 3 });
   });
 
+  it('replaces singleton preferences and profile while merging records from a backup', async () => {
+    await db.preferences.add({ ...defaultPreferences(), onboardingComplete: true });
+    await db.recoveryProfiles.add({ ...defaultRecoveryProfile(), intention: 'Current intention' });
+
+    const importedPreferences = { ...defaultPreferences(), onboardingComplete: false };
+    const importedProfile = { ...defaultRecoveryProfile(), intention: 'Backed-up intention' };
+    const result = await importBackupText(backup(3, {
+      preferences: [importedPreferences],
+      recoveryProfiles: [importedProfile],
+      journalEntries: [validJournalEntry('journal:restored')],
+    }));
+
+    expect(result.imported).toBe(3);
+    expect((await db.preferences.get('preferences'))?.onboardingComplete).toBe(false);
+    expect((await db.recoveryProfiles.get('recovery-profile'))?.intention).toBe('Backed-up intention');
+    expect(await db.journalEntries.get('journal:restored')).toBeDefined();
+  });
+
+  it('rolls back earlier inserts when a later backup section is malformed', async () => {
+    await expect(importBackupText(backup(3, {
+      journalEntries: [validJournalEntry('journal:must-rollback')],
+      personalMilestones: null,
+    }))).rejects.toThrow('must be a list');
+
+    expect(await db.journalEntries.count()).toBe(0);
+  });
+
+  it('clears all persisted records through the local-data deletion operation', async () => {
+    await db.preferences.add(defaultPreferences());
+    await db.recoveryProfiles.add(defaultRecoveryProfile());
+    await db.journalEntries.add(validJournalEntry('journal:private'));
+
+    await clearAllLocalData();
+
+    expect(await db.preferences.count()).toBe(0);
+    expect(await db.recoveryProfiles.count()).toBe(0);
+    expect(await db.journalEntries.count()).toBe(0);
+  });
+
   it('migrates a real IndexedDB v2 installation and creates the custom-milestone table', async () => {
     db.close();
     await db.delete();
@@ -68,11 +109,31 @@ describe('local JSON backup restore', () => {
       counterStyle: 'full', liveCounter: true, reminderEnabled: false, reminderTime: '19:00', trustedContacts: [],
       discreetMode: false, gardenStyle: 'woodland', allowBreathHolds: false, createdAt: exportDate, updatedAt: exportDate,
     });
+    await legacy.table('dailyReflections').add({
+      id: 'reflection:legacy', localDate: '2026-10-17', reflectionId: 'reflection-001',
+      favorite: true, exploredAt: exportDate,
+    });
+    await legacy.table('scriptureActivity').add({
+      id: 'scripture:legacy', scriptureId: 'scripture-001', favorite: true, exploredAt: exportDate,
+    });
     legacy.close();
 
     await db.open();
     expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'obsidian', supportResources: [], schemaVersion: 3 });
     expect(await db.personalMilestones.count()).toBe(0);
+    expect(await db.dailyReflections.where('favoriteKey').equals(1).count()).toBe(1);
+    expect(await db.scriptureActivity.where('favoriteKey').equals(1).count()).toBe(1);
+  });
+
+  it('restores indexed favorite keys from legacy backup records', async () => {
+    const result = await importBackupText(backup(3, {
+      dailyReflections: [{ id: 'reflection:restored', localDate: '2026-10-17', reflectionId: 'reflection-001', favorite: true, exploredAt: exportDate }],
+      scriptureActivity: [{ id: 'scripture:restored', scriptureId: 'scripture-001', favorite: true, exploredAt: exportDate }],
+    }));
+
+    expect(result.imported).toBe(2);
+    expect(await db.dailyReflections.where('favoriteKey').equals(1).count()).toBe(1);
+    expect(await db.scriptureActivity.where('favoriteKey').equals(1).count()).toBe(1);
   });
 
   it('validates each imported store and rejects malformed sessions, activity counts and custom milestone targets', async () => {

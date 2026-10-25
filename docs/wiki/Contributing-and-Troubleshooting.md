@@ -77,7 +77,7 @@ git tag v1.0.1
 git push origin main --follow-tags
 ```
 
-The [`release-npm.yml`](../../.github/workflows/release-npm.yml) workflow runs for tags matching `v*.*.*`. It checks that the tag is exactly `v${package.version}`, installs from the frozen lockfile, runs typecheck/lint/tests/build, and publishes publicly with npm provenance. The repository must have an `NPM_TOKEN` Actions secret with permission to publish `stillpoint-recovery`; the workflow does not create or expose that secret. Never reuse a published version or push a tag before reviewing the package contents and release notes.
+The [`release-npm.yml`](../../.github/workflows/release-npm.yml) workflow runs for tags matching `v*.*.*`. It checks that the tag is exactly `v${package.version}`, installs from the frozen lockfile, runs typecheck/lint/tests/build, and publishes publicly with npm provenance. It targets the `npm-release` GitHub Environment. Configure that environment with required release-maintainer approval, restrict its deployment branches/tags to approved version tags, and store `NPM_TOKEN` as an environment secret (remove any repository-level copy). Also use a repository ruleset to restrict who can create or update release tags. Never reuse a published version or push a tag before reviewing the package contents and release notes.
 
 If a release tag does not match the package version, the workflow stops before publishing. To correct a release, update the version and use a new, unused tag rather than force-moving a published tag.
 
@@ -109,7 +109,7 @@ Run `node scripts/check-documentation-links.mjs` locally. Fix missing repository
 
 ### An npm release fails
 
-Check that the tag is exactly `v${package.version}`, the package version has not already been published, and the `NPM_TOKEN` repository secret can publish the package. Do not print or paste the token into logs, issues, or pull requests.
+Check that the tag is exactly `v${package.version}`, the package version has not already been published, and the `NPM_TOKEN` environment secret can publish the package. Confirm that the `npm-release` environment and release-tag ruleset are configured. Do not print or paste the token into logs, issues, or pull requests.
 
 ## Security and responsible disclosure
 

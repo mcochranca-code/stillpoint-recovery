@@ -34,6 +34,7 @@ function phaseClass(label: string) {
   return label.toLowerCase().replaceAll(' ', '-');
 }
 
+/** Render meditation practices, session controls, and local session history. */
 export function MeditationPage() {
   const { profile, preferences, updatePreferences, notify } = useAppContext();
   const [searchParams, setSearchParams] = useSearchParams();

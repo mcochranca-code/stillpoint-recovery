@@ -14,6 +14,7 @@ interface MilestoneShareDialogProps {
   onClose: () => void;
 }
 
+/** Let the user preview and explicitly choose milestone details to share. */
 export function MilestoneShareDialog({ milestone, onClose }: MilestoneShareDialogProps) {
   const dialogRef = useDialogFocus<HTMLElement>(Boolean(milestone), onClose);
   const [message, setMessage] = useState('A milestone I am glad to have reached.');

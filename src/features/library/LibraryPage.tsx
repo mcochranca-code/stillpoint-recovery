@@ -11,10 +11,13 @@ import { updateDailyActivity } from '../../db/repository';
 import { scriptureEntries } from '../../data/scripture';
 import { reflections } from '../../data/reflections';
 import { meditationExercises } from '../../data/exercises';
+import { createReflectionJournalEntry } from '../../domain/journal';
 import { localDateKey, elapsedParts } from '../../domain/time';
-import type { JournalEntry } from '../../domain/types';
+import type { DailyReflection, ScriptureActivity } from '../../domain/types';
 
 type LibraryTab = 'reflections' | 'scripture' | 'principles' | 'meditation' | 'charms';
+const EMPTY_REFLECTION_ACTIVITY: DailyReflection[] = [];
+const EMPTY_SCRIPTURE_ACTIVITY: ScriptureActivity[] = [];
 const tabs: Array<{ id: LibraryTab; label: string }> = [
   { id: 'reflections', label: 'Reflections' }, { id: 'scripture', label: 'Scripture' },
   { id: 'principles', label: 'Principles' }, { id: 'meditation', label: 'Meditation' }, { id: 'charms', label: 'Collection' },
@@ -28,16 +31,19 @@ const scriptureNeeds: Record<string, string[]> = {
 };
 const emotionalFilters = ['All needs', 'Loneliness', 'Temptation', 'Anxiety', 'Grief', 'Forgiveness', 'Resentment', 'Gratitude', 'Hope'];
 
+/** Render the local collection of reflections, scripture, practices, and charms. */
 export function LibraryPage() {
   const [tab, setTab] = useState<LibraryTab>('reflections');
   const [query, setQuery] = useState('');
   const [need, setNeed] = useState('All needs');
   const { profile, notify } = useAppContext();
-  const reflectionActivity = useLiveQuery(() => db.dailyReflections.toArray(), []) ?? [];
-  const scriptureActivity = useLiveQuery(() => db.scriptureActivity.toArray(), []) ?? [];
-  const savedReflections = new Set(reflectionActivity.filter((item) => item.favorite).map((item) => item.reflectionId));
-  const savedScripture = new Set(scriptureActivity.filter((item) => item.favorite).map((item) => item.scriptureId));
-  const reflectedToday = new Set(reflectionActivity.filter((item) => item.localDate === localDateKey(new Date()) && item.reflectedAt).map((item) => item.reflectionId));
+  const today = localDateKey(new Date());
+  const reflectionActivity = useLiveQuery(() => db.dailyReflections.where('localDate').equals(today).toArray(), [today]) ?? EMPTY_REFLECTION_ACTIVITY;
+  const favoriteReflections = useLiveQuery(() => db.dailyReflections.where('favoriteKey').equals(1).toArray(), []) ?? EMPTY_REFLECTION_ACTIVITY;
+  const favoriteScripture = useLiveQuery(() => db.scriptureActivity.where('favoriteKey').equals(1).toArray(), []) ?? EMPTY_SCRIPTURE_ACTIVITY;
+  const savedReflections = useMemo(() => new Set(favoriteReflections.map((item) => item.reflectionId)), [favoriteReflections]);
+  const savedScripture = useMemo(() => new Set(favoriteScripture.map((item) => item.scriptureId)), [favoriteScripture]);
+  const reflectedToday = useMemo(() => new Set(reflectionActivity.filter((item) => item.reflectedAt).map((item) => item.reflectionId)), [reflectionActivity]);
   const term = query.trim().toLowerCase();
   const reflectionList = useMemo(() => reflections.filter((item) => (!term || `${item.title} ${item.theme} ${item.reading} ${item.principle}`.toLowerCase().includes(term))), [term]);
   const scriptureList = useMemo(() => scriptureEntries.filter((item) => {
@@ -52,10 +58,10 @@ export function LibraryPage() {
     const records = await db.dailyReflections.where('reflectionId').equals(reflectionId).toArray();
     const isSaved = records.some((record) => record.favorite);
     if (isSaved) {
-      await Promise.all(records.filter((record) => record.favorite).map((record) => db.dailyReflections.update(record.id, { favorite: false })));
+      await Promise.all(records.filter((record) => record.favorite).map((record) => db.dailyReflections.update(record.id, { favorite: false, favoriteKey: 0 })));
     } else {
       const existing = records.find((record) => record.localDate === today);
-      await db.dailyReflections.put({ id, localDate: today, reflectionId, favorite: true, reflectedAt: existing?.reflectedAt, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
+      await db.dailyReflections.put({ id, localDate: today, reflectionId, favorite: true, favoriteKey: 1, reflectedAt: existing?.reflectedAt, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
     }
     notify(isSaved ? 'Removed from saved reflections.' : 'Added to saved reflections.');
   }
@@ -63,7 +69,8 @@ export function LibraryPage() {
   async function markReflection(reflectionId: string) {
     const today = localDateKey(new Date()); const id = `reflection:${today}:${reflectionId}`;
     const existing = await db.dailyReflections.get(id);
-    await db.dailyReflections.put({ id, localDate: today, reflectionId, favorite: existing?.favorite ?? savedReflections.has(reflectionId), reflectedAt: existing?.reflectedAt ?? new Date().toISOString(), exploredAt: existing?.exploredAt ?? new Date().toISOString() });
+    const favorite = existing?.favorite ?? savedReflections.has(reflectionId);
+    await db.dailyReflections.put({ id, localDate: today, reflectionId, favorite, favoriteKey: favorite ? 1 : 0, reflectedAt: existing?.reflectedAt ?? new Date().toISOString(), exploredAt: existing?.exploredAt ?? new Date().toISOString() });
     if (!existing?.reflectedAt) await updateDailyActivity({ reflectionsCompleted: 1 }, true);
     await awardEligibleCharms(elapsedParts(profile?.startAt)?.days ?? 0);
     notify('Reflection marked for today.');
@@ -72,11 +79,7 @@ export function LibraryPage() {
   async function saveReflection(reflectionId: string) {
     const item = reflections.find((reflection) => reflection.id === reflectionId);
     if (!item) return;
-    const entry: JournalEntry = {
-      id: `journal:${crypto.randomUUID()}`, type: 'daily-reflection', title: item.title,
-      body: `${item.reading}\n\nA principle for today: ${item.principle}\n\nA small practice: ${item.practice}\n\nTo consider: ${item.question}`,
-      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), tags: [item.theme], gratitude: [],
-    };
+    const entry = createReflectionJournalEntry(item);
     await db.journalEntries.add(entry); await updateDailyActivity({ journalEntries: 1 }, true);
     await awardEligibleCharms(elapsedParts(profile?.startAt)?.days ?? 0);
     notify('Saved to your private journal on this device.');
@@ -85,7 +88,8 @@ export function LibraryPage() {
   async function toggleScripture(scriptureId: string) {
     const existing = await db.scriptureActivity.get(`scripture:${scriptureId}`);
     const id = `scripture:${scriptureId}`;
-    await db.scriptureActivity.put({ id, scriptureId, favorite: !existing?.favorite, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
+    const favorite = !existing?.favorite;
+    await db.scriptureActivity.put({ id, scriptureId, favorite, favoriteKey: favorite ? 1 : 0, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
     if (!existing) await updateDailyActivity({ scriptureExplored: 1 }, true);
     await awardEligibleCharms(elapsedParts(profile?.startAt)?.days ?? 0);
     notify(existing?.favorite ? 'Removed from scripture favorites.' : 'Scripture saved to your private library.');

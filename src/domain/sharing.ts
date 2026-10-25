@@ -33,6 +33,7 @@ function escapeHtml(value: string): string {
   })[character] ?? character);
 }
 
+/** Build plain-text milestone details using only the fields the user selected. */
 export function buildMilestoneShareText(options: MilestoneShareOptions): string {
   const lines = [options.message.trim()].filter(Boolean);
   if (options.includeLabel && options.label.trim()) lines.push(`Milestone: ${options.label.trim()}`);
@@ -40,6 +41,7 @@ export function buildMilestoneShareText(options: MilestoneShareOptions): string 
   return lines.join('\n');
 }
 
+/** Build a standalone milestone card with user-provided text escaped for HTML. */
 export function buildMilestoneCardHtml(options: MilestoneShareOptions): string {
   const title = options.includeLabel && options.label.trim() ? options.label.trim() : 'A moment worth keeping';
   const message = escapeHtml(options.message.trim() || 'One day at a time, and this step is enough.').replace(/\r?\n/g, '<br>');
@@ -95,6 +97,7 @@ export function buildMilestoneCardHtml(options: MilestoneShareOptions): string {
 </html>`;
 }
 
+/** Create a share payload that points to the official NA daily-reading page. */
 export function buildNaSharePayload(url: string): SharePayload {
   return {
     title: 'NA Just for Today — Narcotics Anonymous',
@@ -103,6 +106,7 @@ export function buildNaSharePayload(url: string): SharePayload {
   };
 }
 
+/** Share through the browser when possible, then fall back to clipboard copying. */
 export async function shareOrCopy(payload: SharePayload): Promise<ShareResult> {
   if (typeof navigator === 'undefined') return 'unavailable';
   if (typeof navigator.share === 'function') {
@@ -126,6 +130,7 @@ export async function shareOrCopy(payload: SharePayload): Promise<ShareResult> {
   return 'unavailable';
 }
 
+/** Share a standalone HTML file when the browser supports sharing files. */
 export async function shareHtmlCard(content: string): Promise<HtmlCardShareResult> {
   if (typeof navigator === 'undefined' || typeof File === 'undefined' || typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function') return 'unavailable';
   const file = new File([content], 'stillpoint-milestone-card.html', { type: 'text/html' });
@@ -151,10 +156,12 @@ function downloadFile(filename: string, content: string, mimeType: string): void
   window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
 }
 
+/** Download text content through a temporary browser object URL. */
 export function downloadTextFile(filename: string, content: string): void {
   downloadFile(filename, content, 'text/plain;charset=utf-8');
 }
 
+/** Download HTML content through a temporary browser object URL. */
 export function downloadHtmlFile(filename: string, content: string): void {
   downloadFile(filename, content, 'text/html;charset=utf-8');
 }

@@ -1,4 +1,4 @@
-import { db } from './database';
+import { CURRENT_SCHEMA_VERSION, db } from './database';
 import type { BackupPayload, JournalType } from '../domain/types';
 
 const STORE_NAMES = [
@@ -16,12 +16,14 @@ const JOURNAL_TYPES = new Set<JournalType>([
 const MOODS = new Set(['peaceful', 'hopeful', 'steady', 'anxious', 'sad', 'angry', 'tired', 'grateful']);
 const GUIDE_KINDS = new Set(['strategy', 'trigger', 'reflection', 'prayer', 'note']);
 
+/** Export every supported local table as a versioned JSON-ready payload. */
 export async function createBackup(): Promise<BackupPayload> {
   const tables: Record<string, unknown[]> = {};
   for (const name of STORE_NAMES) tables[name] = await db.table(name).toArray();
-  return { application: 'stillpoint-recovery', schemaVersion: 3, exportedAt: new Date().toISOString(), tables };
+  return { application: 'stillpoint-recovery', schemaVersion: CURRENT_SCHEMA_VERSION, exportedAt: new Date().toISOString(), tables };
 }
 
+/** Trigger a browser download for a previously created local-data backup. */
 export function downloadJsonBackup(payload: BackupPayload): void {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -155,6 +157,10 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
   }
 }
 
+/**
+ * Validate and merge a versioned backup in one IndexedDB transaction.
+ * Preferences and the recovery profile are restored as singleton records; other records are added only when their IDs are new.
+ */
 export async function importBackupText(text: string): Promise<ImportResult> {
   if (text.length > 15_000_000) throw new Error('This backup is larger than the supported 15 MB limit.');
   let payload: unknown;
@@ -165,7 +171,7 @@ export async function importBackupText(text: string): Promise<ImportResult> {
   }
   if (!payload || typeof payload !== 'object') throw new Error('This file is not a Stillpoint backup.');
   const candidate = payload as Partial<BackupPayload>;
-  if (candidate.application !== 'stillpoint-recovery' || typeof candidate.schemaVersion !== 'number' || candidate.schemaVersion < 1 || candidate.schemaVersion > 3 || !candidate.tables || typeof candidate.tables !== 'object' || Array.isArray(candidate.tables)) {
+  if (candidate.application !== 'stillpoint-recovery' || typeof candidate.schemaVersion !== 'number' || candidate.schemaVersion < 1 || candidate.schemaVersion > CURRENT_SCHEMA_VERSION || !candidate.tables || typeof candidate.tables !== 'object' || Array.isArray(candidate.tables)) {
     throw new Error('The backup format is not supported by this version of Stillpoint.');
   }
   const result: ImportResult = { imported: 0, skippedDuplicates: 0, skippedInvalid: 0 };
@@ -182,6 +188,7 @@ export async function importBackupText(text: string): Promise<ImportResult> {
         if (seen.has(recordId)) { result.skippedDuplicates += 1; continue; }
         seen.add(recordId);
         if (name === 'preferences') {
+          // These singleton records represent current settings, while history and activity tables remain additive.
           await table.put({
             ...raw,
             schemaVersion: 3,
@@ -192,12 +199,16 @@ export async function importBackupText(text: string): Promise<ImportResult> {
           continue;
         }
         if (name === 'recoveryProfiles') {
-          await table.put(raw);
+          await table.put({ ...raw, schemaVersion: CURRENT_SCHEMA_VERSION });
           result.imported += 1;
           continue;
         }
         if (await table.get(recordId)) { result.skippedDuplicates += 1; continue; }
-        await table.add(raw);
+        await table.add(
+          name === 'dailyReflections' || name === 'scriptureActivity'
+            ? { ...raw, favoriteKey: raw.favorite ? 1 : 0 }
+            : raw,
+        );
         result.imported += 1;
       }
     }
@@ -205,6 +216,7 @@ export async function importBackupText(text: string): Promise<ImportResult> {
   return result;
 }
 
+/** Permanently remove every Stillpoint table from the current browser profile. */
 export async function clearAllLocalData(): Promise<void> {
   await db.transaction('rw', STORE_NAMES.map((name) => db.table(name)), async () => {
     for (const name of STORE_NAMES) await db.table(name).clear();

@@ -14,6 +14,7 @@ function formatBytes(value: number): string {
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+/** Render appearance, accessibility, privacy, backup, restore, and deletion settings. */
 export function SettingsPage() {
   const { preferences, updatePreferences, notify } = useAppContext();
   const [contactsText, setContactsText] = useState('');
@@ -134,7 +135,7 @@ export function SettingsPage() {
       <section className="card"><div className="card-header"><div><p className="eyebrow">Your information belongs to you</p><h2>Backup & restore</h2><p>Export a local JSON file and keep it somewhere private. Import merges unique records; duplicate IDs are skipped while preferences/profile restore from the backup.</p></div></div>
         <div className="backup-actions"><button className="button button-primary" disabled={busy} onClick={() => void exportBackup()}><Download size={16} /> Download JSON backup</button><button className="button button-secondary" disabled={busy} onClick={() => inputRef.current?.click()}><FileUp size={16} /> Restore from JSON</button><input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" aria-label="Select Stillpoint JSON backup" onChange={(event) => void restoreBackup(event.target.files?.[0])} /></div>
         <p className="fine-print">Date-only recovery dates are interpreted as local midnight on the date selected. Travel and time-zone changes may affect the local clock display; the saved start instant remains the source for elapsed time.</p>
-        <p className="storage-note"><ShieldCheck size={16} /> Stored in this browser’s IndexedDB · {storageUse} · not encrypted. Clearing site data or uninstalling the PWA can erase it.</p>
+        <p className="storage-note"><ShieldCheck size={16} /> Stored in this browser profile on this device · {storageUse} · not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it.</p>
       </section>
 
       <section className="card danger-zone"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Delete local Stillpoint data</h2><p>Remove this app’s saved information from this browser. It cannot be recovered unless you have a backup.</p></div></div><button className="button button-danger" disabled={busy} onClick={() => void deleteAll()}><Trash2 size={16} /> Permanently delete all data</button></section>

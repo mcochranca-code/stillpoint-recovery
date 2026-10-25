@@ -10,6 +10,7 @@ export interface MeetingFilters {
   query: string;
 }
 
+/** Apply local fellowship/day/city/text filters and return a stable meeting order. */
 export function filterMeetingListings(
   listings: readonly MeetingListing[],
   filters: MeetingFilters,

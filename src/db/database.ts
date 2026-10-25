@@ -17,6 +17,8 @@ import type {
   UserPreferences,
 } from '../domain/types';
 
+export const CURRENT_SCHEMA_VERSION = 3;
+
 export interface MilestoneRecord {
   id: string;
   milestoneId: string;
@@ -29,8 +31,8 @@ const databaseSchema = {
   preferences: 'id',
   recoveryProfiles: 'id',
   recoveryDateHistory: 'id, recordedAt',
-  dailyReflections: 'id, localDate, reflectionId, [localDate+reflectionId]',
-  scriptureActivity: 'id, scriptureId, favorite, [scriptureId+favorite]',
+  dailyReflections: 'id, localDate, reflectionId, favoriteKey, [localDate+reflectionId]',
+  scriptureActivity: 'id, scriptureId, favoriteKey',
   journalEntries: 'id, type, createdAt, updatedAt, *tags',
   journalDrafts: 'id, updatedAt',
   meditationSessions: 'id, exerciseId, status, completedAt',
@@ -74,14 +76,29 @@ export class StillpointDatabase extends Dexie {
     this.version(3).stores(databaseSchema).upgrade(async (transaction) => {
       await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
         preferences.supportResources ??= [];
-        preferences.schemaVersion = 3;
+        preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
       });
+      await transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
+        profile.schemaVersion = CURRENT_SCHEMA_VERSION;
+      });
+    });
+    this.version(4).stores(databaseSchema).upgrade(async (transaction) => {
+      await Promise.all([
+        transaction.table('dailyReflections').toCollection().modify((entry: DailyReflection) => {
+          entry.favoriteKey = entry.favorite ? 1 : 0;
+        }),
+        transaction.table('scriptureActivity').toCollection().modify((entry: ScriptureActivity) => {
+          entry.favoriteKey = entry.favorite ? 1 : 0;
+        }),
+      ]);
     });
   }
 }
 
+/** The application's IndexedDB database, shared by repositories and feature modules. */
 export const db = new StillpointDatabase();
 
+/** Open the local database and apply any required schema migrations. */
 export async function initializeDatabase(): Promise<void> {
   await db.open();
 }

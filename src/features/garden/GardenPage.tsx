@@ -8,16 +8,17 @@ import { charmDefinitions } from '../../data/charms';
 import type { GardenStyle } from '../../domain/types';
 import { CharmMedallion } from '../../components/CharmMedallion';
 
+/** Render the non-punitive garden visualization derived from supportive activity. */
 export function GardenPage() {
   const { preferences, updatePreferences } = useAppContext();
   const activities = useLiveQuery(() => db.dailyActivity.toArray(), []) ?? [];
-  const sessions = useLiveQuery(() => db.meditationSessions.toArray(), []) ?? [];
+  const sessions = useLiveQuery(() => db.meditationSessions.where('status').equals('completed').toArray(), []) ?? [];
   const awardsQuery = useLiveQuery(() => db.earnedCharms.toArray(), []);
   const awards = useMemo(() => awardsQuery ?? [], [awardsQuery]);
   const journals = useLiveQuery(() => db.journalEntries.count(), []) ?? 0;
   const reflections = activities.reduce((sum, item) => sum + item.reflectionsCompleted, 0);
-  const minutes = sessions.filter((item) => item.status === 'completed').reduce((sum, item) => sum + item.plannedMinutes, 0);
-  const gardenPoints = reflections + journals + sessions.filter((item) => item.status === 'completed').length + awards.length * 3;
+  const minutes = sessions.reduce((sum, item) => sum + item.plannedMinutes, 0);
+  const gardenPoints = reflections + journals + sessions.length + awards.length * 3;
   const stage = gardenPoints === 0 ? 'A place to begin' : gardenPoints < 5 ? 'First leaves' : gardenPoints < 15 ? 'New roots' : gardenPoints < 35 ? 'A growing grove' : 'A landscape shaped by care';
   const plantCount = Math.min(12, Math.max(gardenPoints === 0 ? 1 : 2, Math.floor(gardenPoints / 2) + 1));
   const earnedDefinitions = useMemo(() => awards.map((award) => charmDefinitions.find((charm) => charm.id === award.charmId)).filter(Boolean), [awards]);

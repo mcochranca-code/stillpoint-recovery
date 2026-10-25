@@ -3,6 +3,7 @@ import { eligibleCharms, type ActivitySnapshot } from '../domain/achievements';
 import { charmDefinitions } from '../data/charms';
 import type { EarnedCharm } from '../domain/types';
 
+/** Read local activity and preferences into the domain snapshot used by charm rules. */
 export async function collectActivitySnapshot(daysSober: number, hasReturnedAfterBreak = false): Promise<ActivitySnapshot> {
   const [preferences, profile, journalEntries, sessions, scriptureActivity, dailyReflections] = await Promise.all([
     db.preferences.get('preferences'), db.recoveryProfiles.get('recovery-profile'),
@@ -17,6 +18,7 @@ export async function collectActivitySnapshot(daysSober: number, hasReturnedAfte
   };
 }
 
+/** Persist eligible charms once and return only the awards newly created by this call. */
 export async function awardEligibleCharms(daysSober: number, hasReturnedAfterBreak = false): Promise<EarnedCharm[]> {
   const snapshot = await collectActivitySnapshot(daysSober, hasReturnedAfterBreak);
   const ids = eligibleCharms(snapshot);
@@ -33,6 +35,7 @@ export async function awardEligibleCharms(daysSober: number, hasReturnedAfterBre
   return newAwards;
 }
 
+/** Find a bundled charm definition by its stable ID. */
 export function charmDefinition(charmId: string) {
   return charmDefinitions.find((charm) => charm.id === charmId);
 }

@@ -7,11 +7,13 @@ import { CharmGallery } from '../../components/CharmGallery';
 import { MilestoneShareDialog, type MilestoneShareTarget } from '../../components/MilestoneShareDialog';
 import { db } from '../../db/database';
 import { elapsedParts, formatLocalDate, localDateKey, nextMilestone, periodStart } from '../../domain/time';
-import type { PersonalGoal, PersonalMilestone } from '../../domain/types';
+import type { DailyActivity, PersonalGoal, PersonalMilestone } from '../../domain/types';
 
 const filters = [{ days: 7 as const, label: 'Week' }, { days: 30 as const, label: 'Month' }, { days: 365 as const, label: 'Year' }];
+const EMPTY_ACTIVITIES: DailyActivity[] = [];
 const EMPTY_PERSONAL_MILESTONES: PersonalMilestone[] = [];
 
+/** Render activity history, personal goals, milestones, and earned charms. */
 export function ProgressPage() {
   const { profile, preferences, notify } = useAppContext();
   const [period, setPeriod] = useState<7 | 30 | 365>(7);
@@ -23,9 +25,11 @@ export function ProgressPage() {
   const [milestoneDays, setMilestoneDays] = useState('30');
   const [shareTarget, setShareTarget] = useState<MilestoneShareTarget | null>(null);
   const [now, setNow] = useState(Date.now());
-  const activities = useLiveQuery(() => db.dailyActivity.toArray(), []) ?? [];
-  const sessions = useLiveQuery(() => db.meditationSessions.toArray(), []) ?? [];
-  const journals = useLiveQuery(() => db.journalEntries.toArray(), []) ?? [];
+  const periodBegin = periodStart(new Date(now), period);
+  const activitySince = localDateKey(periodBegin);
+  const activities = useLiveQuery(() => db.dailyActivity.where('localDate').aboveOrEqual(activitySince).toArray(), [activitySince]) ?? EMPTY_ACTIVITIES;
+  const sessions = useLiveQuery(() => db.meditationSessions.where('status').equals('completed').toArray(), []) ?? [];
+  const journalCount = useLiveQuery(() => db.journalEntries.count(), []) ?? 0;
   const reflections = useLiveQuery(() => db.dailyReflections.toArray(), []) ?? [];
   const scripture = useLiveQuery(() => db.scriptureActivity.toArray(), []) ?? [];
   const awards = useLiveQuery(() => db.earnedCharms.toArray(), []) ?? [];
@@ -36,10 +40,8 @@ export function ProgressPage() {
   const duration = elapsedParts(profile?.startAt, now);
   const durationDays = duration?.days;
   const next = nextMilestone(profile?.startAt ?? null, now);
-  const periodBegin = periodStart(new Date(), period);
-  const filteredActivities = activities.filter((item) => new Date(`${item.localDate}T12:00:00`) >= periodBegin);
-  const meditationMinutes = sessions.filter((session) => session.status === 'completed').reduce((sum, session) => sum + session.plannedMinutes, 0);
-  const completedSessions = sessions.filter((session) => session.status === 'completed').length;
+  const meditationMinutes = sessions.reduce((sum, session) => sum + session.plannedMinutes, 0);
+  const completedSessions = sessions.length;
   const reflectionCount = new Set(reflections.filter((item) => item.reflectedAt).map((item) => item.reflectionId)).size;
   const scriptureCount = new Set(scripture.map((item) => item.scriptureId)).size;
   const chartRows = useMemo(() => {
@@ -50,13 +52,13 @@ export function ProgressPage() {
       else date.setDate(date.getDate() - (count - 1 - index));
       const key = period === 365 ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}` : localDateKey(date);
       const matching = period === 365
-        ? filteredActivities.filter((item) => item.localDate.startsWith(key))
-        : filteredActivities.filter((item) => item.localDate === key);
+        ? activities.filter((item) => item.localDate.startsWith(key))
+        : activities.filter((item) => item.localDate === key);
       const value = matching.reduce((sum, row) => sum + row.reflectionsCompleted + row.scriptureExplored + row.journalEntries + row.meditationMinutes, 0);
       const label = period === 365 ? date.toLocaleDateString(undefined, { month: 'short' }) : date.toLocaleDateString(undefined, { weekday: 'short' });
       return { key, label, value };
     });
-  }, [period, filteredActivities]);
+  }, [period, activities]);
   const maxValue = Math.max(1, ...chartRows.map((row) => row.value));
 
   useEffect(() => {
@@ -142,7 +144,7 @@ export function ProgressPage() {
         <section className="metrics-grid" aria-label="Recovery and wellness summary">
           <article className="card metric-card"><p className="eyebrow">{preferences?.discreetMode ? 'Personal timeline' : 'Selected recovery date'}</p><div className="metric-value" aria-label={preferences?.discreetMode ? 'Duration hidden in discreet mode' : undefined}>{preferences?.discreetMode ? 'Hidden' : duration ? `${duration.days}` : '—'}</div><span className="metric-label">{preferences?.discreetMode ? 'Details are hidden while discreet display is on' : duration ? `days · since ${formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}` : 'Set a date whenever it feels useful'}</span><Link to="/" className="inline-link">{preferences?.discreetMode ? 'Open Today' : duration ? 'Adjust date on Today' : 'Set date on Today'} <ArrowRight size={14} /></Link></article>
           <article className="card metric-card"><p className="eyebrow">Meditation</p><div className="metric-value">{meditationMinutes}<small> min</small></div><span className="metric-label">{completedSessions} completed {completedSessions === 1 ? 'session' : 'sessions'}</span></article>
-          <article className="card metric-card"><p className="eyebrow">Journal</p><div className="metric-value">{journals.length}</div><span className="metric-label">entries saved on this device</span></article>
+          <article className="card metric-card"><p className="eyebrow">Journal</p><div className="metric-value">{journalCount}</div><span className="metric-label">entries saved on this device</span></article>
           <article className="card metric-card"><p className="eyebrow">Reflections & scripture</p><div className="metric-value">{reflectionCount + scriptureCount}</div><span className="metric-label">{reflectionCount} reflections · {scriptureCount} scripture passages</span></article>
         </section>
 

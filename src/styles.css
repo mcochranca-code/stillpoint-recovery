@@ -1,7 +1,6 @@
 @import url('/assets/branding/brand-tokens.css');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.ts";
 
 :root { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #193c35; background: #f7f4ea; font-synthesis: none; text-rendering: optimizeLegibility; --text-scale: 1; --surface: #fffefa; --canvas: #f7f4ea; --ink: #193c35; --muted: #5c7068; --border: rgba(36,84,68,.13); --shadow: 0 8px 28px rgba(27,62,52,.08); }
 * { box-sizing: border-box; }

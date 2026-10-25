@@ -8,20 +8,21 @@ import { useDialogFocus } from '../../app/useDialogFocus';
 import { AmbientAudioPlayer } from '../../components/AmbientAudioPlayer';
 import { NaDailyReadingCard } from './NaDailyReadingCard';
 import { OdbResourcesCard } from './OdbResourcesCard';
-import { db } from '../../db/database';
+import { CURRENT_SCHEMA_VERSION, db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { syncReachedMilestones } from '../../db/milestones';
 import { returnedAfterActivityBreak, updateDailyActivity } from '../../db/repository';
 import { scriptureEntries } from '../../data/scripture';
 import { getDailyReflection } from '../../data/reflections';
+import { createReflectionJournalEntry } from '../../domain/journal';
 import { dateOnlyToTimestamp, elapsedParts, formatLocalDate, localDateKey, nextMilestone } from '../../domain/time';
-import type { JournalEntry } from '../../domain/types';
 
 function dayNumber(date: Date): number {
   const start = new Date(date.getFullYear(), 0, 0);
   return Math.floor((date.getTime() - start.getTime()) / 86400000);
 }
 
+/** Render today's reflection, optional recovery counter, and next-step resources. */
 export function TodayPage() {
   const { profile, preferences, notify, updatePreferences } = useAppContext();
   const [now, setNow] = useState(() => Date.now());
@@ -47,12 +48,14 @@ export function TodayPage() {
   const milestones = useMemo(() => profile?.startAt ? (awaitMilestones(profile.startAt)) : [], [profile?.startAt]);
 
   useEffect(() => {
-    const tick = window.setInterval(() => setNow(Date.now()), preferences?.liveCounter ? 1000 : 60000);
+    const tick = window.setInterval(() => setNow(Date.now()), 60000);
     return () => window.clearInterval(tick);
-  }, [preferences?.liveCounter]);
+  }, []);
 
   useEffect(() => {
     if (!profile?.startAt) return;
+    let timer: number | undefined;
+    let alive = true;
     const synchronize = async () => {
       const newRecords = await syncReachedMilestones(profile.startAt!);
       const synchronizationTime = Date.now();
@@ -62,9 +65,25 @@ export function TodayPage() {
       const awards = await awardEligibleCharms(duration?.days ?? 0);
       if (awards.length) notify(`A Journey Collection charm is now yours: ${awards.map((award) => award.charmId.replaceAll('-', ' ')).join(', ')}.`);
     };
+    const scheduleNextMilestone = () => {
+      const upcoming = nextMilestone(profile.startAt!, Date.now());
+      if (!upcoming) return;
+      timer = window.setTimeout(() => {
+        void synchronize();
+        if (alive) scheduleNextMilestone();
+      }, Math.max(1000, upcoming.at.getTime() - Date.now() + 1000));
+    };
+    const onVisibilityChange = () => {
+      if (!document.hidden) void synchronize();
+    };
     void synchronize();
-    const timer = window.setInterval(() => void synchronize(), 30000);
-    return () => window.clearInterval(timer);
+    scheduleNextMilestone();
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    return () => {
+      alive = false;
+      if (timer !== undefined) window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
   }, [profile?.startAt, notify]);
 
   const previous = milestones.filter((item) => item.at.getTime() <= now).at(-1);
@@ -90,7 +109,7 @@ export function TodayPage() {
         });
       }
       await db.recoveryProfiles.put({
-        id: 'recovery-profile', schemaVersion: 1, startAt: nextStart,
+        id: 'recovery-profile', schemaVersion: CURRENT_SCHEMA_VERSION, startAt: nextStart,
         localStartDate: editDate, localStartTime: editTime || '00:00',
         startTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         focus: profile?.focus ?? '', intention: profile?.intention ?? '', updatedAt: new Date().toISOString(),
@@ -109,37 +128,36 @@ export function TodayPage() {
   async function reflectToday() {
     const id = `reflection:${today}:${reflection.id}`;
     const existing = await db.dailyReflections.get(id);
-    await db.dailyReflections.put({ id, localDate: today, reflectionId: reflection.id, reflectedAt: existing?.reflectedAt ?? new Date().toISOString(), favorite: existing?.favorite ?? false, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
+    const favorite = existing?.favorite ?? false;
+    await db.dailyReflections.put({ id, localDate: today, reflectionId: reflection.id, reflectedAt: existing?.reflectedAt ?? new Date().toISOString(), favorite, favoriteKey: favorite ? 1 : 0, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
     if (!existing?.reflectedAt) await updateDailyActivity({ reflectionsCompleted: 1 }, true);
-    await awardEligibleCharms(parts?.days ?? 0, await returnedAfterActivityBreak());
+    await awardEligibleCharms(elapsedParts(profile?.startAt)?.days ?? 0, await returnedAfterActivityBreak());
     notify('Reflection marked for today. You can return to it whenever you like.');
   }
 
   async function saveReflectionToJournal() {
-    const entry: JournalEntry = {
-      id: `journal:${crypto.randomUUID()}`, type: 'daily-reflection', title: reflection.title,
-      body: `${reflection.reading}\n\nA principle for today: ${reflection.principle}\n\nA small practice: ${reflection.practice}\n\nTo consider: ${reflection.question}`,
-      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), tags: [reflection.theme], gratitude: [],
-    };
+    const entry = createReflectionJournalEntry(reflection);
     await db.journalEntries.add(entry);
     await updateDailyActivity({ journalEntries: 1 }, true);
-    await awardEligibleCharms(parts?.days ?? 0, await returnedAfterActivityBreak());
+    await awardEligibleCharms(elapsedParts(profile?.startAt)?.days ?? 0, await returnedAfterActivityBreak());
     notify('Saved to your private journal on this device.');
   }
 
   async function toggleReflectionFavorite() {
     const id = `reflection:${today}:${reflection.id}`;
     const existing = await db.dailyReflections.get(id);
-    await db.dailyReflections.put({ id, localDate: today, reflectionId: reflection.id, favorite: !existing?.favorite, reflectedAt: existing?.reflectedAt, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
+    const favorite = !existing?.favorite;
+    await db.dailyReflections.put({ id, localDate: today, reflectionId: reflection.id, favorite, favoriteKey: favorite ? 1 : 0, reflectedAt: existing?.reflectedAt, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
     notify(existing?.favorite ? 'Removed from saved reflections.' : 'Saved with your reflections.');
   }
 
   async function exploreScripture(favorite = false) {
     const id = `scripture:${scripture.id}`;
     const existing = await db.scriptureActivity.get(id);
-    await db.scriptureActivity.put({ id, scriptureId: scripture.id, favorite: favorite ? !existing?.favorite : (existing?.favorite ?? false), exploredAt: existing?.exploredAt ?? new Date().toISOString() });
+    const isFavorite = favorite ? !existing?.favorite : (existing?.favorite ?? false);
+    await db.scriptureActivity.put({ id, scriptureId: scripture.id, favorite: isFavorite, favoriteKey: isFavorite ? 1 : 0, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
     if (!existing) await updateDailyActivity({ scriptureExplored: 1 }, true);
-    await awardEligibleCharms(parts?.days ?? 0, await returnedAfterActivityBreak());
+    await awardEligibleCharms(elapsedParts(profile?.startAt)?.days ?? 0, await returnedAfterActivityBreak());
     notify(favorite ? (existing?.favorite ? 'Removed from scripture favorites.' : 'Saved to scripture favorites.') : 'Scripture reflection noted for your journey.');
   }
 
@@ -166,13 +184,13 @@ export function TodayPage() {
         <div className="sobriety-copy">
           <p className="eyebrow">{discreet ? 'Your private space' : 'Your recovery, your pace'}</p>
           <h2 id="sobriety-heading" className={discreet ? 'sensitive-heading' : ''}>{discreet ? 'Private timer' : parts ? 'Time you have chosen for yourself' : 'A date, if and when it helps'}</h2>
-          {discreet ? <p className="timer-caption">Recovery details are hidden from this view. You can reveal them only when you choose.</p> : parts ? <>
-            <div className="sobriety-duration" aria-label={`${parts.days} days, ${parts.hours} hours, ${parts.minutes} minutes${preferences?.liveCounter ? `, ${parts.seconds} seconds` : ''} elapsed`}>
-              <span className="counter-primary sensitive-exact"><strong className="counter-days">{parts.days}</strong><span className="counter-days-label">{parts.days === 1 ? 'day' : 'days'} in recovery</span></span>
-              {preferences?.counterStyle !== 'days' && <span className="counter-subunits sensitive-exact" aria-hidden="true"><span><strong>{String(parts.hours).padStart(2, '0')}</strong><small>hours</small></span><span><strong>{String(parts.minutes).padStart(2, '0')}</strong><small>minutes</small></span>{preferences?.liveCounter && <span><strong className="seconds-value">{String(parts.seconds).padStart(2, '0')}</strong><small>seconds</small></span>}</span>}
-            </div>
-            <p className="timer-caption">Since {formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}. A measure of time—not a measure of your worth.</p>
-          </> : <><div className="counter-placeholder"><strong>—</strong><span>days in recovery</span></div><p className="timer-caption">Your dashboard is ready without a date. Add one later, if a counter feels useful.</p></>}
+          <RecoveryDuration
+            startAt={profile?.startAt}
+            localStartDate={profile?.localStartDate}
+            discreet={discreet}
+            liveCounter={Boolean(preferences?.liveCounter)}
+            counterStyle={preferences?.counterStyle ?? 'full'}
+          />
           <button className="button button-secondary" onClick={() => { setEditDate(profile?.localStartDate ?? localDateKey(new Date())); setEditTime(profile?.localStartTime ?? '00:00'); setDateDialog(true); }}><CalendarDays size={16} /> {discreet ? 'Review private date' : parts ? 'Adjust recovery date' : 'Set a recovery date'}</button>
         </div>
         <div className="sobriety-progress" aria-label={discreet ? 'Recovery timer and milestone details are hidden' : next ? `${progress}% progress toward ${next.label}` : 'Milestone overview'}>
@@ -245,6 +263,39 @@ export function TodayPage() {
       {!!recentHistory?.length && <section className="sr-only" aria-label="Recent recorded recovery-date changes">{recentHistory.map((entry) => <p key={entry.id}>{formatLocalDate(entry.recordedAt)} date change recorded locally</p>)}</section>}
     </div>
   );
+}
+
+function RecoveryDuration({
+  startAt,
+  localStartDate,
+  discreet,
+  liveCounter,
+  counterStyle,
+}: {
+  startAt: string | null | undefined;
+  localStartDate: string | null | undefined;
+  discreet: boolean;
+  liveCounter: boolean;
+  counterStyle: 'days' | 'full';
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  const parts = elapsedParts(startAt, now);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), liveCounter ? 1000 : 60000);
+    return () => window.clearInterval(timer);
+  }, [liveCounter]);
+
+  if (discreet) return <p className="timer-caption">Recovery details are hidden from this view. You can reveal them only when you choose.</p>;
+  if (!parts) return <><div className="counter-placeholder"><strong>—</strong><span>days in recovery</span></div><p className="timer-caption">Your dashboard is ready without a date. Add one later, if a counter feels useful.</p></>;
+
+  return <>
+    <div className="sobriety-duration" aria-label={`${parts.days} days, ${parts.hours} hours, ${parts.minutes} minutes${liveCounter ? `, ${parts.seconds} seconds` : ''} elapsed`}>
+      <span className="counter-primary sensitive-exact"><strong className="counter-days">{parts.days}</strong><span className="counter-days-label">{parts.days === 1 ? 'day' : 'days'} in recovery</span></span>
+      {counterStyle !== 'days' && <span className="counter-subunits sensitive-exact" aria-hidden="true"><span><strong>{String(parts.hours).padStart(2, '0')}</strong><small>hours</small></span><span><strong>{String(parts.minutes).padStart(2, '0')}</strong><small>minutes</small></span>{liveCounter && <span><strong className="seconds-value">{String(parts.seconds).padStart(2, '0')}</strong><small>seconds</small></span>}</span>}
+    </div>
+    <p className="timer-caption">Since {formatLocalDate(localStartDate ?? startAt ?? '')}. A measure of time—not a measure of your worth.</p>
+  </>;
 }
 
 function awaitMilestones(startAt: string) {

@@ -3,6 +3,7 @@ import { ArrowUpRight, BookOpen, Headphones } from 'lucide-react';
 const readingPlansUrl = 'https://odb.org/page/reading-plans';
 const podcastsUrl = 'https://odb.org/podcasts/';
 
+/** Render opt-in links to official Our Daily Bread reading and podcast resources. */
 export function OdbResourcesCard() {
   return (
     <section className="card odb-resource-card" aria-labelledby="odb-resources-heading">

@@ -22,7 +22,7 @@ function alongPath(points: OrbPosition[], progress: number): OrbPosition {
   return interpolate(points[segment]!, points[segment + 1]!, scaled - segment);
 }
 
-/** Phase indices match the authored Box Breathing sequence: inhale, hold, exhale, rest. */
+/** Map phase indices (inhale, hold, exhale, rest) and phase progress to the orb's square path. */
 export function getBoxBreathingOrbPosition(
   phaseIndex: number,
   phaseProgress: number,

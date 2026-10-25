@@ -15,6 +15,7 @@ interface AmbientAudioPlayerProps {
   sessionStatus?: SessionStatus;
 }
 
+/** Provide opt-in ambient sound controls that respect the current meditation state. */
 export function AmbientAudioPlayer({ context, sessionStatus = 'idle' }: AmbientAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const previousStatus = useRef<SessionStatus>(sessionStatus);

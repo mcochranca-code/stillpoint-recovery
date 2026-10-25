@@ -34,6 +34,7 @@ function toLocalDateTime(value?: string): string {
   return date.toISOString().slice(0, 16);
 }
 
+/** Render private journal entry creation, search, editing, and draft recovery. */
 export function JournalPage() {
   const { preferences, notify } = useAppContext();
   const entriesQuery = useLiveQuery(() => db.journalEntries.orderBy('createdAt').reverse().toArray(), []);
@@ -107,6 +108,7 @@ function JournalEditor({ entry, onClose, onSaved }: { entry?: JournalEntry; onCl
   const latestDraftRef = useRef<JournalDraft | null>(null);
   const savedDraftRef = useRef(false);
   const draftTimerRef = useRef<number | undefined>(undefined);
+  // Serialize autosaves so a slow older write cannot overwrite a newer draft.
   const writeQueueRef = useRef<Promise<void>>(Promise.resolve());
   const persistDraftRef = useRef<(draft: JournalDraft) => Promise<void>>(() => Promise.resolve());
   persistDraftRef.current = (draft) => {

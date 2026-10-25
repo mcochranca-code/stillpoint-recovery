@@ -22,6 +22,7 @@ function mapsUrl(address: string, city: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${address}, ${city}, California`)}`;
 }
 
+/** Render locally filtered AA/NA listings and links to official schedules. */
 export function MeetingsPage() {
   const today = new Date().getDay();
   const [fellowship, setFellowship] = useState<FellowshipFilter>('all');

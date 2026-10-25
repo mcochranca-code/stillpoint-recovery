@@ -66,6 +66,7 @@ export interface DailyReflection {
   reflectionId: string;
   reflectedAt?: string;
   favorite: boolean;
+  favoriteKey?: 0 | 1;
   exploredAt: string;
 }
 
@@ -84,6 +85,7 @@ export interface ScriptureActivity {
   id: string;
   scriptureId: string;
   favorite: boolean;
+  favoriteKey?: 0 | 1;
   exploredAt: string;
 }
 

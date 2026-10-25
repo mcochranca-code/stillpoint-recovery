@@ -10,6 +10,7 @@ const items = [
   { to: '/library', label: 'Library', icon: Compass },
 ];
 
+/** Render primary navigation and route-aware page controls. */
 export default function Navigation() {
   return (
     <>

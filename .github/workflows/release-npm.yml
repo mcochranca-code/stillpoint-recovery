@@ -18,6 +18,7 @@ jobs:
     name: Validate and publish npm package
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    environment: npm-release
     steps:
       - name: Check out source
         uses: actions/checkout@v4

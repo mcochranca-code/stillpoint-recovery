@@ -49,6 +49,7 @@ function AppRoutes() {
   );
 }
 
+/** Render the app providers and lazy-loaded route shell. */
 export default function App() {
   return <AppProvider><AppRoutes /></AppProvider>;
 }

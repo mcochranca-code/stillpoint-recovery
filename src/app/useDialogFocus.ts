@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 
+/** Keep focus inside an open dialog, restore it on close, and support Escape dismissal. */
 export function useDialogFocus<T extends HTMLElement>(open: boolean, onEscape?: () => void) {
   const dialogRef = useRef<T>(null);
   const onEscapeRef = useRef(onEscape);

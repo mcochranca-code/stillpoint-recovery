@@ -13,6 +13,7 @@ export interface Milestone {
   daysApprox: number;
 }
 
+/** Format a date as a YYYY-MM-DD key using the device's local calendar. */
 export const localDateKey = (date: Date): string => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -20,12 +21,14 @@ export const localDateKey = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
+/** Convert a local calendar date and time to its absolute ISO timestamp. */
 export function dateOnlyToTimestamp(date: string, time = '00:00'): string {
   const parsed = new Date(`${date}T${time}:00`);
   if (Number.isNaN(parsed.getTime())) throw new Error('Choose a valid local recovery date and time.');
   return parsed.toISOString();
 }
 
+/** Split elapsed time since a timestamp into non-negative day/hour/minute/second parts. */
 export function elapsedParts(startAt: string | null | undefined, now = Date.now()): DurationParts | null {
   if (!startAt) return null;
   const start = new Date(startAt).getTime();
@@ -46,10 +49,12 @@ function addCalendarMonths(source: Date, months: number): Date {
   target.setDate(1);
   target.setMonth(target.getMonth() + months);
   const lastDay = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+  // Clamp end-of-month dates (for example, January 31) instead of overflowing into the next month.
   target.setDate(Math.min(day, lastDay));
   return target;
 }
 
+/** Build fixed-duration and calendar-based milestone dates from a recovery start instant. */
 export function buildMilestones(startAt: string): Milestone[] {
   const start = new Date(startAt);
   if (Number.isNaN(start.getTime())) return [];
@@ -81,21 +86,25 @@ export function buildMilestones(startAt: string): Milestone[] {
   return [...fixed, ...calendar].sort((a, b) => a.at.getTime() - b.at.getTime());
 }
 
+/** Find the first milestone strictly after `now`, or null when no start date is set. */
 export function nextMilestone(startAt: string | null, now = Date.now()): Milestone | null {
   if (!startAt) return null;
   return buildMilestones(startAt).find((milestone) => milestone.at.getTime() > now) ?? null;
 }
 
+/** Return all milestones reached at or before `now`. */
 export function reachedMilestones(startAt: string, now = Date.now()): Milestone[] {
   return buildMilestones(startAt).filter((milestone) => milestone.at.getTime() <= now);
 }
 
+/** Format elapsed parts as a day count or a compact full duration. */
 export function formatElapsed(parts: DurationParts | null, style: 'days' | 'full' = 'full'): string {
   if (!parts) return 'Set a recovery date whenever you feel ready';
   if (style === 'days') return `${parts.days} ${parts.days === 1 ? 'day' : 'days'}`;
   return `${parts.days}d ${String(parts.hours).padStart(2, '0')}h ${String(parts.minutes).padStart(2, '0')}m ${String(parts.seconds).padStart(2, '0')}s`;
 }
 
+/** Format a date for display, interpreting YYYY-MM-DD values as local calendar dates. */
 export function formatLocalDate(date: string | Date, options: Intl.DateTimeFormatOptions = { month: 'long', day: 'numeric', year: 'numeric' }): string {
   const parsed = typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)
     ? new Date(`${date}T12:00:00`)
@@ -103,6 +112,7 @@ export function formatLocalDate(date: string | Date, options: Intl.DateTimeForma
   return Number.isNaN(parsed.getTime()) ? 'Date not set' : parsed.toLocaleDateString(undefined, options);
 }
 
+/** Return local midnight at the beginning of a rolling 7-, 30-, or 365-day period. */
 export function periodStart(date: Date, days: 7 | 30 | 365): Date {
   const result = new Date(date);
   result.setHours(0, 0, 0, 0);

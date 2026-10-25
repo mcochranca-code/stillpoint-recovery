@@ -8,7 +8,10 @@ import { db } from '../../db/database';
 import { reflections } from '../../data/reflections';
 import { scriptureEntries } from '../../data/scripture';
 import { formatLocalDate } from '../../domain/time';
-import type { FieldGuideNote } from '../../domain/types';
+import type { DailyReflection, FieldGuideNote, ScriptureActivity } from '../../domain/types';
+
+const EMPTY_REFLECTION_ACTIVITY: DailyReflection[] = [];
+const EMPTY_SCRIPTURE_ACTIVITY: ScriptureActivity[] = [];
 
 const noteKinds: Array<{ id: FieldGuideNote['kind']; label: string }> = [
   { id: 'strategy', label: 'A strategy that helps' }, { id: 'trigger', label: 'A difficult situation' },
@@ -17,6 +20,7 @@ const noteKinds: Array<{ id: FieldGuideNote['kind']; label: string }> = [
 
 type GuideTab = 'notes' | 'what-helped' | 'difficult-moments' | 'favorites' | 'contacts' | 'resources';
 
+/** Render the user's private collection of coping strategies and field-guide notes. */
 export function FieldGuidePage() {
   const { preferences, notify } = useAppContext();
   const [tab, setTab] = useState<GuideTab>('notes');
@@ -24,10 +28,9 @@ export function FieldGuidePage() {
   const notes = useLiveQuery(() => db.fieldGuideNotes.orderBy('updatedAt').reverse().toArray(), []) ?? [];
   const entriesQuery = useLiveQuery(() => db.journalEntries.orderBy('createdAt').reverse().toArray(), []);
   const entries = useMemo(() => entriesQuery ?? [], [entriesQuery]);
-  const scriptureActivity = useLiveQuery(() => db.scriptureActivity.toArray(), []) ?? [];
-  const reflectionActivity = useLiveQuery(() => db.dailyReflections.toArray(), []) ?? [];
-  const savedScripture = scriptureActivity.filter((item) => item.favorite);
-  const savedReflections = new Set(reflectionActivity.filter((item) => item.favorite).map((item) => item.reflectionId));
+  const savedScripture = useLiveQuery(() => db.scriptureActivity.where('favoriteKey').equals(1).toArray(), []) ?? EMPTY_SCRIPTURE_ACTIVITY;
+  const savedReflectionsQuery = useLiveQuery(() => db.dailyReflections.where('favoriteKey').equals(1).toArray(), []) ?? EMPTY_REFLECTION_ACTIVITY;
+  const savedReflections = useMemo(() => new Set(savedReflectionsQuery.map((item) => item.reflectionId)), [savedReflectionsQuery]);
   const strategies = useMemo(() => entries.filter((entry) => Boolean(entry.copingStrategy?.trim())), [entries]);
   const triggers = useMemo(() => entries.filter((entry) => entry.type === 'trigger' && (entry.trigger || entry.copingStrategy)), [entries]);
   const tabs: Array<{ id: GuideTab; label: string }> = [

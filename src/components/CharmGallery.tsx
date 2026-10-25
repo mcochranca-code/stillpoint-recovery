@@ -14,6 +14,7 @@ const categories: Array<{ id: 'all' | CharmCategory; label: string }> = [
   { id: 'scripture', label: 'Scripture' }, { id: 'resilience', label: 'Resilience' },
 ];
 
+/** Display earned charms alongside progress toward those not yet earned. */
 export function CharmGallery() {
   const { notify } = useAppContext();
   const [category, setCategory] = useState<'all' | CharmCategory>('all');

@@ -12,6 +12,7 @@ export interface ActivitySnapshot {
   hasReturnedAfterBreak: boolean;
 }
 
+/** Return charm IDs whose criteria are met by the supplied local activity snapshot. */
 export function eligibleCharms(snapshot: ActivitySnapshot): string[] {
   const gratitudeCount = snapshot.journalEntries.filter((entry) => entry.type === 'gratitude').length;
   const courageous = snapshot.journalEntries.some((entry) => entry.type === 'trigger' && Boolean(entry.copingStrategy?.trim()));
@@ -32,6 +33,7 @@ export function eligibleCharms(snapshot: ActivitySnapshot): string[] {
   return charmDefinitions.filter((charm) => rules[charm.id]).map((charm) => charm.id);
 }
 
+/** Summarize current progress toward one charm's criteria for display. */
 export function charmProgress(charm: CharmDefinition, snapshot: ActivitySnapshot): { current: number; target: number; label: string } {
   const gratitude = snapshot.journalEntries.filter((entry) => entry.type === 'gratitude').length;
   const scriptureCount = new Set(snapshot.scriptureActivity.map((item) => item.scriptureId)).size;

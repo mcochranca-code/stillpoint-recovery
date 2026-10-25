@@ -13,7 +13,7 @@ pnpm test:coverage
 pnpm build
 ```
 
-The test suite uses Vitest with a JSDOM environment and Testing Library. Coverage includes date and timer math, achievement rules, backup validation and merge behavior, share previews, content integrity, dialog focus, ambient audio, external-resource cards, meeting filters, and Box Breathing sphere-path calculations.
+The test suite uses Vitest with a JSDOM environment, fake IndexedDB, and Testing Library. Coverage includes date and timer math, achievement rules and persistence, daily activity mutation, reached-milestone idempotence, journal entry creation/editing/deletion and draft recovery, backup validation/transaction rollback/merge/deletion, share previews, content integrity, dialog focus, ambient audio, external-resource cards, meeting filters, and Box Breathing sphere-path calculations.
 
 ## Coverage workflow
 

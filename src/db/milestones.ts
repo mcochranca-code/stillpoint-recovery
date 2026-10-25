@@ -1,6 +1,7 @@
 import { db, type MilestoneRecord } from './database';
 import { reachedMilestones } from '../domain/time';
 
+/** Persist newly reached milestones for a recovery-date instant and return only records created now. */
 export async function syncReachedMilestones(startAt: string): Promise<MilestoneRecord[]> {
   const reached = reachedMilestones(startAt);
   const created: MilestoneRecord[] = [];

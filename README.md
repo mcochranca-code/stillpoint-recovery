@@ -197,11 +197,14 @@ Open `http://localhost:3000`. The app can be used without entering a recovery da
 pnpm typecheck
 pnpm lint
 pnpm test
+pnpm test:coverage
 pnpm build
 pnpm preview
 ```
 
 The production build creates `dist/`, a web app manifest, a service worker, and a precache manifest for local app assets. Offline availability depends on the app shell and assets being successfully cached by your browser.
+
+The Vitest suite covers domain rules, journal entry creation/editing/deletion and draft recovery, backup validation and transactional restore, and IndexedDB activity, milestone, and charm persistence. `pnpm test:coverage` writes diagnostic V8 coverage reports to `coverage/`; the workflow reports coverage without imposing a threshold.
 
 ### Install and offline behavior
 
@@ -228,7 +231,9 @@ sequenceDiagram
 
 Stillpoint stores recovery dates, preferences, journals, reflections, scripture activity, meditation sessions, earned charms, and related notes in this browser’s IndexedDB. The app does not require an account or cloud sync. It does not upload journal content to an app backend.
 
-**Local does not mean encrypted.** Browser storage is not encrypted by Stillpoint. Clearing site data or uninstalling the PWA can erase saved information. Export a backup regularly and keep it somewhere private. Imported backups are validated and merged with duplicate IDs skipped.
+**Local does not mean encrypted or guaranteed to last.** Stillpoint does not encrypt browser storage or exported backups. Clearing site data, removing the browser profile, or uninstalling the PWA may erase saved information; browser storage can also be affected by browser or device maintenance and storage limits. Export a backup regularly and keep it somewhere private, preferably separate from this device. Backups are ordinary JSON files and contain personal data.
+
+Stillpoint has no account or server copy, so maintainers cannot retrieve erased or corrupted records. Recovery is possible only from a valid backup you still have. Support can offer troubleshooting guidance, but should not be sent journal text or backup files. See the [Data and Privacy guide](docs/wiki/Data-and-Privacy.md) for storage details, restore behavior, and limitations.
 
 Date-only recovery dates are interpreted as local midnight. If you add a start time, the chosen local time is converted to a saved timestamp. Editing the date preserves past journal entries, sessions, and earned charms.
 
