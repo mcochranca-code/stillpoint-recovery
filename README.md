@@ -7,7 +7,7 @@
     <code>LOCAL-FIRST</code> &nbsp; <code>INSTALLABLE PWA</code> &nbsp; <code>NO ACCOUNT</code> &nbsp; <code>MIT LICENSE · SOURCE</code> &nbsp; <code>BUILT FOR GENTLENESS</code>
   </p>
   <p>
-    <a href="https://stillpoint-wulrzrfa.manus.space/"><strong>Open the live demo</strong></a>
+    <a href="https://stillpoint-recovery-demo.netlify.app/"><strong>Open the live demo</strong></a>
     &nbsp; · &nbsp;
     <a href="https://github.com/mcochranca-code/stillpoint-recovery/archive/refs/heads/main.zip"><strong>Download the source ZIP</strong></a>
     &nbsp; · &nbsp;
@@ -19,6 +19,7 @@
 
 <p align="center">
   <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+  <a href="https://app.netlify.com/sites/stillpoint-recovery-demo/deploys"><img src="https://api.netlify.com/api/v1/badges/2d9e377b-c6c6-424c-a374-30a4ab900295/deploy-status" alt="Netlify production deploy status"></a>
   <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/coverage.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/coverage.yml/badge.svg" alt="Test coverage workflow status"></a>
   <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/mcochranca-code/stillpoint-recovery/ci.yml?branch=main&amp;label=code%20quality%20%26%20linting&amp;logo=github" alt="Code quality and linting status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License"></a>
@@ -124,6 +125,7 @@ The choices are invitations rather than requirements. No route depends on a stre
 - **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
 - **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
 - **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
+- **Milestones you can turn over.** Tap or keyboard-activate a two-sided 3D charm to spin its medallion in the Journey Collection and Living Garden; the interaction is local, keyboard accessible, and reduced-motion aware.
 
 ## How the pieces fit together
 

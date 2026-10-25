@@ -129,10 +129,29 @@ textarea { resize: vertical; line-height: 1.65; }
 .activity-bar small { color: var(--muted); font-size: 10px; }
 .charm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 13px; }
 .charm-card { display: grid; justify-items: center; text-align: center; gap: 6px; padding: 14px 9px; border: 1px solid var(--border); border-radius: 15px; background: var(--surface); }
-.charm-card img { width: 58px; height: 58px; object-fit: contain; }
-.charm-card.locked img { filter: grayscale(1); opacity: .42; }
+.charm-art-wrap { display: grid; place-items: center; min-height: 82px; }
+.charm-medallion { --medallion-size: 76px; display: grid; place-items: center; width: var(--medallion-size); height: var(--medallion-size); padding: 0; border: 0; border-radius: 50%; background: transparent; perspective: 900px; cursor: pointer; touch-action: manipulation; }
+.charm-medallion--garden { --medallion-size: 54px; }
+.charm-medallion:hover { filter: drop-shadow(0 5px 7px rgba(27,62,52,.2)); }
+.charm-medallion:disabled { cursor: progress; }
+.charm-medallion__coin { position: relative; display: block; width: calc(var(--medallion-size) - 10px); height: calc(var(--medallion-size) - 10px); transform-style: preserve-3d; }
+.charm-medallion.is-spinning .charm-medallion__coin { animation: charm-medallion-spin 900ms cubic-bezier(.24,.8,.34,1) both; }
+.charm-medallion__face { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; overflow: hidden; border: 1px solid rgba(92,72,36,.65); border-radius: 50%; backface-visibility: hidden; }
+.charm-medallion__front { background: radial-gradient(circle at 30% 24%, #fff9e5 0, #e4d099 36%, #a98543 76%, #f1dfaa 100%); box-shadow: inset 0 0 0 3px rgba(255,255,255,.48), inset 0 5px 8px rgba(255,255,255,.55), inset 0 -5px 8px rgba(87,66,31,.22); }
+.charm-medallion__front::after { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(95,72,35,.38); border-radius: 50%; }
+.charm-medallion__front img { position: relative; z-index: 1; width: 66%; height: 66%; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(42,56,43,.28)); }
+.charm-medallion__back { transform: rotateY(180deg); color: #fff4d5; background: radial-gradient(circle at 35% 25%, #678b71, #245444 72%, #153d35); box-shadow: inset 0 0 0 3px rgba(255,255,255,.18), inset 0 5px 9px rgba(255,255,255,.12), inset 0 -5px 8px rgba(0,0,0,.22); }
+.charm-medallion__back::before { content: ''; position: absolute; inset: 6px; border: 1px solid rgba(255,244,213,.45); border-radius: 50%; }
+.charm-medallion__star { font: 20px/1 Georgia, serif; }
+.charm-medallion__mark { margin-top: 3px; font-size: 5px; font-weight: 700; letter-spacing: .14em; }
+.charm-medallion.locked .charm-medallion__front img { filter: grayscale(1) opacity(.5); }
+.dark .charm-medallion__front { background: radial-gradient(circle at 30% 24%, #ece5c9 0, #b8a878 37%, #716044 78%, #d5c18d 100%); }
+.dark .charm-medallion__back { color: #eef3ed; background: radial-gradient(circle at 35% 25%, #648372, #263f36 72%, #15201d); }
+.charm-spin-hint { margin: 8px 0 0; color: var(--muted); font-size: 11px; }
 .charm-card strong { font-size: 12px; }
 .charm-card small { color: var(--muted); line-height: 1.4; font-size: 10px; }
+@keyframes charm-medallion-spin { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+@media (prefers-reduced-motion: reduce) { .charm-medallion.is-spinning .charm-medallion__coin { animation-duration: .01ms; } }
 
 @media (max-width: 900px) {
   .desktop-sidebar { width: 205px; }
@@ -473,8 +492,9 @@ textarea { resize: vertical; line-height: 1.65; }
 .garden-stat span { color: var(--muted); font-size: 10px; }
 .garden-story { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 15px; }
 .garden-story p { color: var(--muted); font-size: 12px; }
-.garden-charm-row { display: flex; flex-wrap: wrap; max-width: 190px; gap: 8px; }
-.garden-charm-row img { width: 48px; height: 48px; object-fit: contain; }
+.garden-charm-collection { display: grid; justify-items: center; align-content: center; gap: 8px; }
+.garden-charm-hint { margin: 0; color: var(--muted); font-size: 10px; text-align: center; }
+.garden-charm-row { display: flex; flex-wrap: wrap; justify-content: center; max-width: 230px; gap: 6px; }
 .garden-seed { display: grid; justify-items: center; gap: 7px; padding: 15px; color: var(--muted); text-align: center; font-size: 10px; }
 
 .discreet-mode .sensitive-exact { filter: blur(8px); user-select: none; }

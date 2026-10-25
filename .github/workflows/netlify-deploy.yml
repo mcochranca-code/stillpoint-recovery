@@ -56,7 +56,22 @@ jobs:
       - name: Verify production PWA artifact
         run: pnpm verify:pwa
 
+      - name: Check Netlify credentials
+        id: netlify-credentials
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        run: |
+          if [ -n "$NETLIFY_AUTH_TOKEN" ] && [ -n "$NETLIFY_SITE_ID" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Netlify deploy skipped; configure NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID repository secrets to enable automatic deploys."
+            echo "Netlify automatic deployment was skipped because NETLIFY_AUTH_TOKEN and/or NETLIFY_SITE_ID is not configured." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Deploy to Netlify
+        if: steps.netlify-credentials.outputs.configured == 'true'
         uses: netlify/actions/cli@master
         with:
           args: deploy --prod --dir=dist --message "GitHub Actions ${GITHUB_SHA}"

@@ -6,6 +6,7 @@ import { charmProgress } from '../domain/achievements';
 import { elapsedParts, formatLocalDate } from '../domain/time';
 import type { CharmCategory, EarnedCharm } from '../domain/types';
 import { useAppContext } from '../app/AppContext';
+import { CharmMedallion } from './CharmMedallion';
 
 const categories: Array<{ id: 'all' | CharmCategory; label: string }> = [
   { id: 'all', label: 'All' }, { id: 'sobriety', label: 'Milestones' }, { id: 'reflection', label: 'Reflections' },
@@ -57,7 +58,7 @@ export function CharmGallery() {
 
   return (
     <div className="page-stack">
-      <div className="collection-intro"><div><p className="eyebrow">The Journey Collection</p><h2>Small signs of care, collected along the way.</h2><p>These charms mark actions and moments that belong to you. They are not a comparison with anyone else.</p></div><div className="collection-count"><strong>{earned.length}</strong><small>of {charmDefinitions.length} collected</small></div></div>
+      <div className="collection-intro"><div><p className="eyebrow">The Journey Collection</p><h2>Small signs of care, collected along the way.</h2><p>These charms mark actions and moments that belong to you. They are not a comparison with anyone else.</p><p className="charm-spin-hint">Tap or focus a charm and activate it to turn the medallion.</p></div><div className="collection-count"><strong>{earned.length}</strong><small>of {charmDefinitions.length} collected</small></div></div>
       <div className="filter-row" role="group" aria-label="Filter charms by category">{categories.map((item) => <button key={item.id} className={`filter-chip${category === item.id ? ' selected' : ''}`} onClick={() => setCategory(item.id)}>{item.label}</button>)}</div>
       <label className="inline-check"><input type="checkbox" checked={includeLocked} onChange={(event) => setIncludeLocked(event.target.checked)} /> Show charms not yet collected</label>
       <div className="charm-grid">
@@ -66,7 +67,7 @@ export function CharmGallery() {
           const progress = charmProgress(charm, snapshot);
           const percent = progress.target ? Math.min(100, Math.round(progress.current / progress.target * 100)) : 0;
           return <article className={`charm-card${award ? '' : ' locked'}`} key={charm.id}>
-            <div className="charm-art-wrap"><img src={charm.image} alt="" loading="lazy" /></div>
+            <div className="charm-art-wrap"><CharmMedallion name={charm.name} image={charm.image} locked={!award} /></div>
             <strong>{charm.name}</strong>
             <small>{award ? `Collected ${formatLocalDate(award.earnedAt)}` : charm.description}</small>
             {!award && <div className="charm-progress-wrap"><div className="charm-progress" role="progressbar" aria-label={`${charm.name} progress`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${percent}%` }} /></div><small>{Math.min(progress.current, progress.target)} / {progress.target} · {progress.label}</small></div>}
