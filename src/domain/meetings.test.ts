@@ -22,6 +22,24 @@ describe('filterMeetingListings', () => {
     expect(filterMeetingListings(sample, { ...base, query: 'open topic' }).map((item) => item.id)).toEqual(['na-tue']);
   });
 
+  it('supports the Food Addicts fellowship value when a vetted listing is provided', () => {
+    const foodAddicts: MeetingListing = { id: 'fa-sample', fellowship: 'FA', day: 4, dayName: 'Thursday', time: '6:00 PM', sortMinutes: 1080, name: 'FA sample', city: 'Modesto', address: '40 Elm St', mode: 'in-person', formatNotes: '', sourceUrl: 'https://www.foodaddicts.org/find-a-meeting' };
+    expect(filterMeetingListings([...sample, foodAddicts], { ...base, fellowship: 'FA' }).map((item) => item.id)).toEqual(['fa-sample']);
+  });
+
+  it('applies inclusive local time boundaries', () => {
+    expect(filterMeetingListings(sample, { ...base, startAfterMinutes: 1080, startBeforeMinutes: 1080 }).map((item) => item.id))
+      .toEqual(['aa-mon-late']);
+    expect(filterMeetingListings(sample, { ...base, startAfterMinutes: 600, startBeforeMinutes: 1100 }).map((item) => item.id))
+      .toEqual(['aa-mon-late']);
+  });
+
+  it('supports a range that crosses midnight', () => {
+    const afterMidnight: MeetingListing = { id: 'na-night', fellowship: 'NA', day: 5, dayName: 'Friday', time: '1:00 AM', sortMinutes: 60, name: 'Night group', city: 'Modesto', address: 'Online', mode: 'online', formatNotes: '', sourceUrl: 'https://example.org/na' };
+    expect(filterMeetingListings([afterMidnight, ...sample], { ...base, startAfterMinutes: 1320, startBeforeMinutes: 180 }).map((item) => item.id))
+      .toEqual(['na-night']);
+  });
+
   it('returns an empty list for a query with no matches', () => {
     expect(filterMeetingListings(sample, { ...base, query: 'not a meeting' })).toEqual([]);
   });

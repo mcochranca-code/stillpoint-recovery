@@ -92,3 +92,8 @@ Avoid AI image/audio generation and paid external APIs for this change. Do not c
 
 
 Additional constraint for this follow-up: use the project’s supplied vector assets and CSS/SVG only; do not invoke media generation or paid external APIs. Meeting listings are public facts bundled as a dated local snapshot, not a live feed; clearly link to the official directories for confirmation. Do not promise a specific platform-credit total when no per-job usage meter is exposed.
+
+
+## Follow-up: security, meeting search, and deployment
+
+Review the reported high and critical Dependabot alerts against the lockfile audit, update vulnerable dependency chains to patched compatible releases, and rerun all quality checks. Extend the offline meeting search with a Food Addicts option that points to its official live finder without copying results, plus inclusive local meeting start-time bounds that support crossing midnight. Keep query processing local and preserve no-location/privacy guarantees. GitHub Actions secrets remain an explicit release prerequisite for automatic Netlify deploys. Do not add an in-app map until verified per-meeting coordinates and the provider’s usage/quota are available; never geocode private user searches or substitute city centroids.

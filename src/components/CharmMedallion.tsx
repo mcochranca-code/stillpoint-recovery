@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 type CharmMedallionProps = {
   name: string;
@@ -9,6 +9,12 @@ type CharmMedallionProps = {
 
 export function CharmMedallion({ name, image, size = 'gallery', locked = false }: CharmMedallionProps) {
   const [spinning, setSpinning] = useState(false);
+
+  useEffect(() => {
+    if (!spinning) return undefined;
+    const timeout = window.setTimeout(() => setSpinning(false), 1000);
+    return () => window.clearTimeout(timeout);
+  }, [spinning]);
 
   return (
     <button

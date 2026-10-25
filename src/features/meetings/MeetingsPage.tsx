@@ -18,6 +18,16 @@ function dayFilterValue(value: string): MeetingDayFilter | 'today' {
   return Number(value);
 }
 
+function timeToMinutes(value: string): number | null {
+  if (!value) return null;
+  const [hourText, minuteText] = value.split(':');
+  if (!hourText || !minuteText) return null;
+  const hours = Number(hourText);
+  const minutes = Number(minuteText);
+  if (!Number.isInteger(hours) || !Number.isInteger(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null;
+  return hours * 60 + minutes;
+}
+
 function mapsUrl(address: string, city: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${address}, ${city}, California`)}`;
 }
@@ -29,11 +39,18 @@ export function MeetingsPage() {
   const [day, setDay] = useState<MeetingDayFilter | 'today'>('today');
   const [city, setCity] = useState('all');
   const [query, setQuery] = useState('');
+  const [startAfter, setStartAfter] = useState('');
+  const [startBefore, setStartBefore] = useState('');
   const [limit, setLimit] = useState(30);
   const effectiveDay = day === 'today' ? today : day;
   const filtered = useMemo(() => filterMeetingListings(stanislausMeetingListings, {
-    fellowship, day: effectiveDay, city, query,
-  }), [fellowship, effectiveDay, city, query]);
+    fellowship,
+    day: effectiveDay,
+    city,
+    query,
+    startAfterMinutes: timeToMinutes(startAfter),
+    startBeforeMinutes: timeToMinutes(startBefore),
+  }), [fellowship, effectiveDay, city, query, startAfter, startBefore]);
   const visible = filtered.slice(0, limit);
 
   function clearFilters() {
@@ -41,6 +58,8 @@ export function MeetingsPage() {
     setDay('today');
     setCity('all');
     setQuery('');
+    setStartAfter('');
+    setStartBefore('');
     setLimit(30);
   }
 
@@ -50,9 +69,9 @@ export function MeetingsPage() {
         <div>
           <p className="eyebrow">Local peer support</p>
           <h1>Meetings in Stanislaus County.</h1>
-          <p>Browse nearby AA and NA listings. You choose what to open and when.</p>
+          <p>Browse the dated AA and NA snapshot by day and time. Food Addicts meetings open in the official live finder.</p>
         </div>
-        <span className="pill"><UsersRound size={14} aria-hidden="true" /> AA · NA</span>
+        <span className="pill"><UsersRound size={14} aria-hidden="true" /> AA · NA · FA finder</span>
       </header>
 
       <section className="card meetings-sources" aria-labelledby="meeting-sources-title">
@@ -63,9 +82,10 @@ export function MeetingsPage() {
         <div className="meeting-source-links">
           <a href={meetingSources.AA} {...sourceLinkProps}>AA · Central Valley Intergroup <ExternalLink size={14} aria-hidden="true" /></a>
           <a href={meetingSources.NA} {...sourceLinkProps}>NA · SVGNA local schedule <ExternalLink size={14} aria-hidden="true" /></a>
+          <a href={meetingSources.FA} {...sourceLinkProps}>FA · Food Addicts live finder <ExternalLink size={14} aria-hidden="true" /></a>
           <a href={meetingSources.NAWorldServicesFinder} {...sourceLinkProps}>NA World Services meeting finder <ExternalLink size={14} aria-hidden="true" /></a>
         </div>
-        <p className="meeting-source-note">Local snapshot checked {checkedDateLabel()}. Schedules can change; confirm time and location with the official source before traveling. These links are independent community directories, not an endorsement or claim of affiliation.</p>
+        <p className="meeting-source-note">Local AA/NA snapshot checked {checkedDateLabel()}. Food Addicts listings remain on the live official finder and are not bundled in this snapshot. Schedules can change; confirm time and location with the official source before traveling. These are independent directories, not an endorsement or claim of affiliation.</p>
       </section>
 
       <section className="card" aria-labelledby="meeting-list-title">
@@ -76,7 +96,7 @@ export function MeetingsPage() {
         <div className="meeting-filter-grid">
           <label className="field-label" htmlFor="meeting-fellowship">Fellowship
             <select id="meeting-fellowship" value={fellowship} onChange={(event) => { setFellowship(event.target.value as FellowshipFilter); setLimit(30); }}>
-              <option value="all">AA and NA</option><option value="AA">AA only</option><option value="NA">NA only</option>
+              <option value="all">All local listings</option><option value="AA">AA only</option><option value="NA">NA only</option><option value="FA">Food Addicts · official finder</option>
             </select>
           </label>
           <label className="field-label" htmlFor="meeting-day">Day
@@ -94,9 +114,19 @@ export function MeetingsPage() {
             <span>Search group, city, address or format</span>
             <span className="meeting-search-control"><Search size={16} aria-hidden="true" /><input id="meeting-search" type="search" value={query} onChange={(event) => { setQuery(event.target.value); setLimit(30); }} placeholder="Try a group or city" /></span>
           </label>
+          <div className="meeting-time-filter" role="group" aria-labelledby="meeting-time-title">
+            <span className="field-label meeting-time-title" id="meeting-time-title">Local meeting start time</span>
+            <label className="field-label" htmlFor="meeting-start-after">Start time after
+              <input id="meeting-start-after" type="time" value={startAfter} onChange={(event) => { setStartAfter(event.target.value); setLimit(30); }} aria-describedby="meeting-time-hint" />
+            </label>
+            <label className="field-label" htmlFor="meeting-start-before">Start time before
+              <input id="meeting-start-before" type="time" value={startBefore} onChange={(event) => { setStartBefore(event.target.value); setLimit(30); }} aria-describedby="meeting-time-hint" />
+            </label>
+            <p className="meeting-time-hint" id="meeting-time-hint">Boundaries are inclusive. If “before” is earlier than “after,” the range crosses midnight.</p>
+          </div>
         </div>
         <div className="meeting-result-summary" role="status" aria-live="polite">
-          Showing {visible.length} of {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'}{day === 'today' ? ` for ${weekdayNames[today]}` : ''}.
+          Showing {visible.length} of {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'}{day === 'today' ? ` for ${weekdayNames[today]}` : ''}{startAfter || startBefore ? ` · time ${startAfter || 'any'}–${startBefore || 'any'}` : ''}.
           <button type="button" className="button button-quiet meeting-clear-button" onClick={clearFilters}>Clear filters</button>
         </div>
 
@@ -116,12 +146,22 @@ export function MeetingsPage() {
               </article>
             </li>;
           })}
-        </ul> : <div className="empty-state meeting-empty"><h3>No listings match those filters.</h3><p>Try another day, city or fellowship, or check the official directories above.</p><button className="button button-secondary" type="button" onClick={clearFilters}>Show today’s meetings</button></div>}
+        </ul> : <div className="empty-state meeting-empty">
+          {fellowship === 'FA' ? <>
+            <h3>No Food Addicts listings are bundled in this local snapshot.</h3>
+            <p>This does not mean there are no meetings nearby. The official live finder supports location, day, type, language and time-of-day filters.</p>
+            <a className="button button-secondary meeting-empty-link" href={meetingSources.FA} {...sourceLinkProps}>Open Food Addicts official finder <ExternalLink size={14} aria-hidden="true" /></a>
+          </> : <>
+            <h3>No listings match those filters.</h3>
+            <p>Try another day, city, time range or fellowship, or check an official directory above.</p>
+            <button className="button button-secondary" type="button" onClick={clearFilters}>Show today’s meetings</button>
+          </>}
+        </div>}
 
         {visible.length < filtered.length && <div className="meeting-show-more"><button className="button button-secondary" type="button" onClick={() => setLimit((value) => value + 30)}>Show 30 more</button></div>}
       </section>
 
-      <p className="fine-print meetings-privacy-note">Stillpoint does not request your location, record attendance, or send meeting searches or recovery details to a service. The list is available offline; clicking an official directory or map link opens an external site, which may receive standard connection metadata. NA format abbreviations follow the source’s key.</p>
+      <p className="fine-print meetings-privacy-note">Stillpoint does not request your location, record attendance, or send meeting searches or recovery details to a service. The list is available offline; clicking an official directory or map link opens an external site, which may receive standard connection metadata. FA search criteria are entered on the official external site only after you choose its link. NA format abbreviations follow the source’s key.</p>
     </div>
   );
 }

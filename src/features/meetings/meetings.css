@@ -10,11 +10,16 @@
 .meeting-filter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .meeting-filter-grid .field-label { display: grid; gap: 7px; }
 .meeting-filter-grid select,
+.meeting-time-filter input,
 .meeting-search-control input { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: 10px; padding: 10px 11px; background: var(--surface); color: var(--ink); font: inherit; }
 .meeting-search { grid-column: 1 / -1; }
 .meeting-search-control { display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--muted); }
 .meeting-search-control input { border: 0; padding: 9px 0; outline: 0; }
 .meeting-search-control:focus-within { border-color: var(--focus-ring); box-shadow: 0 0 0 3px var(--primary-soft); }
+.meeting-time-filter { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding-top: 2px; }
+.meeting-time-title { grid-column: 1 / -1; margin-bottom: -5px; }
+.meeting-time-filter input:focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+.meeting-time-hint { grid-column: 1 / -1; margin: -4px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
 .meeting-result-summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 13px 0; color: var(--muted); font-size: 11px; }
 .meeting-clear-button { min-height: 32px; padding: 6px 8px; font-size: 11px; }
 .meeting-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
@@ -22,6 +27,7 @@
 .meeting-listing-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 10px; }
 .meeting-fellowship-badge { min-width: 31px; padding: 4px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); text-align: center; font-size: 10px; font-weight: 800; }
 .meeting-fellowship-badge.na { background: color-mix(in srgb, var(--sage) 17%, transparent); color: var(--sage); }
+.meeting-fellowship-badge.fa { background: color-mix(in srgb, var(--gold) 25%, transparent); color: var(--ink); }
 .meeting-listing h3 { margin: 11px 0 8px; font-size: 15px; line-height: 1.35; }
 .meeting-location { display: flex; align-items: flex-start; gap: 6px; margin: 0; color: var(--ink); font-size: 11px; line-height: 1.5; }
 .meeting-location svg { flex: 0 0 auto; margin-top: 1px; color: var(--primary); }
@@ -33,6 +39,7 @@
 .meeting-empty { display: grid; justify-items: start; gap: 8px; }
 .meeting-empty h3, .meeting-empty p { margin: 0; }
 .meeting-empty p { color: var(--muted); font-size: 12px; }
+.meeting-empty-link { display: inline-flex; align-items: center; gap: 7px; text-decoration: none; }
 .meetings-privacy-note { max-width: 850px; margin: 0 auto; line-height: 1.6; }
 
 @media (max-width: 700px) {
@@ -45,4 +52,6 @@
 @media (max-width: 390px) {
   .meeting-filter-grid { grid-template-columns: 1fr; }
   .meeting-search { grid-column: auto; }
+  .meeting-time-filter { grid-template-columns: 1fr; }
+  .meeting-time-title, .meeting-time-hint { grid-column: 1; }
 }

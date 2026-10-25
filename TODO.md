@@ -137,3 +137,19 @@ Progress labels: `[ ]` open, `[x]` complete only after the behavior exists and e
 - Update the public README landing page with the production Netlify live-app link and a live Netlify deploy-status badge only after the deployment is confirmed. Keep the existing CI, license and project information accurate.
 - Deploy the built static app to the user-approved Netlify site, verify the live URL and production deployment status, and ensure the deployment workflow clearly reports when repository credentials are missing rather than attempting an unauthenticated deploy.
 - Evidence: the two-sided medallion spin and locked-preview behavior pass 2 component tests; typecheck, lint, all 53 tests, production build, PWA artifact validation and the Markdown link checker pass. Netlify deploy `6add6b26ee6051117b98e8c3` is ready at `https://stillpoint-recovery-demo.netlify.app/` (HTTP 200); the deploy badge endpoint returns SVG. The team-wide SSO default was left unchanged; only this demo site was made public.
+
+
+## 20. Critical/high dependency security remediation and alert verification — [ ]
+- Compare the user-reported 6 critical/9 high GitHub alerts with the repository lockfile audit. Upgrade affected direct and transitive packages to patched releases and confirm no critical/high findings remain in the lockfile audit.
+- Verify the matching GitHub Dependabot alert state after the default branch update. Preserve any remaining alerts that require a separate upstream fix or a breaking upgrade and document the blocker rather than dismissing alerts.
+- Evidence: the full dependency audit on current main reports 0 critical, 0 high, 0 moderate and 0 low findings with React Router 7.18.4, Vite 8.3.5, Vitest 5.0.5, `@vitest/coverage-v8` 5.0.5 and PostCSS 8.5.31. The live GitHub alert list could not be read through the connector (403), so closure of the user-reported 6 critical/9 high alerts remains unverified.
+
+## 21. Food Addicts and granular meeting time filters — [x]
+- Add Food Addicts as an explicit fellowship filter and source option. Because the official finder is live and its results are not included in the local dataset, label the empty local result honestly and link to the official finder without sending local criteria automatically.
+- Add local start-time after/before bounds, inclusive endpoints and ranges crossing midnight. Preserve offline search, no-location, no-attendance and no-search-transmission behavior.
+- Evidence: 6 meeting-domain tests and 5 page tests pass; the page’s FA filter links to the official live finder and explicitly says an empty snapshot is not evidence of no nearby meetings. Typecheck, lint, all 76 tests, production PWA build, artifact check and Markdown link checks pass.
+
+## 22. Netlify Actions secrets and conditional map feasibility — [ ]
+- Store `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` as repository Actions secrets so the existing guarded workflow can deploy each successful push to `main`. Never commit or share token values in chat.
+- Add an interactive in-app map only when accurate per-meeting coordinates and the map provider’s account usage/quota are verifiably available; do not geocode at runtime or substitute city centroids. Until then, keep the explicit user-initiated external map links.
+- Evidence: GitHub Actions secret APIs returned 403 and no deploy token is available through the current connected account, so no repository secret was created. The Mapbox connector exposes no usage meter and the snapshot has no verified coordinates; the in-app map is deferred rather than guessed or geocoded.

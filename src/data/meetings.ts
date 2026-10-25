@@ -1,7 +1,7 @@
 // Static public meeting-directory snapshot checked 2026-10-23.
 // No meeting data is fetched by the app at runtime. Verify details with the linked
 // local services before traveling; schedules can change.
-export type Fellowship = 'AA' | 'NA';
+export type Fellowship = 'AA' | 'NA' | 'FA';
 export type MeetingMode = 'in-person' | 'online';
 export interface MeetingListing {
   id: string;
@@ -21,6 +21,7 @@ export const meetingSnapshotCheckedAt = '2026-10-23';
 export const meetingSources = {
   AA: 'https://cviaa.org/aa/meetings/',
   NA: 'https://svgna.org/svgna-meeting-schedule',
+  FA: 'https://www.foodaddicts.org/find-a-meeting',
   NAWorldServicesFinder: 'https://na.org/meetingsearch/find-na/',
 } as const;
 export const stanislausMeetingListings: MeetingListing[] = [

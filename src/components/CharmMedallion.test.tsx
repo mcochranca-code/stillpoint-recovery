@@ -1,9 +1,12 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CharmMedallion } from './CharmMedallion';
 
+afterEach(() => vi.useRealTimers());
+
 describe('CharmMedallion', () => {
-  it('is keyboard-operable and spins when activated', () => {
+  it('is keyboard-operable and releases the spin control after the animation fallback', () => {
+    vi.useFakeTimers();
     render(<CharmMedallion name="First Light" image="/assets/charms/first-light.svg" />);
     const button = screen.getByRole('button', { name: 'Spin First Light charm' }) as HTMLButtonElement;
 
@@ -14,8 +17,7 @@ describe('CharmMedallion', () => {
     expect(button.classList.contains('is-spinning')).toBe(true);
     expect(button.disabled).toBe(true);
 
-    const coin = button.firstElementChild as HTMLElement;
-    fireEvent.animationEnd(coin);
+    act(() => { vi.advanceTimersByTime(1000); });
     expect(button.classList.contains('is-spinning')).toBe(false);
     expect(button.disabled).toBe(false);
   });

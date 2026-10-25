@@ -65,8 +65,8 @@ flowchart LR
     Choice --> Reset[90-second Reset]
     Choice --> Practice[Meditation]
     Choice --> Review[Progress or Garden]
-    Choice --> Meet[AA/NA meeting list]
-    Meet --> Snapshot[Locally bundled county listings]
+    Choice --> Meet[AA/NA listings + FA finder]
+    Meet --> Snapshot[Offline AA/NA snapshot + official FA link]
     Reflect --> Local[Saved locally on this device]
     Write --> Local
     Reset --> Local
@@ -106,7 +106,7 @@ The choices are invitations rather than requirements. No route depends on a stre
 </table>
 
 <h3>Local peer support — when you want it</h3>
-<p>The Meetings tab includes a dated, offline-friendly snapshot of public AA and NA listings for Stanislaus County, with fellowship, day, city, and text filters. Listings were checked on October 23, 2026; see the <a href="docs/meeting-sources.md">source and privacy notes</a>. Confirm time and place with the <a href="https://cviaa.org/aa/meetings/">official Central Valley Intergroup AA directory</a> or <a href="https://svgna.org/svgna-meeting-schedule">official SVGNA schedule</a> before traveling. The app does not request location or record attendance; opening an external directory or map may disclose normal connection metadata.</p>
+<p>The Meetings tab includes a dated, offline-friendly snapshot of public AA and NA listings for Stanislaus County, with fellowship, day, city, text, and exact local start-time range filters (including windows that cross midnight). Its Food Addicts option opens the <a href="https://www.foodaddicts.org/find-a-meeting">official live FA meeting finder</a>; FA listings are not copied into the local snapshot, so an empty local FA result does not mean there are no meetings nearby. Listings were checked on October 23, 2026; see the <a href="docs/meeting-sources.md">source and privacy notes</a>. Confirm time and place with the <a href="https://cviaa.org/aa/meetings/">official Central Valley Intergroup AA directory</a>, <a href="https://svgna.org/svgna-meeting-schedule">official SVGNA schedule</a>, or official FA finder before traveling. The app does not request location or record attendance; an external directory or map opens only on your click and may disclose normal connection metadata.</p>
 
 <p align="center"><sub>Product screenshots use a local demo profile with sample activity. No private journal content or personal contacts are shown.</sub></p>
 
@@ -121,7 +121,7 @@ The choices are invitations rather than requirements. No route depends on a stre
 - **Our Daily Bread resources** link to the publisher’s official [Reading Plans](https://odb.org/page/reading-plans) and [podcast catalogue](https://odb.org/podcasts/) for Discover the Word. Stillpoint adds an original companion prompt, not publisher text.
 - **Private journaling** supports gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing—with editable entries, search, and recoverable drafts.
 - **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline. In active Box Breathing, a highlighted sphere moves around the square in time with the inhale/hold/exhale/rest cues.
-- **Meetings** adds a dated, offline-friendly AA/NA snapshot for Stanislaus County with fellowship, weekday, city and text filters. The listings were checked October 23, 2026; see [source and privacy notes](docs/meeting-sources.md), and confirm details with the official directories before traveling.
+- **Meetings** adds a dated, offline-friendly AA/NA snapshot for Stanislaus County with fellowship, weekday, city, text and precise local start-time filters. The FA filter links to its official live finder; no live FA search or listings are copied into the app. See [source and privacy notes](docs/meeting-sources.md), and confirm details with the official directories before traveling.
 - **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
 - **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
 - **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
@@ -141,11 +141,11 @@ flowchart TD
     IndexedDB --> Backup[Versioned JSON backup]
     Backup -->|User chooses a file| Restore[Validated import and merge]
     Restore --> IndexedDB
-    External[Official NAWS, ODB, AA/NA directories and maps] -. explicit click only .-> Browser[New browser tab]
+    External[Official NAWS, ODB, AA/NA/FA directories and maps] -. explicit click only .-> Browser[New browser tab]
     Browser -. no recovery payload .-> External
 ```
 
-There is no application API, account system, analytics pipeline, or cloud database in the core experience. Meeting filters run locally over the bundled snapshot; no location or attendance is collected. An external directory or map opens only after the user chooses its link; the app does not fetch or rehost publisher content.
+There is no application API, account system, analytics pipeline, or cloud database in the core experience. AA/NA meeting filters run locally over the bundled snapshot; the FA option opens its official live finder only after the user chooses that link, with no search criteria transferred from Stillpoint. No location or attendance is collected. The app does not fetch or rehost publisher content.
 
 ## Motion is part of the design—not decoration
 
