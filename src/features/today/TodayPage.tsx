@@ -6,6 +6,7 @@ import { ArrowRight, Bookmark, BookOpen, CalendarDays, Check, Clock3, EyeOff, He
 import { useAppContext } from '../../app/AppContext';
 import { useDialogFocus } from '../../app/useDialogFocus';
 import { AmbientAudioPlayer } from '../../components/AmbientAudioPlayer';
+import { CharmMedallion } from '../../components/CharmMedallion';
 import { NaDailyReadingCard } from './NaDailyReadingCard';
 import { OdbResourcesCard } from './OdbResourcesCard';
 import { CURRENT_SCHEMA_VERSION, db } from '../../db/database';
@@ -13,6 +14,7 @@ import { awardEligibleCharms } from '../../db/achievements';
 import { syncReachedMilestones } from '../../db/milestones';
 import { returnedAfterActivityBreak, updateDailyActivity } from '../../db/repository';
 import { scriptureEntries } from '../../data/scripture';
+import { charmDefinitions } from '../../data/charms';
 import { getDailyReflection } from '../../data/reflections';
 import { createReflectionJournalEntry } from '../../domain/journal';
 import { dateOnlyToTimestamp, elapsedParts, formatLocalDate, localDateKey, nextMilestone } from '../../domain/time';
@@ -42,6 +44,7 @@ export function TodayPage() {
   const scripture = scriptureEntries[dayNumber(new Date(now)) % scriptureEntries.length] ?? scriptureEntries[0]!;
   const reflectionActivity = useLiveQuery(() => db.dailyReflections.get(`reflection:${today}:${reflection.id}`), [today, reflection.id]);
   const scriptureActivity = useLiveQuery(() => db.scriptureActivity.get(`scripture:${scripture.id}`), [scripture.id]);
+  const recentCharms = useLiveQuery(() => db.earnedCharms.orderBy('earnedAt').reverse().limit(3).toArray(), []);
   const recentHistory = useLiveQuery(() => db.recoveryDateHistory.orderBy('recordedAt').reverse().limit(4).toArray(), []);
   const parts = elapsedParts(profile?.startAt, now);
   const next = nextMilestone(profile?.startAt ?? null, now);
@@ -200,6 +203,21 @@ export function TodayPage() {
           </div>
           <div className="milestone-copy"><strong>{parts ? nextLabel : 'Your next step is enough'}</strong><small>{parts && next ? (nextDays ? `About ${nextDays}d ${nextRemainder}h to go` : `About ${nextHours}h to go`) : 'Set a date whenever it feels right'}</small></div>
           </>}
+        </div>
+      </section>
+
+      <section className="card today-charms-card" aria-labelledby="today-charms-heading">
+        <div className="today-charms-copy">
+          <p className="eyebrow">The Journey Collection</p>
+          <h2 id="today-charms-heading">Small signs of care, collected along the way.</h2>
+          <p>Virtual 3D charms mark recovery-supportive moments. Tap, click, or keyboard-activate a medallion to spin it; your collection stays on this device.</p>
+          <Link to="/charms" className="button button-secondary">Explore and spin the charms <ArrowRight size={15} aria-hidden="true" /></Link>
+        </div>
+        <div className="today-charms-preview" aria-label="Preview of Journey Collection charms">
+          {(recentCharms?.length ? recentCharms.map((award) => charmDefinitions.find((item) => item.id === award.charmId)).filter((item): item is (typeof charmDefinitions)[number] => Boolean(item)) : charmDefinitions.slice(0, 3)).map((charm) => {
+            const collected = Boolean(recentCharms?.some((award) => award.charmId === charm.id));
+            return <div className="today-charm" key={charm.id}><CharmMedallion name={charm.name} image={charm.image} locked={!collected} /><strong>{charm.name}</strong><small>{collected ? 'Collected' : 'A moment to work toward'}</small></div>;
+          })}
         </div>
       </section>
 

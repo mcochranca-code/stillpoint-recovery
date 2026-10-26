@@ -7,6 +7,7 @@ export type MeetingFormatFilter = 'all' | 'in-person' | 'online' | 'zoom';
 export interface MeetingFilters {
   fellowship: FellowshipFilter;
   day: MeetingDayFilter;
+  county?: string;
   city: string;
   query: string;
   format?: MeetingFormatFilter;
@@ -31,6 +32,7 @@ export function filterMeetingListings(
   return listings
     .filter((meeting) => filters.fellowship === 'all' || meeting.fellowship === filters.fellowship)
     .filter((meeting) => filters.day === 'all' || meeting.day === filters.day)
+    .filter((meeting) => !filters.county || filters.county === 'all' || (meeting.county ?? 'Stanislaus County').toLocaleLowerCase() === filters.county.toLocaleLowerCase())
     .filter((meeting) => filters.city === 'all' || meeting.city.toLocaleLowerCase() === filters.city.toLocaleLowerCase())
     .filter((meeting) => {
       const format = filters.format ?? 'all';
@@ -39,7 +41,7 @@ export function filterMeetingListings(
       return meeting.mode === format;
     })
     .filter((meeting) => matchesTimeRange(meeting.sortMinutes, filters.startAfterMinutes, filters.startBeforeMinutes))
-    .filter((meeting) => !query || [meeting.name, meeting.city, meeting.address, meeting.formatNotes]
+    .filter((meeting) => !query || [meeting.name, meeting.city, meeting.county ?? 'Stanislaus County', meeting.address, meeting.formatNotes]
       .some((value) => value.toLocaleLowerCase().includes(query)))
     .slice()
     .sort((a, b) => a.day - b.day || a.sortMinutes - b.sortMinutes || a.fellowship.localeCompare(b.fellowship) || a.name.localeCompare(b.name));

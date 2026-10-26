@@ -70,6 +70,16 @@ function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.length <= 500 && value.every((item) => isString(item, 4000));
 }
 
+function isMeetingReminderArray(value: unknown): boolean {
+  return Array.isArray(value) && value.length <= 500 && value.every((item) => {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) return false;
+    const reminder = item as Record<string, unknown>;
+    return isNonEmptyString(reminder.id, 240) && isNonEmptyString(reminder.meetingId, 240)
+      && [15, 30, 60].includes(Number(reminder.leadMinutes)) && isDate(reminder.createdAt)
+      && isOptionalDate(reminder.lastNotifiedOccurrenceAt);
+  });
+}
+
 function isCount(value: unknown, min = 0, max = 1_000_000): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
 }
@@ -81,18 +91,19 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
 
   switch (name) {
     case 'preferences':
-      return row.id === 'preferences' && isCount(row.schemaVersion, 1, 3) && typeof row.onboardingComplete === 'boolean'
+      return row.id === 'preferences' && isCount(row.schemaVersion, 1, 5) && typeof row.onboardingComplete === 'boolean'
         && typeof row.theme === 'string' && THEME_MODES.has(row.theme)
         && (row.colorTheme === undefined || (typeof row.colorTheme === 'string' && COLOR_THEMES.has(row.colorTheme)))
         && typeof row.highContrast === 'boolean' && typeof row.reducedMotion === 'boolean'
         && typeof row.hideMeditationVisual === 'boolean' && isCount(row.textScale, 0.5, 2)
         && (row.timeFormat === '12h' || row.timeFormat === '24h') && (row.counterStyle === 'days' || row.counterStyle === 'full')
         && typeof row.liveCounter === 'boolean' && typeof row.reminderEnabled === 'boolean' && isTime(row.reminderTime)
+        && (row.meetingReminders === undefined || isMeetingReminderArray(row.meetingReminders))
         && isStringArray(row.trustedContacts) && (row.supportResources === undefined || isStringArray(row.supportResources))
         && typeof row.discreetMode === 'boolean' && typeof row.gardenStyle === 'string' && GARDEN_STYLES.has(row.gardenStyle)
         && typeof row.allowBreathHolds === 'boolean' && isDate(row.createdAt) && isDate(row.updatedAt);
     case 'recoveryProfiles':
-      return row.id === 'recovery-profile' && isCount(row.schemaVersion, 1, 3)
+      return row.id === 'recovery-profile' && isCount(row.schemaVersion, 1, 5)
         && (row.startAt === null || isDate(row.startAt))
         && (row.localStartDate === null || isLocalDate(row.localStartDate))
         && (row.localStartTime === null || isTime(row.localStartTime))

@@ -21,8 +21,9 @@ export function CharmMedallion({ name, image, size = 'gallery', locked = false }
       type="button"
       className={`charm-medallion charm-medallion--${size}${locked ? ' locked' : ''}${spinning ? ' is-spinning' : ''}`}
       aria-label={`Spin ${name} charm`}
+      aria-pressed={spinning}
+      aria-busy={spinning}
       title="Tap to spin"
-      disabled={spinning}
       onClick={() => setSpinning(true)}
     >
       <span className="charm-medallion__coin" onAnimationEnd={() => setSpinning(false)}>

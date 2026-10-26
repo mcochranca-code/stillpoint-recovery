@@ -17,12 +17,19 @@ describe('MeetingsPage', () => {
   it('shows official AA, NA and Food Addicts source links with privacy safeguards', () => {
     render(<MeetingsPage />);
     const aa = screen.getByRole('link', { name: /AA · Central Valley Intergroup/ });
+    const fresnoAa = screen.getByRole('link', { name: /AA · Greater Fresno Area Intergroup/ });
+    const mariposaAa = screen.getByRole('link', { name: /AA · Mariposa Fellowship/ });
     const na = screen.getByRole('link', { name: /NA · SVGNA local schedule/ });
+    const fresnoNa = screen.getByRole('link', { name: /NA · Central California NA/ });
     const fa = screen.getByRole('link', { name: /FA · Food Addicts live finder/ });
     expectExternalLink(aa, 'https://cviaa.org/aa/meetings/');
+    expectExternalLink(fresnoAa, 'https://www.fresnoaa.org/meetings/');
+    expectExternalLink(mariposaAa, 'https://www.aamariposafellowship.org/page3.html');
     expectExternalLink(na, 'https://svgna.org/svgna-meeting-schedule');
+    expectExternalLink(fresnoNa, 'http://www.centralcalna.org/na-meetings.html');
     expectExternalLink(fa, 'https://www.foodaddicts.org/find-a-meeting');
-    expect(screen.getByText(/Local AA\/NA snapshot checked Oct 23, 2026/)).toBeTruthy();
+    expect(screen.getByText(/Stanislaus AA\/NA snapshot was checked Oct 23, 2026/)).toBeTruthy();
+    expect(screen.getByText(/small, source-linked offline sample—not an exhaustive county directory/)).toBeTruthy();
     expect(screen.getByText(/does not request your location, record attendance/)).toBeTruthy();
   });
 
@@ -70,12 +77,25 @@ describe('MeetingsPage', () => {
     expect(screen.getByRole('heading', { name: 'No source-labeled Zoom listings match these filters.' })).toBeTruthy();
   });
 
-  it('shows the official live FA finder rather than implying an empty snapshot means no meetings', () => {
+  it('includes a local Fresno FA listing and retains the official live finder link', () => {
     render(<MeetingsPage />);
+    fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
+    fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Fresno County' } });
     fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'FA' } });
-    expect(screen.getByRole('heading', { name: 'No Food Addicts listings are bundled in this local snapshot.' })).toBeTruthy();
-    const finder = screen.getByRole('link', { name: /Open Food Addicts official finder/ });
-    expectExternalLink(finder, 'https://www.foodaddicts.org/find-a-meeting');
+    expect(screen.getByRole('heading', { name: 'Central Valley Church of Christ, Room 6' })).toBeTruthy();
+    expect(screen.getByText(/checked Oct 26, 2026/)).toBeTruthy();
+    const liveFinder = screen.getByRole('link', { name: /FA · Food Addicts live finder/ });
+    expectExternalLink(liveFinder, 'https://www.foodaddicts.org/find-a-meeting');
+    expectExternalLink(screen.getByRole('link', { name: 'Official listing' }), 'https://www.foodaddicts.org/meeting/1250');
+  });
+
+  it('explains that a missing county/fellowship sample does not mean no meetings exist', () => {
+    render(<MeetingsPage />);
+    fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
+    fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Mariposa County' } });
+    fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'NA' } });
+    expect(screen.getByRole('heading', { name: 'No bundled NA snapshot is available for Mariposa County.' })).toBeTruthy();
+    expect(screen.getByText(/not the presence or absence of local meetings/)).toBeTruthy();
   });
 
   it('loads the map only after explicit opt-in and unmounts it when hidden', async () => {

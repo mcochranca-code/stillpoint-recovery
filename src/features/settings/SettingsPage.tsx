@@ -121,8 +121,8 @@ export function SettingsPage() {
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Gentle reminders</h2><p>Neutral wording. No guilt or recovery details in notifications.</p></div></div>
-        <label className="toggle-row"><span><strong>Enable browser reminders</strong><small>{notificationPermission === 'unsupported' ? 'Not available in this browser.' : 'While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
-        <label className="field-label" htmlFor="reminder-time">Reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
+        <label className="toggle-row"><span><strong>Daily meditation reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available in this browser.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
+        <label className="field-label" htmlFor="reminder-time">Daily meditation reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">People you choose</p><h2>Trusted contacts</h2><p>Keep a private contact list or outreach reminder. Stillpoint will never message or call anyone.</p></div><HeartHandshake size={20} aria-hidden="true" /></div>

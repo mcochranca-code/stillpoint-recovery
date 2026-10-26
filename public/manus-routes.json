@@ -2,6 +2,7 @@
   "routes": [
     { "path": "/", "title": "Today" },
     { "path": "/progress", "title": "Progress" },
+    { "path": "/charms", "title": "The Journey Collection" },
     { "path": "/journal", "title": "Journal" },
     { "path": "/meditation", "title": "Meditation" },
     { "path": "/library", "title": "Library" },

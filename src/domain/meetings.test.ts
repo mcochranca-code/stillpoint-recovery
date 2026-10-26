@@ -16,6 +16,13 @@ describe('filterMeetingListings', () => {
       .toEqual(['aa-mon-early', 'aa-mon-late']);
   });
 
+  it('filters by county while treating older records without a county field as Stanislaus County', () => {
+    const fresno: MeetingListing = { ...sample[0]!, id: 'na-fresno', name: 'Fresno Group', city: 'Fresno', county: 'Fresno County' };
+    expect(filterMeetingListings([...sample, fresno], { ...base, county: 'Fresno County' }).map((item) => item.id)).toEqual(['na-fresno']);
+    expect(filterMeetingListings([...sample, fresno], { ...base, county: 'Stanislaus County' }).map((item) => item.id)).toEqual(['aa-mon-early', 'aa-mon-late', 'na-tue']);
+    expect(filterMeetingListings([...sample, fresno], { ...base, query: 'fresno county' }).map((item) => item.id)).toEqual(['na-fresno']);
+  });
+
   it('searches names, addresses and format notes and sorts by weekday and local time', () => {
     expect(filterMeetingListings(sample, { ...base, query: 'pine' }).map((item) => item.id)).toEqual(['aa-mon-early']);
     expect(filterMeetingListings(sample, base).map((item) => item.id)).toEqual(['aa-mon-early', 'aa-mon-late', 'na-tue']);

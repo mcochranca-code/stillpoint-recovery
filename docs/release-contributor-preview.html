@@ -262,8 +262,8 @@
           <article class="card">
             <div class="kicker">What changed</div>
             <h3>Live preview is guarded</h3>
-            <p>The Netlify workflow now runs tests in test mode, verifies the standalone PWA artifact, and deploys only after the shared route, service-worker, manifest, and precache checks pass.</p>
-            <p><a href="../.github/workflows/netlify-deploy.yml">Read the deployment workflow</a> · <a href="../README.md">Open the repository README</a></p>
+            <p>GitHub Actions runs the repository's quality gates and verifies the standalone PWA artifact. The Netlify site connects directly to the GitHub <code>main</code> branch and builds/deploys new commits independently.</p>
+            <p><a href="../.github/workflows/ci.yml">Read the GitHub CI workflow</a> · <a href="../README.md">Open the repository README</a></p>
           </article>
         </div>
       </section>

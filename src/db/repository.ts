@@ -9,7 +9,7 @@ export const defaultPreferences = (): UserPreferences => {
     id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
     highContrast: false, reducedMotion: false, hideMeditationVisual: false, textScale: 1,
     timeFormat: '12h', counterStyle: 'full', liveCounter: true, reminderEnabled: false,
-    reminderTime: '19:00', trustedContacts: [], supportResources: [], discreetMode: false, gardenStyle: 'woodland',
+    reminderTime: '19:00', meetingReminders: [], trustedContacts: [], supportResources: [], discreetMode: false, gardenStyle: 'woodland',
     allowBreathHolds: false, createdAt: now, updatedAt: now,
   };
 };
@@ -31,6 +31,7 @@ export async function ensureDefaults(): Promise<void> {
         ...preferences,
         schemaVersion: CURRENT_SCHEMA_VERSION,
         supportResources: Array.isArray(preferences.supportResources) ? preferences.supportResources : [],
+        meetingReminders: Array.isArray(preferences.meetingReminders) ? preferences.meetingReminders : [],
         colorTheme: preferences.colorTheme ?? 'stillpoint',
         updatedAt: new Date().toISOString(),
       });

@@ -119,7 +119,7 @@ describe('local JSON backup restore', () => {
     legacy.close();
 
     await db.open();
-    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'obsidian', supportResources: [], schemaVersion: 3 });
+    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'obsidian', supportResources: [], schemaVersion: 5, meetingReminders: [] });
     expect(await db.personalMilestones.count()).toBe(0);
     expect(await db.dailyReflections.where('favoriteKey').equals(1).count()).toBe(1);
     expect(await db.scriptureActivity.where('favoriteKey').equals(1).count()).toBe(1);

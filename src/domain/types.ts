@@ -16,6 +16,14 @@ export type CharmCategory = 'sobriety' | 'reflection' | 'journaling' | 'meditati
 export type MeditationVisual = 'orb' | 'box' | 'ripples' | 'horizon' | 'particles';
 export type SessionStatus = 'running' | 'paused' | 'completed' | 'ended';
 
+export interface MeetingReminderRecord {
+  id: string;
+  meetingId: string;
+  leadMinutes: 15 | 30 | 60;
+  createdAt: string;
+  lastNotifiedOccurrenceAt?: string;
+}
+
 export interface UserPreferences {
   id: 'preferences';
   schemaVersion: number;
@@ -31,6 +39,7 @@ export interface UserPreferences {
   liveCounter: boolean;
   reminderEnabled: boolean;
   reminderTime: string;
+  meetingReminders?: MeetingReminderRecord[];
   trustedContacts: string[];
   supportResources: string[];
   discreetMode: boolean;

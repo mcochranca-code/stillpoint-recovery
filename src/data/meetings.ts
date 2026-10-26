@@ -1,4 +1,6 @@
-// Static public meeting-directory snapshot checked 2026-10-23.
+import { regionalMeetingListings } from './regional-meetings';
+
+// Static public Stanislaus meeting-directory snapshot checked 2026-10-23.
 // No meeting data is fetched by the app at runtime. Verify details with the linked
 // local services before traveling; schedules can change.
 export type Fellowship = 'AA' | 'NA' | 'FA';
@@ -12,6 +14,8 @@ export interface MeetingListing {
   sortMinutes: number;
   name: string;
   city: string;
+  county?: string;
+  checkedAt?: string;
   address: string;
   mode: MeetingMode;
   formatNotes: string;
@@ -20,7 +24,10 @@ export interface MeetingListing {
 export const meetingSnapshotCheckedAt = '2026-10-23';
 export const meetingSources = {
   AA: 'https://cviaa.org/aa/meetings/',
+  AAFresno: 'https://www.fresnoaa.org/meetings/',
+  AAMariposa: 'https://www.aamariposafellowship.org/page3.html',
   NA: 'https://svgna.org/svgna-meeting-schedule',
+  NAFresno: 'http://www.centralcalna.org/na-meetings.html',
   FA: 'https://www.foodaddicts.org/find-a-meeting',
   NAWorldServicesFinder: 'https://na.org/meetingsearch/find-na/',
 } as const;
@@ -4716,3 +4723,5 @@ export const stanislausMeetingListings: MeetingListing[] = [
     "sourceUrl": "https://svgna.org/svgna-meeting-schedule"
   }
 ];
+
+export const meetingListings: MeetingListing[] = [...stanislausMeetingListings, ...regionalMeetingListings];

@@ -5,7 +5,7 @@ import { CharmMedallion } from './CharmMedallion';
 afterEach(() => vi.useRealTimers());
 
 describe('CharmMedallion', () => {
-  it('is keyboard-operable and releases the spin control after the animation fallback', () => {
+  it('keeps the spin control enabled and focused during the animation fallback', () => {
     vi.useFakeTimers();
     render(<CharmMedallion name="First Light" image="/assets/charms/first-light.svg" />);
     const button = screen.getByRole('button', { name: 'Spin First Light charm' }) as HTMLButtonElement;
@@ -13,9 +13,11 @@ describe('CharmMedallion', () => {
     expect(button.getAttribute('title')).toBe('Tap to spin');
     expect(button.disabled).toBe(false);
 
+    button.focus();
     fireEvent.click(button);
     expect(button.classList.contains('is-spinning')).toBe(true);
-    expect(button.disabled).toBe(true);
+    expect(button.disabled).toBe(false);
+    expect(document.activeElement).toBe(button);
 
     act(() => { vi.advanceTimersByTime(1000); });
     expect(button.classList.contains('is-spinning')).toBe(false);

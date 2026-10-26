@@ -21,14 +21,15 @@ describe('local data repositories', () => {
 
     expect(preferences).toMatchObject({
       id: 'preferences',
-      schemaVersion: 3,
+      schemaVersion: 5,
       theme: 'system',
       onboardingComplete: false,
       supportResources: [],
+      meetingReminders: [],
     });
     expect(profile).toMatchObject({
       id: 'recovery-profile',
-      schemaVersion: 3,
+      schemaVersion: 5,
       startAt: null,
       localStartDate: null,
       intention: '',
@@ -63,7 +64,7 @@ describe('local data repositories', () => {
     legacy.close();
     await db.open();
 
-    expect((await db.recoveryProfiles.get('recovery-profile'))?.schemaVersion).toBe(3);
+    expect((await db.recoveryProfiles.get('recovery-profile'))?.schemaVersion).toBe(5);
   });
 
   it('increments supplied daily counters and replaces them when requested', async () => {

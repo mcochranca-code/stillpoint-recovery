@@ -3,6 +3,17 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { CURRENT_SCHEMA_VERSION, db } from '../db/database';
 import { ensureDefaults } from '../db/repository';
 import type { RecoveryProfile, UserPreferences } from '../domain/types';
+import { getNextDailyReminderAt, getNextMeetingReminder } from '../domain/reminders';
+import { meetingListings } from '../data/meetings';
+
+async function deliverLocalNotification(title: string, body: string, tag: string) {
+  const options: NotificationOptions = { body, tag };
+  try {
+    const registration = 'serviceWorker' in navigator ? await navigator.serviceWorker.ready : undefined;
+    if (registration?.showNotification) await registration.showNotification(title, options);
+    else new Notification(title, options);
+  } catch { /* Browser notification delivery is best-effort and can be unavailable. */ }
+}
 
 interface AppContextValue {
   preferences: UserPreferences | undefined;
@@ -59,26 +70,48 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [preferences]);
 
   useEffect(() => {
-    if (!preferences?.reminderEnabled || typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+    if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
     let timer: number | undefined;
-    const schedule = () => {
-      const [hourText, minuteText] = preferences.reminderTime.split(':');
-      const next = new Date();
-      next.setHours(Number(hourText) || 19, Number(minuteText) || 0, 0, 0);
-      if (next.getTime() <= Date.now()) next.setDate(next.getDate() + 1);
-      timer = window.setTimeout(async () => {
-        const options: NotificationOptions = { body: 'A quiet moment is here, if it helps.', tag: 'stillpoint-gentle-reminder' };
-        try {
-          const registration = 'serviceWorker' in navigator ? await navigator.serviceWorker.ready : undefined;
-          if (registration?.showNotification) await registration.showNotification('Stillpoint', options);
-          else new Notification('Stillpoint', options);
-        } catch { /* Browser notification delivery is best-effort and can be unavailable. */ }
-        schedule();
-      }, Math.max(1000, next.getTime() - Date.now()));
+    let cancelled = false;
+    const schedule = async () => {
+      if (cancelled) return;
+      const current = await db.preferences.get('preferences');
+      if (cancelled || !current) return;
+      const now = new Date();
+      const dailyAt = current.reminderEnabled ? getNextDailyReminderAt(now, current.reminderTime) : null;
+      const meetingReminder = getNextMeetingReminder(current.meetingReminders ?? [], meetingListings, now);
+      const nextAt = dailyAt && (!meetingReminder || dailyAt.getTime() <= meetingReminder.notifyAt.getTime())
+        ? dailyAt
+        : meetingReminder?.notifyAt;
+      if (!nextAt) return;
+
+      const delay = Math.max(1000, Math.min(2_147_000_000, nextAt.getTime() - Date.now()));
+      timer = window.setTimeout(() => {
+        void (async () => {
+          if (dailyAt && dailyAt.getTime() <= nextAt.getTime() && (!meetingReminder || dailyAt.getTime() <= meetingReminder.notifyAt.getTime())) {
+            const latest = await db.preferences.get('preferences');
+            if (latest?.reminderEnabled) {
+              await deliverLocalNotification('Stillpoint', 'A quiet meditation moment is here, if it helps.', 'stillpoint-daily-meditation');
+            }
+          } else if (meetingReminder) {
+            const latest = await db.preferences.get('preferences');
+            const saved = latest?.meetingReminders?.find((item) => item.id === meetingReminder.reminder.id);
+            const occurrenceAt = meetingReminder.meetingStartsAt.toISOString();
+            if (saved && saved.lastNotifiedOccurrenceAt !== occurrenceAt) {
+              await deliverLocalNotification('Stillpoint reminder', 'A meeting reminder you set is coming up, if it helps.', 'stillpoint-meeting-reminder');
+              const meetingReminders = (latest?.meetingReminders ?? []).map((item) => item.id === saved.id
+                ? { ...item, lastNotifiedOccurrenceAt: occurrenceAt }
+                : item);
+              await db.preferences.update('preferences', { meetingReminders, schemaVersion: CURRENT_SCHEMA_VERSION, updatedAt: new Date().toISOString() });
+            }
+          }
+          await schedule();
+        })().catch(() => { void schedule(); });
+      }, delay);
     };
-    schedule();
-    return () => { if (timer !== undefined) window.clearTimeout(timer); };
-  }, [preferences?.reminderEnabled, preferences?.reminderTime]);
+    void schedule();
+    return () => { cancelled = true; if (timer !== undefined) window.clearTimeout(timer); };
+  }, [preferences?.reminderEnabled, preferences?.reminderTime, preferences?.meetingReminders]);
 
   useEffect(() => {
     if (!notice) return;

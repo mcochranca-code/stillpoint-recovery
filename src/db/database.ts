@@ -17,7 +17,7 @@ import type {
   UserPreferences,
 } from '../domain/types';
 
-export const CURRENT_SCHEMA_VERSION = 3;
+export const CURRENT_SCHEMA_VERSION = 5;
 
 export interface MilestoneRecord {
   id: string;
@@ -91,6 +91,12 @@ export class StillpointDatabase extends Dexie {
           entry.favoriteKey = entry.favorite ? 1 : 0;
         }),
       ]);
+    });
+    this.version(5).stores(databaseSchema).upgrade(async (transaction) => {
+      await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
+        preferences.meetingReminders ??= [];
+        preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
+      });
     });
   }
 }

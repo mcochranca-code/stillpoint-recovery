@@ -34,9 +34,9 @@ The test suite uses Vitest with a JSDOM environment, fake IndexedDB, and Testing
 5. Runs `pnpm verify:pwa`, which validates `index.html`, the standalone manifest, route manifest, service worker, and non-empty precache manifest.
 6. Uploads `dist/` as a short-retention build artifact.
 
-The workflow has read-only repository permissions, cancels superseded runs on the same ref, and does not publish or deploy automatically. Deployment should be a separate, explicitly authorized workflow.
+The workflow has read-only repository permissions, cancels superseded runs on the same ref, and uploads a build artifact. Netlify is connected directly to the repository's `main` branch and performs its own production build/deploy on a new main commit. The Netlify build is provider-native; it does not depend on a repository deploy token or duplicate GitHub deploy action. GitHub CI and the Netlify build are independent and may finish at different times.
 
-`.github/workflows/netlify-deploy.yml` uses the same typecheck, lint, test, build, and `pnpm verify:pwa` gates before deploying `dist/`. Its tests explicitly use `NODE_ENV=test`; the production build itself relies on Vite’s production mode rather than forcing React’s test runner into a production bundle.
+The production build uses Vite's production mode; the tests run in Vitest's test environment. Netlify builds the committed source with the pnpm version pinned by the project manifest and publishes `dist/`.
 
 ## Documentation link checks
 
