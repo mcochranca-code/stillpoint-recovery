@@ -234,6 +234,8 @@ Stillpoint stores recovery dates, preferences, journals, reflections, scripture 
 
 **Local does not mean encrypted or guaranteed to last.** Stillpoint does not encrypt browser storage or exported backups. Clearing site data, removing the browser profile, or uninstalling the PWA may erase saved information; browser storage can also be affected by browser or device maintenance and storage limits. Export a backup regularly and keep it somewhere private, preferably separate from this device. Backups are ordinary JSON files and contain personal data.
 
+To move records to another device, download the JSON backup here, transfer it with a private method you trust, then choose Restore from JSON on the other device. Restore previews counts and merges records locally; the recovery profile and preferences replace their saved values, duplicate IDs are skipped, and no data is uploaded or automatically synced between devices.
+
 Stillpoint has no account or server copy, so maintainers cannot retrieve erased or corrupted records. Recovery is possible only from a valid backup you still have. Support can offer troubleshooting guidance, but should not be sent journal text or backup files. See the [Data and Privacy guide](docs/wiki/Data-and-Privacy.md) for storage details, restore behavior, and limitations.
 
 Date-only recovery dates are interpreted as local midnight. If you add a start time, the chosen local time is converted to a saved timestamp. Editing the date preserves past journal entries, sessions, and earned charms.
@@ -268,7 +270,7 @@ React · TypeScript · Vite · Tailwind CSS · Framer Motion · Dexie/IndexedDB 
 - `src/components/` — reusable interface components and dialogs.
 - `src/db/` — IndexedDB schema, migrations, repositories, milestones, and JSON backups.
 - `src/domain/` — typed data, date math, sharing, achievement criteria, and domain calculations.
-- `src/data/` — local reflections, scripture, exercises, charms, palettes, and the dated Stanislaus meeting snapshot.
+- `src/data/` — local reflections, scripture, exercises, charms, palettes, and the dated Stanislaus/regional meeting and coordinate snapshots.
 - `public/` — supplied brand assets, local soundscapes, PWA manifest, and service worker.
 - `docs/media/` — still and motion visuals used by this README.
 - `docs/meeting-sources.md` — source dates, directory links, and privacy boundaries for the bundled county schedule.
@@ -285,7 +287,7 @@ flowchart LR
     Shell --> Progress[/progress\nactivity · milestones · goals /]
     Shell --> Journal[/journal\nprivate entries · drafts · search /]
     Shell --> Meditation[/meditation\nexercises · timer · sessions /]
-    Shell --> Meetings[/meetings\nAA · NA · local snapshot /]
+    Shell --> Meetings[/meetings\nAA · NA · FA · regional map /]
     Shell --> Library[/library\nreadings · practices · collection /]
     Shell --> Reset[/reset\nbrief grounding flow /]
     Shell --> Garden[/garden\nnon-punitive visual growth /]
@@ -309,7 +311,7 @@ pnpm preview      # serve the production build locally
 node scripts/check-documentation-links.mjs  # links, PDF anchors, and rights references
 ```
 
-When changing a feature, keep recovery data local by default, preserve keyboard and reduced-motion behavior, and avoid claiming encryption or clinical outcomes. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`, and the documentation checker before opening a pull request. The automated tests cover date and timer rules, backup validation, sharing previews, content, focus behavior, ambient audio, external-resource cards, meeting filters, and Box Breathing phase positions.
+When changing a feature, keep recovery data local by default, preserve keyboard and reduced-motion behavior, and avoid claiming encryption or clinical outcomes. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`, and the documentation checker before opening a pull request. The automated tests cover date and timer rules, backup validation and read-only restore previews, sharing previews, content, focus behavior, ambient audio, external-resource cards, meeting filters and exact-coordinate county map coverage, and Box Breathing phase positions.
 
 The documentation checker runs on documentation changes, pull requests, manual dispatch, and every Monday at 08:17 UTC through [`documentation-links.yml`](.github/workflows/documentation-links.yml). It validates local Markdown links, Wiki-style `.md` links, PDF `#page=` targets, external URLs with retries, the 366-entry NA index, and required copyright/disclaimer references. It reports access-restricted external sites as warnings while failing on missing local files, invalid PDF targets, missing required notices, and confirmed broken external URLs.
 

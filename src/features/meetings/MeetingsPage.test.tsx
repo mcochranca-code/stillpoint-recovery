@@ -108,7 +108,8 @@ describe('MeetingsPage', () => {
 
     fireEvent.click(loadButton);
     const map = await screen.findByRole('region', { name: 'Interactive meeting map' });
-    expect(map.getAttribute('data-location-count')).toBe('40');
+    expect(map.getAttribute('data-location-count')).toBe('63');
+    expect(screen.getByText('Mapped counties: Fresno County · Mariposa County · Merced County · Stanislaus County')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Hide interactive map' }));
     expect(screen.queryByRole('region', { name: 'Interactive meeting map' })).toBeNull();
   });

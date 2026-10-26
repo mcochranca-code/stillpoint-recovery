@@ -6,6 +6,8 @@ const STORE_NAMES = [
   'journalEntries', 'journalDrafts', 'meditationSessions', 'activeSessions', 'earnedCharms',
   'dailyActivity', 'personalGoals', 'personalMilestones', 'milestoneRecords', 'fieldGuideNotes', 'resetRecords',
 ] as const;
+const SINGLETON_STORES = new Set<string>(['preferences', 'recoveryProfiles']);
+export const MAX_BACKUP_FILE_BYTES = 15_000_000;
 const COLOR_THEMES = new Set(['stillpoint', 'catppuccin', 'monokai', 'obsidian', 'lucide']);
 const THEME_MODES = new Set(['light', 'dark', 'system']);
 const GARDEN_STYLES = new Set(['woodland', 'desert-bloom']);
@@ -40,6 +42,24 @@ export interface ImportResult {
   imported: number;
   skippedDuplicates: number;
   skippedInvalid: number;
+}
+
+export interface BackupStorePreview {
+  store: typeof STORE_NAMES[number];
+  recordsInFile: number;
+  readyToImport: number;
+  skippedDuplicates: number;
+  skippedInvalid: number;
+  behavior: 'replace singleton' | 'merge records';
+}
+
+export interface BackupPreview {
+  schemaVersion: number;
+  recordsInFile: number;
+  readyToImport: number;
+  skippedDuplicates: number;
+  skippedInvalid: number;
+  stores: BackupStorePreview[];
 }
 
 function isString(value: unknown, max = 50000): value is string {
@@ -168,12 +188,13 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
   }
 }
 
-/**
- * Validate and merge a versioned backup in one IndexedDB transaction.
- * Preferences and the recovery profile are restored as singleton records; other records are added only when their IDs are new.
- */
-export async function importBackupText(text: string): Promise<ImportResult> {
-  if (text.length > 15_000_000) throw new Error('This backup is larger than the supported 15 MB limit.');
+interface ParsedBackup {
+  schemaVersion: number;
+  tables: Record<string, unknown[]>;
+}
+
+function parseBackupText(text: string): ParsedBackup {
+  if (text.length > MAX_BACKUP_FILE_BYTES) throw new Error('This backup is larger than the supported 15 MB limit.');
   let payload: unknown;
   try {
     payload = JSON.parse(text);
@@ -182,15 +203,78 @@ export async function importBackupText(text: string): Promise<ImportResult> {
   }
   if (!payload || typeof payload !== 'object') throw new Error('This file is not a Stillpoint backup.');
   const candidate = payload as Partial<BackupPayload>;
-  if (candidate.application !== 'stillpoint-recovery' || typeof candidate.schemaVersion !== 'number' || candidate.schemaVersion < 1 || candidate.schemaVersion > CURRENT_SCHEMA_VERSION || !candidate.tables || typeof candidate.tables !== 'object' || Array.isArray(candidate.tables)) {
+  if (candidate.application !== 'stillpoint-recovery' || typeof candidate.schemaVersion !== 'number'
+    || !Number.isInteger(candidate.schemaVersion) || candidate.schemaVersion < 1
+    || candidate.schemaVersion > CURRENT_SCHEMA_VERSION || !candidate.tables
+    || typeof candidate.tables !== 'object' || Array.isArray(candidate.tables)) {
     throw new Error('The backup format is not supported by this version of Stillpoint.');
   }
+  const tables = candidate.tables as Record<string, unknown[]>;
+  for (const name of STORE_NAMES) {
+    if (tables[name] !== undefined && !Array.isArray(tables[name])) {
+      throw new Error(`The ${name} section must be a list.`);
+    }
+  }
+  return { schemaVersion: candidate.schemaVersion, tables };
+}
+
+/** Validate a selected backup and count what would be restored without changing local data. */
+export async function inspectBackupText(text: string): Promise<BackupPreview> {
+  const candidate = parseBackupText(text);
+  const stores: BackupStorePreview[] = [];
+
+  for (const name of STORE_NAMES) {
+    const values = candidate.tables[name];
+    if (values === undefined) continue;
+    const singleton = SINGLETON_STORES.has(name);
+    const existingIds = singleton
+      ? new Set<string>()
+      : new Set((await db.table(name).toCollection().primaryKeys()).map(String));
+    const seen = new Set<string>();
+    let readyToImport = 0;
+    let skippedDuplicates = 0;
+    let skippedInvalid = 0;
+
+    for (const raw of values) {
+      if (!validRecord(name, raw)) { skippedInvalid += 1; continue; }
+      const recordId = raw.id as string;
+      if (seen.has(recordId)) { skippedDuplicates += 1; continue; }
+      seen.add(recordId);
+      if (!singleton && existingIds.has(recordId)) skippedDuplicates += 1;
+      else readyToImport += 1;
+    }
+
+    stores.push({
+      store: name,
+      recordsInFile: values.length,
+      readyToImport,
+      skippedDuplicates,
+      skippedInvalid,
+      behavior: singleton ? 'replace singleton' : 'merge records',
+    });
+  }
+
+  return {
+    schemaVersion: candidate.schemaVersion,
+    recordsInFile: stores.reduce((sum, store) => sum + store.recordsInFile, 0),
+    readyToImport: stores.reduce((sum, store) => sum + store.readyToImport, 0),
+    skippedDuplicates: stores.reduce((sum, store) => sum + store.skippedDuplicates, 0),
+    skippedInvalid: stores.reduce((sum, store) => sum + store.skippedInvalid, 0),
+    stores,
+  };
+}
+
+/**
+ * Validate and merge a versioned backup in one IndexedDB transaction.
+ * Preferences and the recovery profile are restored as singleton records; other records are added only when their IDs are new.
+ */
+export async function importBackupText(text: string): Promise<ImportResult> {
+  const candidate = parseBackupText(text);
   const result: ImportResult = { imported: 0, skippedDuplicates: 0, skippedInvalid: 0 };
   await db.transaction('rw', STORE_NAMES.map((name) => db.table(name)), async () => {
     for (const name of STORE_NAMES) {
-      const values = candidate.tables?.[name];
+      const values = candidate.tables[name];
       if (values === undefined) continue;
-      if (!Array.isArray(values)) throw new Error(`The ${name} section must be a list.`);
       const seen = new Set<string>();
       const table = db.table(name);
       for (const raw of values) {
@@ -202,9 +286,10 @@ export async function importBackupText(text: string): Promise<ImportResult> {
           // These singleton records represent current settings, while history and activity tables remain additive.
           await table.put({
             ...raw,
-            schemaVersion: 3,
+            schemaVersion: CURRENT_SCHEMA_VERSION,
             colorTheme: typeof raw.colorTheme === 'string' && COLOR_THEMES.has(raw.colorTheme) ? raw.colorTheme : 'stillpoint',
             supportResources: isStringArray(raw.supportResources) ? raw.supportResources : [],
+            meetingReminders: isMeetingReminderArray(raw.meetingReminders) ? raw.meetingReminders : [],
           });
           result.imported += 1;
           continue;

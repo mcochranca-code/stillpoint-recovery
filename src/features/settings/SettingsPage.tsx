@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, EyeOff, FileUp, HeartHandshake, ShieldCheck, Trash2 } from 'lucide-react';
 import { useAppContext } from '../../app/AppContext';
-import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText } from '../../db/backup';
+import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText, inspectBackupText, MAX_BACKUP_FILE_BYTES } from '../../db/backup';
 import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
@@ -12,6 +12,10 @@ function formatBytes(value: number): string {
   if (value < 1024) return `${value} bytes`;
   if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function backupStoreLabel(name: string): string {
+  return name.replace(/([A-Z])/g, ' $1').replace(/^./, (character) => character.toUpperCase());
 }
 
 /** Render appearance, accessibility, privacy, backup, restore, and deletion settings. */
@@ -76,11 +80,25 @@ export function SettingsPage() {
 
   async function restoreBackup(file?: File) {
     if (!file) return;
-    if (file.size > 15_000_000) { notify('This backup is larger than the supported 15 MB limit.'); return; }
-    if (!window.confirm('Import this backup into Stillpoint? Existing entries with matching IDs will be kept; profile and preferences from the backup will be restored.')) return;
     setBusy(true);
     try {
-      const result = await importBackupText(await file.text());
+      if (file.size > MAX_BACKUP_FILE_BYTES) throw new Error('This backup is larger than the supported 15 MB limit.');
+      const text = await file.text();
+      const preview = await inspectBackupText(text);
+      const storeSummary = preview.stores.filter((store) => store.recordsInFile > 0).map((store) => (
+        `${backupStoreLabel(store.store)}: ${store.readyToImport} to restore/add, ${store.skippedDuplicates} duplicate(s) skipped, ${store.skippedInvalid} invalid record(s) skipped (${store.behavior}).`
+      )).join('\n');
+      const confirmation = [
+        `Preview of ${file.name} · backup schema ${preview.schemaVersion}`,
+        `${preview.recordsInFile} record(s) in the file; ${preview.readyToImport} eligible to restore/add; ${preview.skippedDuplicates} duplicate(s) will be skipped; ${preview.skippedInvalid} invalid record(s) will be skipped.`,
+        '',
+        storeSummary || 'No records are present in supported Stillpoint tables.',
+        '',
+        'Preferences and the recovery profile will replace their current values. Other records merge by ID; matching local records are kept, and no table is cleared.',
+        'This preview has not changed local data. The JSON backup is unencrypted and may contain sensitive recovery information. Restore it now?',
+      ].join('\n');
+      if (!window.confirm(confirmation)) return;
+      const result = await importBackupText(text);
       notify(`Backup restored: ${result.imported} records added or restored; ${result.skippedDuplicates} duplicate records and ${result.skippedInvalid} invalid records skipped.`);
     } catch (error) {
       notify(error instanceof Error ? error.message : 'The backup could not be restored.');
@@ -132,8 +150,10 @@ export function SettingsPage() {
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Your private playbook</p><h2>Personal Recovery Field Guide</h2><p>Review triggers, strategies and reflections you choose to record. This tool does not predict or diagnose anything.</p></div></div><Link to="/field-guide" className="button button-secondary">Open Field Guide</Link></section>
 
-      <section className="card"><div className="card-header"><div><p className="eyebrow">Your information belongs to you</p><h2>Backup & restore</h2><p>Export a local JSON file and keep it somewhere private. Import merges unique records; duplicate IDs are skipped while preferences/profile restore from the backup.</p></div></div>
+      <section className="card"><div className="card-header"><div><p className="eyebrow">Your information belongs to you</p><h2>Backup & restore</h2><p>To move between devices, download a backup here, transfer the JSON file using a private method you trust, then choose Restore from JSON on the other device. Stillpoint does not upload or sync the file.</p></div></div>
         <div className="backup-actions"><button className="button button-primary" disabled={busy} onClick={() => void exportBackup()}><Download size={16} /> Download JSON backup</button><button className="button button-secondary" disabled={busy} onClick={() => inputRef.current?.click()}><FileUp size={16} /> Restore from JSON</button><input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" aria-label="Select Stillpoint JSON backup" onChange={(event) => void restoreBackup(event.target.files?.[0])} /></div>
+        <p className="fine-print">Restore previews record counts before confirmation. Preferences and the recovery profile replace their local values; other records merge by ID, duplicates are kept as-is, and existing records are not cleared.</p>
+        <p className="fine-print">Backup files are ordinary, unencrypted JSON and may contain journals, recovery dates and other sensitive details. Keep them private and use a transfer method you trust.</p>
         <p className="fine-print">Date-only recovery dates are interpreted as local midnight on the date selected. Travel and time-zone changes may affect the local clock display; the saved start instant remains the source for elapsed time.</p>
         <p className="storage-note"><ShieldCheck size={16} /> Stored in this browser profile on this device · {storageUse} · not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it.</p>
       </section>

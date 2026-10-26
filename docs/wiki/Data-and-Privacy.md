@@ -14,6 +14,8 @@ Clearing site data for Stillpoint, removing the browser profile, or uninstalling
 
 Exported backups are ordinary JSON files containing personal data. Save them somewhere private and protected by the device or storage service you choose, and make a fresh backup regularly. A backup kept only on the same device may be lost with that device.
 
+Cross-device transfer is manual: export the JSON on the first device, move the file using a private method the user trusts, then select it in Restore on the other device. Stillpoint does not upload it or provide automatic device-to-device sync. The file is unencrypted even if the transfer method or destination storage offers its own protection.
+
 Stillpoint does not claim device encryption, an app lock, secure messaging, or guaranteed data recovery. Because the app has no account or server copy, the project maintainers cannot retrieve or restore records that have been cleared, lost, or corrupted. Recovery is possible only from a valid backup that the user still has. Support can offer troubleshooting guidance, but should not be sent journal text, backups, or other sensitive records.
 
 ## Backup and restore
@@ -26,9 +28,9 @@ A backup is a versioned JSON object containing the local tables and an export ti
 4. Merge valid records in a read/write transaction.
 5. Skip duplicate IDs and report invalid records instead of inserting them.
 
-Restoring is explicit and local. It does not upload the file.
+Restoring is explicit and local. It does not upload the file. Before confirmation, the app shows a read-only count preview of records in the file, records eligible to restore/add, duplicates, and invalid records by table.
 
-Import validates supported backups before writing and merges records in a transaction. Records with duplicate IDs are skipped; profile and preferences from the backup are restored. Import is not a substitute for keeping a separate copy of the backup file.
+Import validates supported backups before writing and merges records in a transaction. Records with duplicate IDs are skipped; the recovery profile and preferences from the backup replace their local singleton records, while other tables merge by ID and are not cleared. A successful import does not verify the backup's integrity beyond its structural and record validation. Import is not a substitute for keeping a separate copy of the backup file.
 
 ## External resources
 
@@ -38,7 +40,7 @@ Trusted contacts are user-entered. The app never sends a message or places a cal
 
 ## Optional interactive meeting map
 
-The bundled coordinate manifest was derived from public AA/NA meeting-address text using the U.S. Census Geocoder’s `Public_AR_Current` address-range benchmark. Only results marked `Match, Exact` were included. Those coordinates are still interpolated along Census address ranges and may not mark a building entrance. Online listings and non-exact, tied or unmatched addresses are omitted. Stillpoint does not contact the Census Geocoder at runtime; confirm meeting details and entrances with the official listing.
+The bundled coordinate manifest was derived from public AA/NA/FA meeting-address text using the U.S. Census Geocoder’s `Public_AR_Current` address-range benchmark. The regional snapshot, checked October 26, 2026, adds 23 distinct exact-match locations representing 28 listings across Fresno, Mariposa, and Merced counties. Only results marked `Match, Exact` were included; 7 non-exact matches and 1 unmatched address were excluded. Those coordinates are still interpolated along Census address ranges and may not mark a building entrance. Online listings and non-exact, tied or unmatched addresses are omitted. Stillpoint does not contact the Census Geocoder at runtime; confirm meeting details and entrances with the official listing.
 
 The interactive map component is mounted only after the user selects “Load interactive map.” Its JavaScript and styles are ordinary bundled app assets and may be precached with the PWA, but no OpenStreetMap tile request is made until that choice. The browser then requests the visible tile images from the OpenStreetMap standard tile server. The tile service may receive the visitor’s IP address, ordinary request metadata and the approximate map area; the area may correlate with the locally filtered results. Tile requests do not include the filter values, search text, recovery information or device location. Stillpoint never requests geolocation.
 

@@ -68,6 +68,7 @@ export function MeetingsPage() {
   const visible = filtered.slice(0, limit);
   const mapLocations = useMemo(() => buildMeetingMapLocations(filtered), [filtered]);
   const mappedListingCount = mapLocations.reduce((count, location) => count + location.meetings.length, 0);
+  const mapCountyNames = useMemo(() => [...new Set(mapLocations.flatMap((location) => location.meetings.map((meeting) => meeting.county ?? 'Stanislaus County')))].sort((a, b) => a.localeCompare(b)), [mapLocations]);
   const inPersonResultCount = filtered.filter((meeting) => meeting.mode === 'in-person').length;
   const unmappedInPersonCount = inPersonResultCount - mappedListingCount;
 
@@ -199,6 +200,7 @@ export function MeetingsPage() {
             <div>
               <p className="eyebrow">Optional map · {mapLocations.length} approximate locations</p>
               <h3 id="meeting-map-title">Explore this filtered list</h3>
+              <p className="meeting-map-counties">Mapped counties: {mapCountyNames.join(' · ')}</p>
             </div>
             <button
               type="button"

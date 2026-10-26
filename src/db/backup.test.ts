@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { db } from './database';
-import { clearAllLocalData, importBackupText } from './backup';
+import { clearAllLocalData, importBackupText, inspectBackupText } from './backup';
 import { defaultPreferences, defaultRecoveryProfile } from './repository';
 import type { JournalEntry } from '../domain/types';
 
@@ -46,6 +46,31 @@ describe('local JSON backup restore', () => {
     expect(await db.journalEntries.count()).toBe(1);
   });
 
+  it('previews restore counts without writing, then reports the same merge result', async () => {
+    await db.journalEntries.add(validJournalEntry('journal:local'));
+    const payload = backup(5, {
+      preferences: [{ ...defaultPreferences(), onboardingComplete: false }],
+      journalEntries: [
+        validJournalEntry('journal:incoming'),
+        validJournalEntry('journal:local'),
+        validJournalEntry('journal:local', 'duplicate in file'),
+        { id: 'journal:invalid', body: 'missing required fields' },
+      ],
+    });
+
+    const preview = await inspectBackupText(payload);
+
+    expect(preview).toMatchObject({ recordsInFile: 5, readyToImport: 2, skippedDuplicates: 2, skippedInvalid: 1 });
+    expect(preview.stores.find((store) => store.store === 'preferences')).toMatchObject({ behavior: 'replace singleton', readyToImport: 1 });
+    expect(await db.journalEntries.count()).toBe(1);
+    expect(await db.preferences.count()).toBe(0);
+
+    const result = await importBackupText(payload);
+    expect(result).toEqual({ imported: 2, skippedDuplicates: 2, skippedInvalid: 1 });
+    expect(await db.journalEntries.count()).toBe(2);
+    expect(await db.preferences.get('preferences')).toMatchObject({ onboardingComplete: false, schemaVersion: 5 });
+  });
+
   it('normalizes a legacy preference record to the default palette and current schema', async () => {
     const legacy = {
       id: 'preferences', schemaVersion: 1, onboardingComplete: false, theme: 'system', highContrast: false,
@@ -55,7 +80,7 @@ describe('local JSON backup restore', () => {
     };
     const result = await importBackupText(backup(1, { preferences: [legacy] }));
     expect(result.imported).toBe(1);
-    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'stillpoint', supportResources: [], schemaVersion: 3 });
+    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'stillpoint', supportResources: [], meetingReminders: [], schemaVersion: 5 });
   });
 
   it('replaces singleton preferences and profile while merging records from a backup', async () => {

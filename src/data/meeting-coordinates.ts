@@ -1,4 +1,5 @@
 import type { MeetingListing } from './meetings';
+import { regionalMeetingCoordinateEntries, regionalMeetingCoordinateMetadata } from './regional-meeting-coordinates';
 
 export interface MeetingVenueCoordinate {
   latitude: number;
@@ -11,10 +12,12 @@ export interface MeetingVenueCoordinate {
 export const meetingCoordinateMetadata = {
   provider: 'U.S. Census Geocoder',
   benchmark: 'Public_AR_Current',
-  checkedAt: '2026-10-24',
-  exactAddressMatches: 53,
-  distinctCoordinates: 40,
-  omitted: { nonExact: 4, tie: 2, noMatch: 2 },
+  checkedAt: '2026-10-26',
+  stanislausCheckedAt: '2026-10-24',
+  exactAddressMatches: 80,
+  distinctCoordinates: 63,
+  omitted: { nonExact: 11, tie: 2, noMatch: 3 },
+  regionalSnapshot: regionalMeetingCoordinateMetadata,
   sourceUrl: 'https://geocoding.geo.census.gov/geocoder/Geocoding_Services_API.html',
   method: 'Interpolated along TIGER address ranges; approximate, not an entrance survey.',
 } as const;
@@ -392,6 +395,7 @@ const coordinateEntries: Record<string, MeetingVenueCoordinate> = {
     sourceAddress: "14143 Yosemite Blvd, Waterford, CA 95386",
     sourceCity: "Waterford",
   },
+  ...regionalMeetingCoordinateEntries,
 };
 
 export function meetingVenueCoordinateFor(meeting: Pick<MeetingListing, 'address' | 'city'>): MeetingVenueCoordinate | undefined {

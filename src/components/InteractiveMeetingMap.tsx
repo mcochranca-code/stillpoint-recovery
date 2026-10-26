@@ -56,7 +56,7 @@ export default function InteractiveMeetingMap({ locations }: InteractiveMeetingM
       zoomControl: true,
       scrollWheelZoom: false,
       keyboard: true,
-      minZoom: 9,
+      minZoom: 8,
       maxZoom: 19,
       zoomAnimation: false,
       fadeAnimation: false,
@@ -64,7 +64,7 @@ export default function InteractiveMeetingMap({ locations }: InteractiveMeetingM
     });
     const tiles = L.tileLayer(tileUrl, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-      minZoom: 9,
+      minZoom: 8,
       maxZoom: 19,
       keepBuffer: 0,
       updateWhenIdle: true,

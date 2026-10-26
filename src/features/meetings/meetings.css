@@ -69,6 +69,7 @@
 .meeting-map-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .meeting-map-panel-heading .eyebrow { margin: 0 0 3px; }
 .meeting-map-panel-heading h3 { margin: 0; font-size: 14px; }
+.meeting-map-counties { margin: 5px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
 .meeting-map-toggle { display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; gap: 7px; }
 .meeting-map-disclosure { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.6; }
 .meeting-map-disclosure a, .meeting-map-popup a { color: var(--primary); text-underline-offset: 2px; }
