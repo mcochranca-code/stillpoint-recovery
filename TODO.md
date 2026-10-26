@@ -165,3 +165,15 @@ Progress labels: `[ ]` open, `[x]` complete only after the behavior exists and e
 - Add a local meeting-format selector for all, in-person, online and Zoom. The Zoom option must match only records whose bundled official source address or format note explicitly identifies Zoom; do not infer Zoom from a generic online label.
 - Keep search local across group, city, source address and format notes so typing “Zoom” finds the same explicitly identified listing. When no Zoom listings match, explain that the snapshot only shows source-labeled Zoom details and link to the official directory.
 - Evidence: the snapshot has one explicitly Zoom-labeled online listing and 24 generic online listings. The selector and local “Zoom” search return only the labeled entry; generic online listings are excluded. Seven domain tests, seven page tests and the full 83-test suite pass.
+
+
+## 25. Optional Today quick-start and readable mobile wayfinding — [x]
+- Add a visible, optional first-step panel near the top of Today that links directly to existing Meditation, Meetings and Journal routes. Preserve the recovery counter, all existing Today cards, quick actions, and routes; do not require a recovery date or user data to use the panel.
+- Keep the mobile bottom bar's six existing destinations and accessible full route names. Use short, legible visible labels at 320px widths rather than shrinking text below readable size; preserve active-route indication and comfortable touch targets.
+- Evidence: the quick-start and full-label mobile-nav tests pass; typecheck, lint, all 117 tests, production build, PWA artifact validation (5 required files, 11 routes, 96 precached assets), documentation check (20 Markdown files, 431 local references, 28 external URLs), and diff check all pass under Node 22.23.4.
+
+## 26. Explicit web/native-host notification permission adapter — [x]
+- Read current permission status without prompting. Request browser/OS permission only from the user's explicit reminder opt-in action; enable the saved preference only when permission is granted, keep it off for denied/unsupported cases, and never request permission on app load.
+- Preserve the browser API and provide an optional typed native-host permission bridge for a future mobile wrapper. If no host bridge or browser capability exists, report unsupported; do not infer mobile support from user-agent text or claim a native client is present.
+- Keep notification language neutral and delivery expectations honest: no recovery date, meeting name, diagnosis, journal excerpt, or guaranteed closed-app delivery claim.
+- Evidence: 6 adapter tests cover read-without-prompt, explicit web request, denied permission, native bridge, request-only bridge, and unsupported clients. All 117 tests, typecheck, lint, production build, PWA artifact validation and documentation-link checks pass.

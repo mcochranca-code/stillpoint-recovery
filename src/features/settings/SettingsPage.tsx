@@ -7,6 +7,7 @@ import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
 import type { ThemeMode } from '../../domain/types';
+import { getNotificationPermission, requestNotificationPermission, type NotificationPermissionStatus } from '../../platform/notificationPermissions';
 
 function formatBytes(value: number): string {
   if (value < 1024) return `${value} bytes`;
@@ -24,7 +25,7 @@ export function SettingsPage() {
   const [contactsText, setContactsText] = useState('');
   const [resourcesText, setResourcesText] = useState('');
   const [storageUse, setStorageUse] = useState('Checking…');
-  const [notificationPermission, setNotificationPermission] = useState(typeof Notification === 'undefined' ? 'unsupported' : Notification.permission);
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermissionStatus>('unsupported');
   const [busy, setBusy] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,18 +42,24 @@ export function SettingsPage() {
     void navigator.storage.estimate().then((estimate) => setStorageUse(estimate.usage ? `${formatBytes(estimate.usage)} used by this site` : 'Usage estimate available; no limit or encryption is implied.'))
       .catch(() => setStorageUse('Storage estimate is not available in this browser.'));
   }, []);
+  useEffect(() => {
+    let active = true;
+    void getNotificationPermission().then((permission) => { if (active) setNotificationPermission(permission); });
+    return () => { active = false; };
+  }, []);
 
   if (!preferences) return <div className="empty-state">Loading settings…</div>;
 
   async function enableReminder(enabled: boolean) {
     if (!enabled) { await updatePreferences({ reminderEnabled: false }); notify('Reminders are turned off.'); return; }
-    if (!('Notification' in window)) { notify('This browser does not support notifications.'); return; }
-    let permission = Notification.permission;
-    if (permission === 'default') permission = await Notification.requestPermission();
+    const permission = await requestNotificationPermission();
     setNotificationPermission(permission);
     if (permission === 'granted') {
       await updatePreferences({ reminderEnabled: true });
-      notify('A gentle reminder is enabled while this app is open. Closed-app delivery depends on browser support.');
+      notify('A gentle reminder is enabled while this app is open. Delivery while closed depends on browser or device support.');
+    } else if (permission === 'unsupported') {
+      await updatePreferences({ reminderEnabled: false });
+      notify('This browser or mobile host does not support notifications.');
     } else {
       await updatePreferences({ reminderEnabled: false });
       notify('Notifications were not enabled. You can change this in browser settings.');
@@ -139,7 +146,7 @@ export function SettingsPage() {
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Gentle reminders</h2><p>Neutral wording. No guilt or recovery details in notifications.</p></div></div>
-        <label className="toggle-row"><span><strong>Daily meditation reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available in this browser.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
+        <label className="toggle-row"><span><strong>Daily meditation reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available on this browser or mobile host.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
         <label className="field-label" htmlFor="reminder-time">Daily meditation reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
       </section>
 

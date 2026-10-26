@@ -126,6 +126,11 @@ The choices are invitations rather than requirements. No route depends on a stre
 - **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
 - **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
 - **Milestones you can turn over.** Open the Journey Collection directly from Today or Progress, then tap or keyboard-activate a two-sided 3D charm to spin its medallion; the interaction is local, keyboard accessible, and reduced-motion aware.
+- **A clearer first step.** Today offers optional shortcuts to a quiet practice, peer meetings, and the private journal near the top of the page; all existing Today content and actions remain available below.
+
+## Help shape future improvements
+
+Taking part is optional: [share experience and usability feedback](https://form.jotform.com/262961231783057). The form asks you not to include names, recovery dates, journal text, diagnoses, or other sensitive details. Responses are submitted to Jotform and are subject to its privacy and data practices—not stored only on this device. A few fields are currently required despite the introductory skip-any-question wording; the survey design is being reviewed.
 
 ## How the pieces fit together
 
@@ -317,6 +322,6 @@ The documentation checker runs on documentation changes, pull requests, manual d
 
 ## Project wiki
 
-The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational documentation close to the implementation. It covers getting started, architecture, data and privacy, PWA/offline behavior, testing and CI, content boundaries, and contribution troubleshooting. The [static release and contributor preview](docs/release-contributor-preview.html) presents the npm release path and contributor quality rhythm visually, while the [interactive GitHub dashboard](docs/release-contributor-dashboard.html) reads current public workflow, issue, commit, pull-request, and comment data without a backend or token. Keeping these pages in the repository makes changes reviewable alongside code; they can also seed a GitHub Wiki if that separate space is initialized later.
+The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational documentation close to the implementation. It covers getting started, architecture, data and privacy, PWA/offline behavior, testing and CI, content boundaries, and contribution troubleshooting. See also the [project handoff](docs/project-handoff.md), [presentation script](docs/presentation-script.md), and [reminder and survey review](docs/reminder-and-survey-review.md). The [static release and contributor preview](docs/release-contributor-preview.html) presents the npm release path and contributor quality rhythm visually, while the [interactive GitHub dashboard](docs/release-contributor-dashboard.html) reads current public workflow, issue, commit, pull-request, and comment data without a backend or token. Keeping these pages in the repository makes changes reviewable alongside code; they can also seed a GitHub Wiki if that separate space is initialized later.
 
 <p align="center"><sub>Made for the day you are in. Not affiliated with Narcotics Anonymous World Services.</sub></p>
