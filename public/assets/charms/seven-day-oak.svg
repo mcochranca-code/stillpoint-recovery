@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Seven Day Oak charm">
+<circle cx="100" cy="100" r="91" fill="#A9C8A4" stroke="#C79A43" stroke-width="5"/>
+<circle cx="100" cy="100" r="78" fill="none" stroke="#FFF8E7" stroke-width="3" opacity=".9"/>
+<path d="M100 145V86M100 108L69 83M100 119L132 91" stroke="#315D42" stroke-width="8" stroke-linecap="round"/><circle cx="100" cy="55" r="28" fill="#315D42"/><circle cx="73" cy="77" r="20" fill="#315D42"/><circle cx="128" cy="78" r="21" fill="#315D42"/>
+</svg>

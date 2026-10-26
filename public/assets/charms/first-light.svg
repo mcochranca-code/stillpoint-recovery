@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="First Light charm">
+<circle cx="100" cy="100" r="91" fill="#E8D39B" stroke="#C79A43" stroke-width="5"/>
+<circle cx="100" cy="100" r="78" fill="none" stroke="#FFF8E7" stroke-width="3" opacity=".9"/>
+<path d="M100 124V80" stroke="#245444" stroke-width="8" stroke-linecap="round"/><path d="M100 94C70 94 55 77 56 55C83 54 99 69 100 94Z" fill="#245444"/><path d="M101 82C103 55 122 42 145 46C143 69 126 83 101 82Z" fill="#245444"/>
+</svg>

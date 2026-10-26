@@ -1,0 +1,72 @@
+{
+  "name": "stillpoint-recovery",
+  "version": "1.0.0",
+  "description": "A local-first, installable recovery companion.",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "src/",
+    "public/",
+    "scripts/",
+    "index.html",
+    "app.config.ts",
+    "postcss.config.js",
+    "tailwind.config.ts",
+    "tsconfig*.json",
+    "vite.config.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mcochranca-code/stillpoint-recovery.git"
+  },
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -b && vite build && node scripts/create-precache-manifest.mjs",
+    "typecheck": "tsc -b --pretty",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage --coverage.reporter=text --coverage.reporter=html --coverage.reporter=json-summary",
+    "preview": "vite preview",
+    "verify:pwa": "node scripts/check-pwa-artifact.mjs"
+  },
+  "dependencies": {
+    "dexie": "4.4.7",
+    "dexie-react-hooks": "4.4.0",
+    "framer-motion": "14.6.0",
+    "leaflet": "1.9.4",
+    "lucide-react": "1.61.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router-dom": "7.18.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.8",
+    "@types/leaflet": "1.9.22",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "@vitest/coverage-v8": "5.0.5",
+    "eslint": "10.13.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "fake-indexeddb": "6.2.6",
+    "globals": "17.13.0",
+    "jsdom": "30.1.3",
+    "postcss": "8.5.31",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
+  }
+}

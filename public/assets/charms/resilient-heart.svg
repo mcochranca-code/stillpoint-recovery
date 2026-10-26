@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Resilient Heart charm">
+<circle cx="100" cy="100" r="91" fill="#82B8B4" stroke="#C79A43" stroke-width="5"/>
+<circle cx="100" cy="100" r="78" fill="none" stroke="#FFF8E7" stroke-width="3" opacity=".9"/>
+<path d="M100 137L53 94C22 64 66 34 100 66C134 34 178 64 147 94Z" fill="#245B5A"/>
+</svg>

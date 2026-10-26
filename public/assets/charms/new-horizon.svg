@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="New Horizon charm">
+<circle cx="100" cy="100" r="91" fill="#E7C77E" stroke="#C79A43" stroke-width="5"/>
+<circle cx="100" cy="100" r="78" fill="none" stroke="#FFF8E7" stroke-width="3" opacity=".9"/>
+<path d="M45 122A55 55 0 0 1 155 122" fill="none" stroke="#386A75" stroke-width="10"/><path d="M35 128H165M50 145H150" stroke="#386A75" stroke-width="7" stroke-linecap="round"/><path d="M100 43V31M58 62L49 53M142 62L151 53" stroke="#386A75" stroke-width="7" stroke-linecap="round"/>
+</svg>

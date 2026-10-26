@@ -1,0 +1,7 @@
+/* Attach a class to the relevant SVG/container to animate it gently. */
+@media (prefers-reduced-motion: no-preference) {
+  .breathing-orb { animation: stillpoint-breathe 8s ease-in-out infinite; transform-origin: center; }
+  .grounding-ripple circle { animation: stillpoint-ripple 7s ease-out infinite; transform-origin: center; }
+}
+@keyframes stillpoint-breathe { 0%,100% { transform: scale(.88); opacity:.82; } 50% { transform: scale(1.06); opacity:1; } }
+@keyframes stillpoint-ripple { 0% { transform: scale(.85); opacity:.35; } 50% { transform: scale(1.02); opacity:.85; } 100% { transform: scale(1.12); opacity:.25; } }

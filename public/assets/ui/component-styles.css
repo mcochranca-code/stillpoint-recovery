@@ -1,0 +1,8 @@
+/* Optional UI styling starter for Stillpoint Recovery */
+.sp-card { background: var(--stillpoint-paper, #FFFEFA); border: 1px solid rgba(36,84,68,.12); border-radius: var(--stillpoint-radius-card, 18px); box-shadow: var(--stillpoint-shadow-card, 0 8px 28px rgba(27,62,52,.08)); padding: 1.1rem; }
+.sp-button-primary { background: var(--stillpoint-forest, #245444); color: #fff; border: 0; border-radius: var(--stillpoint-radius-control, 12px); padding: .8rem 1rem; font: inherit; font-weight: 600; cursor: pointer; }
+.sp-button-primary:focus-visible, .sp-card:focus-visible { outline: 3px solid var(--stillpoint-sky, #4B91C5); outline-offset: 3px; }
+.sp-muted { color: var(--stillpoint-muted, #62766F); }
+.sp-progress-track { height: 8px; border-radius: 999px; background: #E5ECE5; overflow: hidden; }
+.sp-progress-fill { height: 100%; border-radius: inherit; background: var(--stillpoint-sage, #7FA58A); transition: width 300ms ease; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }

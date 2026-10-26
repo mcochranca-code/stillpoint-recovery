@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Year Of Growth charm">
+<circle cx="100" cy="100" r="91" fill="#A9A8D5" stroke="#C79A43" stroke-width="5"/>
+<circle cx="100" cy="100" r="78" fill="none" stroke="#FFF8E7" stroke-width="3" opacity=".9"/>
+<path d="M100 35L116 78L161 80L126 108L138 151L100 126L62 151L74 108L39 80L84 78Z" fill="#45416E"/>
+</svg>
