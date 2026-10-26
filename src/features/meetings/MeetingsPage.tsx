@@ -1,7 +1,10 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { CalendarDays, ExternalLink, MapPin, Search, UsersRound } from 'lucide-react';
-import { meetingListings, meetingSnapshotCheckedAt, meetingSources } from '../../data/meetings';
+import { meetingListings, meetingSnapshotCheckedAt, meetingSources, onlineWorkbookDuplicateRowCount } from '../../data/meetings';
+import { meetingVenueCoordinateFor } from '../../data/meeting-coordinates';
+import { workbookMeetingCoverage } from '../../data/workbook-meeting-coverage';
+import { onlineWorkbookCoverage } from '../../data/online-workbook-coverage';
 import { db } from '../../db/database';
 import { filterMeetingListings, type FellowshipFilter, type MeetingDayFilter, type MeetingFormatFilter } from '../../domain/meetings';
 import { buildMeetingMapLocations } from '../../domain/meeting-map';
@@ -9,8 +12,8 @@ import './meetings.css';
 
 const InteractiveMeetingMap = lazy(() => import('../../components/InteractiveMeetingMap'));
 const weekdayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const countyNames = ['Stanislaus County', 'Fresno County', 'Mariposa County', 'Merced County'];
-const cityNames = [...new Set(meetingListings.map((meeting) => meeting.city))].sort((a, b) => a.localeCompare(b));
+const countyNames = [...new Set(meetingListings.map((meeting) => meeting.county ?? 'Stanislaus County'))].sort((a, b) => a.localeCompare(b));
+const cityNames = [...new Set(meetingListings.map((meeting) => meeting.city).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 const sourceLinkProps = { target: '_blank', rel: 'noopener noreferrer', referrerPolicy: 'no-referrer' as const };
 
 function checkedDateLabel() {
@@ -69,8 +72,8 @@ export function MeetingsPage() {
   const mapLocations = useMemo(() => buildMeetingMapLocations(filtered), [filtered]);
   const mappedListingCount = mapLocations.reduce((count, location) => count + location.meetings.length, 0);
   const mapCountyNames = useMemo(() => [...new Set(mapLocations.flatMap((location) => location.meetings.map((meeting) => meeting.county ?? 'Stanislaus County')))].sort((a, b) => a.localeCompare(b)), [mapLocations]);
-  const inPersonResultCount = filtered.filter((meeting) => meeting.mode === 'in-person').length;
-  const unmappedInPersonCount = inPersonResultCount - mappedListingCount;
+  const physicalOrHybridResultCount = filtered.filter((meeting) => meeting.mode === 'in-person' || meeting.mode === 'hybrid').length;
+  const unmappedPhysicalOrHybridCount = physicalOrHybridResultCount - mappedListingCount;
 
   function clearFilters() {
     setFellowship('all');
@@ -122,7 +125,7 @@ export function MeetingsPage() {
           <h1>Local meeting finder.</h1>
           <p>Search offline meeting snapshots by fellowship, county, day, format and time. A missing listing means the snapshot does not include it—not that no meeting exists. Confirm details with the official source before traveling.</p>
         </div>
-        <span className="pill"><UsersRound size={14} aria-hidden="true" /> AA · NA · FA finder</span>
+          <span className="pill"><UsersRound size={14} aria-hidden="true" /> AA · NA · FA · SMART finder</span>
       </header>
 
       <section className="card meetings-sources" aria-labelledby="meeting-sources-title">
@@ -137,9 +140,29 @@ export function MeetingsPage() {
           <a href={meetingSources.NA} {...sourceLinkProps}>NA · SVGNA local schedule <ExternalLink size={14} aria-hidden="true" /></a>
           <a href={meetingSources.NAFresno} {...sourceLinkProps}>NA · Central California NA <ExternalLink size={14} aria-hidden="true" /></a>
           <a href={meetingSources.FA} {...sourceLinkProps}>FA · Food Addicts live finder <ExternalLink size={14} aria-hidden="true" /></a>
+          <a href={meetingSources.SMART} {...sourceLinkProps}>SMART Recovery live finder <ExternalLink size={14} aria-hidden="true" /></a>
           <a href={meetingSources.NAWorldServicesFinder} {...sourceLinkProps}>NA World Services meeting finder <ExternalLink size={14} aria-hidden="true" /></a>
         </div>
-        <p className="meeting-source-note">The Stanislaus AA/NA snapshot was checked {checkedDateLabel()}. Selected Fresno, Mariposa and Merced records, plus one Fresno FA listing, were checked October 26, 2026. Regional entries are a small, source-linked offline sample—not an exhaustive county directory. No Mariposa NA listing or Mariposa/Merced FA listing was verified in the sources reviewed; an empty county/fellowship result is not evidence that no meeting exists. Confirm time, venue and access with the source before traveling. These independent directories are not endorsements or claims of affiliation.</p>
+        <p className="meeting-source-note">The Stanislaus AA/NA snapshot was checked {checkedDateLabel()}. The local directory includes a user-validated 233-row workbook snapshot and a separate 157-row online/hybrid schedule snapshot, both dated October 26, 2026, plus earlier regional examples. These are partial snapshots, not complete county directories. Exact repeats from earlier snapshots are shown once. All listings are source-linked and may change; verify the time, host scope, venue and access before attending. A missing listing is not evidence that no meeting exists. These independent directories are not endorsements or claims of affiliation.</p>
+        <details className="meeting-coverage-details">
+          <summary>Workbook row counts and county coverage notes</summary>
+          <p>{workbookMeetingCoverage.completenessNote}</p>
+          <ul>
+            {workbookMeetingCoverage.countyCoverage.map((coverage) => (
+              <li key={coverage.county}><strong>{coverage.county} · {coverage.rowsIncluded} workbook rows.</strong> {coverage.limitation}</li>
+            ))}
+          </ul>
+        </details>
+        <details className="meeting-coverage-details">
+          <summary>Online / hybrid snapshot: {onlineWorkbookCoverage.rowsImported} source rows; {onlineWorkbookDuplicateRowCount} repeats kept once</summary>
+          <p>{onlineWorkbookCoverage.completenessNote}</p>
+          <p>{onlineWorkbookCoverage.credentialNotice}</p>
+          <ul>
+            {onlineWorkbookCoverage.countyCoverage.map((coverage) => (
+              <li key={coverage.county}><strong>{coverage.county} · {coverage.rowsIncluded} rows · {coverage.status}.</strong> {coverage.limitation}</li>
+            ))}
+          </ul>
+        </details>
       </section>
 
       <section className="card" aria-labelledby="meeting-list-title">
@@ -155,12 +178,12 @@ export function MeetingsPage() {
           </label>
           <label className="field-label" htmlFor="meeting-fellowship">Fellowship
             <select id="meeting-fellowship" value={fellowship} onChange={(event) => { setFellowship(event.target.value as FellowshipFilter); setLimit(30); }}>
-              <option value="all">All bundled listings</option><option value="AA">AA only</option><option value="NA">NA only</option><option value="FA">Food Addicts (FA)</option>
+              <option value="all">All bundled listings</option><option value="AA">AA only</option><option value="NA">NA only</option><option value="FA">Food Addicts (FA)</option><option value="SMART">SMART Recovery</option>
             </select>
           </label>
           <label className="field-label" htmlFor="meeting-format">Meeting format
             <select id="meeting-format" value={format} onChange={(event) => { setFormat(event.target.value as MeetingFormatFilter); setLimit(30); }}>
-              <option value="all">All formats</option><option value="in-person">In-person only</option><option value="online">Online only</option><option value="zoom">Zoom · source-labeled</option>
+              <option value="all">All formats</option><option value="in-person">In-person only</option><option value="online">Online only</option><option value="hybrid">Hybrid only</option><option value="zoom">Zoom · source-labeled</option>
             </select>
           </label>
           <label className="field-label" htmlFor="meeting-day">Day
@@ -179,7 +202,7 @@ export function MeetingsPage() {
             <span className="meeting-search-control"><Search size={16} aria-hidden="true" /><input id="meeting-search" type="search" value={query} onChange={(event) => { setQuery(event.target.value); setLimit(30); }} placeholder="Try a group, city or Zoom" /></span>
           </label>
           <div className="meeting-time-filter" role="group" aria-labelledby="meeting-time-title">
-            <span className="field-label meeting-time-title" id="meeting-time-title">Local meeting start time</span>
+            <span className="field-label meeting-time-title" id="meeting-time-title">Listed meeting start time</span>
             <label className="field-label" htmlFor="meeting-start-after">Start time after
               <input id="meeting-start-after" type="time" value={startAfter} onChange={(event) => { setStartAfter(event.target.value); setLimit(30); }} aria-describedby="meeting-time-hint" />
             </label>
@@ -213,7 +236,7 @@ export function MeetingsPage() {
             </button>
           </div>
           <p className="meeting-map-disclosure">
-            {mappedListingCount} of {inPersonResultCount} in-person listings in this view have an exact address-range match{unmappedInPersonCount > 0 ? `; ${unmappedInPersonCount} without an exact match are not pinned` : ''}. Pins are approximate address-range positions, not confirmed building entrances. Tiles load from OpenStreetMap only after you choose the map; the tile server receives ordinary connection metadata and the viewed map area, which may correlate with this local filter view, but not your search text, filter values, device location, or recovery information. See the <a href="https://operations.osmfoundation.org/policies/tiles/" {...sourceLinkProps}>tile usage policy</a>.
+            {mappedListingCount} of {physicalOrHybridResultCount} in-person or hybrid listings in this view have an exact address-range match{unmappedPhysicalOrHybridCount > 0 ? `; ${unmappedPhysicalOrHybridCount} without an exact match are not pinned` : ''}. Pins are approximate address-range positions, not confirmed building entrances. Tiles load from OpenStreetMap only after you choose the map; the tile server receives ordinary connection metadata and the viewed map area, which may correlate with this local filter view, but not your search text, filter values, device location, or recovery information. See the <a href="https://operations.osmfoundation.org/policies/tiles/" {...sourceLinkProps}>tile usage policy</a>.
           </p>
           <div id="interactive-meeting-map" className="meeting-map-slot" hidden={!mapOpen}>
             {mapOpen && <Suspense fallback={<p className="meeting-map-loading" role="status">Loading the interactive map…</p>}>
@@ -224,14 +247,19 @@ export function MeetingsPage() {
 
         {visible.length ? <ul className="meeting-cards" aria-label="Meeting listings">
           {visible.map((meeting) => {
-            const mapReady = meeting.mode === 'in-person' && Boolean(meeting.address);
+            const mapReady = (meeting.mode === 'in-person' || meeting.mode === 'hybrid') && Boolean(meetingVenueCoordinateFor(meeting));
             const reminder = preferences?.meetingReminders?.find((item) => item.meetingId === meeting.id);
+            const locality = [meeting.city, meeting.county ?? 'Stanislaus County'].filter(Boolean).join(', ');
             return <li key={meeting.id}>
               <article className="meeting-listing">
-                <div className="meeting-listing-top"><span className={`meeting-fellowship-badge ${meeting.fellowship.toLowerCase()}`}>{meeting.fellowship}</span><span>{meeting.dayName} · {meeting.time}</span></div>
+                <div className="meeting-listing-top"><span className={`meeting-fellowship-badge ${meeting.fellowship.toLowerCase()}`}>{meeting.fellowship}</span><span>{meeting.modalityLabel ?? meeting.mode} · {meeting.dayName} · {meeting.time}</span></div>
                 <h3>{meeting.name}</h3>
-                <p className="meeting-location"><MapPin size={15} aria-hidden="true" /><span>{meeting.city}, {meeting.county ?? 'Stanislaus County'} · {meeting.address}</span></p>
-                {meeting.formatNotes && <p className="meeting-format"><strong>Source format/note:</strong> {meeting.formatNotes}</p>}
+                <p className="meeting-location"><MapPin size={15} aria-hidden="true" /><span>{locality || 'Locality not listed'} · {meeting.address}</span></p>
+                {meeting.scopeNote && <p className="meeting-format"><strong>Host city / directory scope:</strong> {meeting.scopeNote}</p>}
+                {meeting.sourceTitle && <p className="meeting-format"><strong>Source:</strong> {meeting.sourceTitle}</p>}
+                {meeting.formatNotes && <p className="meeting-format"><strong>Access / format:</strong> {meeting.formatNotes}</p>}
+                {meeting.timeZoneNote && <p className="meeting-format"><strong>Timezone / time note:</strong> {meeting.timeZoneNote}</p>}
+                {meeting.verificationNote && <p className="meeting-format"><strong>Verification note:</strong> {meeting.verificationNote}</p>}
                 {meeting.checkedAt && <p className="meeting-format">This listing was checked {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${meeting.checkedAt}T12:00:00Z`))}.</p>}
                 <div className="meeting-listing-actions">
                   <a href={meeting.sourceUrl} {...sourceLinkProps}>Official listing <ExternalLink size={13} aria-hidden="true" /></a>
@@ -251,11 +279,11 @@ export function MeetingsPage() {
           })}
         </ul> : <div className="empty-state meeting-empty">
           {county !== 'all' && !hasSnapshotForScope ? <>
-            <h3>No bundled {fellowship === 'all' ? 'AA, NA or FA' : fellowship} snapshot is available for {county}.</h3>
+            <h3>No bundled {fellowship === 'all' ? 'AA, NA, FA or SMART Recovery' : fellowship} snapshot is available for {county}.</h3>
             <p>This reflects the limited checked source sample, not the presence or absence of local meetings. Review the official local directories above for current coverage.</p>
           </> : fellowship === 'FA' && !meetingListings.some((meeting) => meeting.fellowship === 'FA' && (county === 'all' || meeting.county === county)) ? <>
             <h3>No Food Addicts listing is bundled for this selection.</h3>
-            <p>This does not mean there are no meetings nearby. The official live finder supports location, day, type, language and time-of-day filters. Only a verified Fresno example is indexed offline in this snapshot.</p>
+            <p>This does not mean there are no meetings nearby. The bundled extract is incomplete; the official live finder supports location, day, type, language and time-of-day filters.</p>
             <a className="button button-secondary meeting-empty-link" href={meetingSources.FA} {...sourceLinkProps}>Open Food Addicts official finder <ExternalLink size={14} aria-hidden="true" /></a>
           </> : format === 'zoom' ? <>
             <h3>No source-labeled Zoom listings match these filters.</h3>
@@ -271,7 +299,7 @@ export function MeetingsPage() {
         {visible.length < filtered.length && <div className="meeting-show-more"><button className="button button-secondary" type="button" onClick={() => setLimit((value) => value + 30)}>Show 30 more</button></div>}
       </section>
 
-      <p className="fine-print meetings-privacy-note">Stillpoint does not request your location, record attendance, or transmit meeting search text, filter values, or recovery details to a service. Bundled listings and reminder choices stay on this device. Loading the optional in-app map sends OpenStreetMap tile requests that reveal the viewed map area, which may correlate with local filters; external directory and map links open only after you choose them. FA search criteria are entered on the official external site only after you choose its link. NA format abbreviations follow the source’s key.</p>
+      <p className="fine-print meetings-privacy-note">Stillpoint does not request your location, record attendance, or transmit meeting search text, filter values, or recovery details to a service. Bundled listings and reminder choices stay on this device. The public demo intentionally omits direct Zoom invitations, meeting IDs and passcodes; use the linked official detail page for current access information. Loading the optional in-app map sends OpenStreetMap tile requests that reveal the viewed map area, which may correlate with local filters; external directory and map links open only after you choose them. FA search criteria are entered on the official external site only after you choose its link. NA format abbreviations follow the source’s key.</p>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import type { MeetingListing } from './meetings';
 import { regionalMeetingCoordinateEntries, regionalMeetingCoordinateMetadata } from './regional-meeting-coordinates';
+import { workbookMeetingCoordinateEntries, workbookMeetingCoordinateMetadata } from './workbook-meeting-coordinates';
 
 export interface MeetingVenueCoordinate {
   latitude: number;
@@ -18,6 +19,7 @@ export const meetingCoordinateMetadata = {
   distinctCoordinates: 63,
   omitted: { nonExact: 11, tie: 2, noMatch: 3 },
   regionalSnapshot: regionalMeetingCoordinateMetadata,
+  workbookSnapshot: workbookMeetingCoordinateMetadata,
   sourceUrl: 'https://geocoding.geo.census.gov/geocoder/Geocoding_Services_API.html',
   method: 'Interpolated along TIGER address ranges; approximate, not an entrance survey.',
 } as const;
@@ -396,6 +398,7 @@ const coordinateEntries: Record<string, MeetingVenueCoordinate> = {
     sourceCity: "Waterford",
   },
   ...regionalMeetingCoordinateEntries,
+  ...workbookMeetingCoordinateEntries,
 };
 
 export function meetingVenueCoordinateFor(meeting: Pick<MeetingListing, 'address' | 'city'>): MeetingVenueCoordinate | undefined {

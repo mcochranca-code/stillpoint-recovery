@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { stanislausMeetingListings } from '../data/meetings';
 import { regionalMeetingListings } from '../data/regional-meetings';
+import { workbookMeetingListings } from '../data/workbook-meetings';
 import { meetingVenueCoordinateFor } from '../data/meeting-coordinates';
 import { buildMeetingMapLocations } from './meeting-map';
 
@@ -40,6 +41,21 @@ describe('buildMeetingMapLocations', () => {
     expect(mappedIds.has('fa-fresno-cv-church-christ')).toBe(true);
     expect(mappedIds.has('aa-mariposa-open-hall-mon')).toBe(false);
     expect(mappedIds.has('aa-mariposa-yosemite-chapel')).toBe(false);
+  });
+
+  it('maps only exact-address workbook listings and includes hybrid venues across the additional counties', () => {
+    const locations = buildMeetingMapLocations(workbookMeetingListings);
+    const mapped = locations.flatMap((location) => location.meetings);
+    const distinctExactAddresses = new Set(mapped.map((meeting) => `${meeting.city.toLocaleLowerCase()}|${meeting.address.toLocaleLowerCase()}`));
+
+    expect(locations).toHaveLength(52);
+    expect(distinctExactAddresses.size).toBe(55);
+    expect(mapped.every((meeting) => meeting.mode === 'in-person' || meeting.mode === 'hybrid')).toBe(true);
+    expect(mapped.some((meeting) => meeting.mode === 'hybrid')).toBe(true);
+    expect(new Set(mapped.map((meeting) => meeting.county))).toEqual(new Set([
+      'Alameda County', 'Fresno County', 'Los Angeles County', 'Mariposa County', 'Merced County', 'Tulare County',
+    ]));
+    expect(locations.every((location) => location.meetings.length > 0)).toBe(true);
   });
 
   it('normalizes case and repeated whitespace when looking up a verified source address', () => {

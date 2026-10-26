@@ -29,8 +29,26 @@ describe('MeetingsPage', () => {
     expectExternalLink(fresnoNa, 'http://www.centralcalna.org/na-meetings.html');
     expectExternalLink(fa, 'https://www.foodaddicts.org/find-a-meeting');
     expect(screen.getByText(/Stanislaus AA\/NA snapshot was checked Oct 23, 2026/)).toBeTruthy();
-    expect(screen.getByText(/small, source-linked offline sample—not an exhaustive county directory/)).toBeTruthy();
+    expect(screen.getByText(/233-row workbook snapshot and a separate 157-row online\/hybrid schedule snapshot, both dated October 26, 2026/)).toBeTruthy();
+    expect(screen.getAllByText(/not an exhaustive/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/does not request your location, record attendance/)).toBeTruthy();
+  });
+
+  it('discloses online snapshot limitations and lets users find broad-scope entries without publishing join credentials', () => {
+    render(<MeetingsPage />);
+    fireEvent.click(screen.getByText(/Online \/ hybrid snapshot: 157 source rows/));
+    expect(screen.getByText(/partial, date-stamped source snapshot/i)).toBeTruthy();
+    expect(screen.getByText(/Direct Zoom invite URLs, meeting IDs, passcodes/i)).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
+    fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Fresno County' } });
+    fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'AA' } });
+    fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'online' } });
+    fireEvent.change(screen.getByLabelText('Search group, city, address or platform'), { target: { value: 'Women with GUTS' } });
+    expect(screen.getByRole('heading', { name: 'Women with GUTS' })).toBeTruthy();
+    expect(screen.getByText(/National\/broad online—not county-hosted/)).toBeTruthy();
+    expect(screen.getByText(/direct Zoom invitations are intentionally not bundled/i)).toBeTruthy();
+    expect(screen.queryByRole('link', { name: /zoom\.us\/j\//i })).toBeNull();
   });
 
   it('filters the local snapshot by fellowship, day, city and search text', () => {
@@ -61,15 +79,15 @@ describe('MeetingsPage', () => {
     render(<MeetingsPage />);
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
     fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'zoom' } });
-    expect(screen.getByRole('heading', { name: 'Sunday Sunrise Virtual' })).toBeTruthy();
-    expect(screen.getByText(/Zoom meeting ID/)).toBeTruthy();
+    expect(screen.getAllByRole('heading', { name: 'Sunday Sunrise Virtual' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Zoom meeting ID/).length).toBeGreaterThan(0);
     expect(screen.queryByText('No source-labeled Zoom listings match these filters.')).toBeNull();
 
     fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'online' } });
-    expect(screen.getByRole('heading', { name: 'Sunday Sunrise Virtual' })).toBeTruthy();
+    expect(screen.getAllByRole('heading', { name: 'Sunday Sunrise Virtual' }).length).toBeGreaterThan(0);
     fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'all' } });
     fireEvent.change(screen.getByLabelText('Search group, city, address or platform'), { target: { value: 'Zoom' } });
-    expect(screen.getByRole('heading', { name: 'Sunday Sunrise Virtual' })).toBeTruthy();
+    expect(screen.getAllByRole('heading', { name: 'Sunday Sunrise Virtual' }).length).toBeGreaterThan(0);
     expect(screen.queryByRole('heading', { name: 'True Solutions' })).toBeNull();
 
     fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'zoom' } });
@@ -82,11 +100,23 @@ describe('MeetingsPage', () => {
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
     fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Fresno County' } });
     fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'FA' } });
+    fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'in-person' } });
     expect(screen.getByRole('heading', { name: 'Central Valley Church of Christ, Room 6' })).toBeTruthy();
     expect(screen.getByText(/checked Oct 26, 2026/)).toBeTruthy();
     const liveFinder = screen.getByRole('link', { name: /FA · Food Addicts live finder/ });
     expectExternalLink(liveFinder, 'https://www.foodaddicts.org/find-a-meeting');
     expectExternalLink(screen.getByRole('link', { name: 'Official listing' }), 'https://www.foodaddicts.org/meeting/1250');
+  });
+
+  it('exposes SMART Recovery and hybrid formats from the offline workbook', () => {
+    render(<MeetingsPage />);
+    fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
+    fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Merced County' } });
+    fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'SMART' } });
+    expect(screen.getAllByRole('article').length).toBeGreaterThan(0);
+    fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'all' } });
+    fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'hybrid' } });
+    expect(screen.getAllByRole('article').length).toBeGreaterThan(0);
   });
 
   it('explains that a missing county/fellowship sample does not mean no meetings exist', () => {
@@ -108,8 +138,8 @@ describe('MeetingsPage', () => {
 
     fireEvent.click(loadButton);
     const map = await screen.findByRole('region', { name: 'Interactive meeting map' });
-    expect(map.getAttribute('data-location-count')).toBe('63');
-    expect(screen.getByText('Mapped counties: Fresno County · Mariposa County · Merced County · Stanislaus County')).toBeTruthy();
+    expect(Number(map.getAttribute('data-location-count'))).toBeGreaterThan(63);
+    expect(screen.getByText('Mapped counties: Alameda County · Fresno County · Los Angeles County · Mariposa County · Merced County · Stanislaus County · Tulare County')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Hide interactive map' }));
     expect(screen.queryByRole('region', { name: 'Interactive meeting map' })).toBeNull();
   });
