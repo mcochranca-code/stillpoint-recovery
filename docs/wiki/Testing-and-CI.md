@@ -38,6 +38,10 @@ The workflow has read-only repository permissions, cancels superseded runs on th
 
 The production build uses Vite's production mode; the tests run in Vitest's test environment. Netlify builds the committed source with the pnpm version pinned by the project manifest and publishes `dist/`.
 
+## Manus Webdev source boundary
+
+The Manus Webdev copy uses its own Manus-managed canonical repository. In this setup, the supported repository workflow cannot adopt the existing GitHub repository as the Manus project's canonical source. A change pushed to GitHub therefore does not automatically update the Manus copy: explicitly synchronize the source and save a Manus checkpoint separately. Netlify's GitHub connection covers Netlify deployments only; it does not synchronize Manus.
+
 ## Documentation link checks
 
 Run the repository-native checker with:
