@@ -6,6 +6,11 @@
 .meeting-source-links a:hover,
 .meeting-listing-actions a:hover { border-color: var(--primary); background: var(--primary-soft); }
 .meeting-source-note { margin: 13px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.meeting-coverage-details { margin-top: 12px; border-top: 1px solid var(--border); color: var(--muted); font-size: 10px; line-height: 1.6; }
+.meeting-coverage-details summary { padding: 10px 0 2px; color: var(--primary); cursor: pointer; font-weight: 700; }
+.meeting-coverage-details p { margin: 8px 0; }
+.meeting-coverage-details ul { display: grid; gap: 7px; margin: 0; padding-left: 18px; }
+.meeting-coverage-details strong { color: var(--ink); }
 .meetings-list-heading { align-items: center; }
 .meeting-filter-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .meeting-filter-grid .field-label { display: grid; gap: 7px; }
@@ -28,6 +33,8 @@
 .meeting-fellowship-badge { min-width: 31px; padding: 4px 8px; border-radius: 999px; background: var(--primary-soft); color: var(--primary); text-align: center; font-size: 10px; font-weight: 800; }
 .meeting-fellowship-badge.na { background: color-mix(in srgb, var(--sage) 17%, transparent); color: var(--sage); }
 .meeting-fellowship-badge.fa { background: color-mix(in srgb, var(--gold) 25%, transparent); color: var(--ink); }
+.meeting-fellowship-badge.smart { background: color-mix(in srgb, var(--sage) 26%, transparent); color: var(--ink); }
+.meeting-listing-top > span:last-child { max-width: 72%; text-align: right; overflow-wrap: anywhere; }
 .meeting-listing h3 { margin: 11px 0 8px; font-size: 15px; line-height: 1.35; }
 .meeting-location { display: flex; align-items: flex-start; gap: 6px; margin: 0; color: var(--ink); font-size: 11px; line-height: 1.5; }
 .meeting-location svg { flex: 0 0 auto; margin-top: 1px; color: var(--primary); }

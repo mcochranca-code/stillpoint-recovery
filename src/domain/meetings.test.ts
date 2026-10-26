@@ -44,6 +44,20 @@ describe('filterMeetingListings', () => {
     expect(filterMeetingListings([...sample, foodAddicts], { ...base, fellowship: 'FA' }).map((item) => item.id)).toEqual(['fa-sample']);
   });
 
+  it('filters hybrid SMART listings and searches their preserved source and timezone notes', () => {
+    const smartHybrid: MeetingListing = {
+      id: 'smart-hybrid', fellowship: 'SMART', day: 3, dayName: 'Wednesday', time: '7:30 PM', sortMinutes: 1170,
+      name: 'SMART Community Meeting', city: 'Modesto', county: 'Stanislaus County', address: '50 Oak Ave',
+      mode: 'hybrid', modalityLabel: 'hybrid', formatNotes: 'Join by Zoom or attend in person',
+      sourceTitle: 'SMART Recovery USA — Meeting 1234', timeZoneNote: 'Pacific time',
+      verificationNote: 'Confirm current access with the official source.', sourceUrl: 'https://example.org/smart',
+    };
+    expect(filterMeetingListings([...sample, smartHybrid], { ...base, fellowship: 'SMART', format: 'hybrid' }).map((item) => item.id)).toEqual(['smart-hybrid']);
+    expect(filterMeetingListings([...sample, smartHybrid], { ...base, query: 'meeting 1234' }).map((item) => item.id)).toEqual(['smart-hybrid']);
+    expect(filterMeetingListings([...sample, smartHybrid], { ...base, query: 'pacific time' }).map((item) => item.id)).toEqual(['smart-hybrid']);
+    expect(filterMeetingListings([...sample, smartHybrid], { ...base, query: 'confirm current access' }).map((item) => item.id)).toEqual(['smart-hybrid']);
+  });
+
   it('applies inclusive local time boundaries', () => {
     expect(filterMeetingListings(sample, { ...base, startAfterMinutes: 1080, startBeforeMinutes: 1080 }).map((item) => item.id))
       .toEqual(['aa-mon-late']);

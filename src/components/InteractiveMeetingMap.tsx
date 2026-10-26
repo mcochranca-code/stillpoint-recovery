@@ -21,14 +21,14 @@ function createPopupContent(location: MeetingMapLocation): HTMLElement {
   for (const meeting of location.meetings) {
     const item = document.createElement('li');
     const details = document.createElement('span');
-    details.textContent = `${meeting.name} · ${meeting.fellowship} · ${meeting.dayName} · ${meeting.time}`;
+    details.textContent = `${meeting.name} · ${meeting.fellowshipLabel ?? meeting.fellowship} · ${meeting.modalityLabel ?? meeting.mode} · ${meeting.dayName} · ${meeting.time}${meeting.timeZoneNote ? ` · ${meeting.timeZoneNote}` : ''}`;
 
     const link = document.createElement('a');
     link.href = meeting.sourceUrl;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     link.referrerPolicy = 'no-referrer';
-    link.textContent = 'Official listing';
+    link.textContent = meeting.sourceTitle ? `Source: ${meeting.sourceTitle}` : 'Official listing';
 
     item.append(details, link);
     list.append(item);

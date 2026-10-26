@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { meetingListings } from './meetings';
+import { meetingListings, nonDuplicateOnlineWorkbookListings } from './meetings';
 import { regionalMeetingListings } from './regional-meetings';
 
 describe('regional offline meeting sample', () => {
@@ -23,9 +23,9 @@ describe('regional offline meeting sample', () => {
     expect(count('Merced County', 'FA')).toBe(0);
   });
 
-  it('combines the regional sample with the complete existing Stanislaus list without duplicate IDs', () => {
+  it('combines the regional and workbook snapshots with the existing Stanislaus list without duplicate IDs', () => {
     const ids = meetingListings.map((meeting) => meeting.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(meetingListings).toHaveLength(376);
+    expect(meetingListings).toHaveLength(607 + nonDuplicateOnlineWorkbookListings.length);
   });
 });

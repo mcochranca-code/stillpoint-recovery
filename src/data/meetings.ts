@@ -1,13 +1,16 @@
 import { regionalMeetingListings } from './regional-meetings';
+import { workbookMeetingListings } from './workbook-meetings';
+import { onlineWorkbookMeetingListings } from './online-workbook-meetings';
 
 // Static public Stanislaus meeting-directory snapshot checked 2026-10-23.
 // No meeting data is fetched by the app at runtime. Verify details with the linked
 // local services before traveling; schedules can change.
-export type Fellowship = 'AA' | 'NA' | 'FA';
-export type MeetingMode = 'in-person' | 'online';
+export type Fellowship = 'AA' | 'NA' | 'FA' | 'SMART';
+export type MeetingMode = 'in-person' | 'online' | 'hybrid';
 export interface MeetingListing {
   id: string;
   fellowship: Fellowship;
+  fellowshipLabel?: string;
   day: number;
   dayName: string;
   time: string;
@@ -18,7 +21,12 @@ export interface MeetingListing {
   checkedAt?: string;
   address: string;
   mode: MeetingMode;
+  modalityLabel?: string;
   formatNotes: string;
+  timeZoneNote?: string;
+  verificationNote?: string;
+  scopeNote?: string;
+  sourceTitle?: string;
   sourceUrl: string;
 }
 export const meetingSnapshotCheckedAt = '2026-10-23';
@@ -29,6 +37,7 @@ export const meetingSources = {
   NA: 'https://svgna.org/svgna-meeting-schedule',
   NAFresno: 'http://www.centralcalna.org/na-meetings.html',
   FA: 'https://www.foodaddicts.org/find-a-meeting',
+  SMART: 'https://meetings.smartrecovery.org/meetings/',
   NAWorldServicesFinder: 'https://na.org/meetingsearch/find-na/',
 } as const;
 export const stanislausMeetingListings: MeetingListing[] = [
@@ -4724,4 +4733,75 @@ export const stanislausMeetingListings: MeetingListing[] = [
   }
 ];
 
-export const meetingListings: MeetingListing[] = [...stanislausMeetingListings, ...regionalMeetingListings];
+function normalizeScheduleSignaturePart(value: string): string {
+  return value.trim().toLocaleLowerCase('en-US').replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function scheduleSignature(meeting: MeetingListing): string {
+  return [
+    meeting.county ?? 'Stanislaus County',
+    meeting.fellowship,
+    meeting.dayName,
+    meeting.time,
+    meeting.name,
+    meeting.city,
+    meeting.address,
+  ].map(normalizeScheduleSignaturePart).join('|');
+}
+
+const workbookScheduleSignatures = new Set(workbookMeetingListings.map(scheduleSignature));
+export const nonDuplicateRegionalMeetingListings = regionalMeetingListings
+  .filter((meeting) => !workbookScheduleSignatures.has(scheduleSignature(meeting)));
+
+const priorLocalMeetingListings: MeetingListing[] = [
+  ...stanislausMeetingListings,
+  ...nonDuplicateRegionalMeetingListings,
+  ...workbookMeetingListings,
+];
+
+function onlineScheduleCore(meeting: MeetingListing): string {
+  return [
+    meeting.county ?? 'Stanislaus County',
+    meeting.fellowship,
+    meeting.dayName,
+    meeting.time,
+    meeting.name,
+    meeting.mode,
+  ].map(normalizeScheduleSignaturePart).join('|');
+}
+
+function normalizedSourcePath(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.hostname.toLocaleLowerCase('en-US')}${parsed.pathname.toLocaleLowerCase('en-US').replace(/\/+$/, '')}`;
+  } catch {
+    return url.toLocaleLowerCase('en-US');
+  }
+}
+
+function duplicatesPriorOnlineSchedule(candidate: MeetingListing): boolean {
+  const core = onlineScheduleCore(candidate);
+  const candidateSource = normalizedSourcePath(candidate.sourceUrl);
+  const candidateVenue = [candidate.city, candidate.address]
+    .map(normalizeScheduleSignaturePart)
+    .join('|');
+
+  return priorLocalMeetingListings.some((existing) => {
+    if (onlineScheduleCore(existing) !== core) return false;
+    const sameSource = normalizedSourcePath(existing.sourceUrl) === candidateSource;
+    const sameVenue = [existing.city, existing.address]
+      .map(normalizeScheduleSignaturePart)
+      .join('|') === candidateVenue;
+    return sameSource || sameVenue;
+  });
+}
+
+export const nonDuplicateOnlineWorkbookListings = onlineWorkbookMeetingListings
+  .filter((meeting) => !duplicatesPriorOnlineSchedule(meeting));
+export const onlineWorkbookDuplicateRowCount = onlineWorkbookMeetingListings.length
+  - nonDuplicateOnlineWorkbookListings.length;
+
+export const meetingListings: MeetingListing[] = [
+  ...priorLocalMeetingListings,
+  ...nonDuplicateOnlineWorkbookListings,
+];

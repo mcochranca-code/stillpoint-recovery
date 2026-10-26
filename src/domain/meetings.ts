@@ -2,7 +2,7 @@ import type { MeetingListing } from '../data/meetings';
 
 export type FellowshipFilter = 'all' | MeetingListing['fellowship'];
 export type MeetingDayFilter = 'all' | number;
-export type MeetingFormatFilter = 'all' | 'in-person' | 'online' | 'zoom';
+export type MeetingFormatFilter = 'all' | 'in-person' | 'online' | 'hybrid' | 'zoom';
 
 export interface MeetingFilters {
   fellowship: FellowshipFilter;
@@ -37,11 +37,24 @@ export function filterMeetingListings(
     .filter((meeting) => {
       const format = filters.format ?? 'all';
       if (format === 'all') return true;
-      if (format === 'zoom') return meeting.mode === 'online' && /\bzoom\b/i.test(`${meeting.address} ${meeting.formatNotes}`);
+      if (format === 'zoom') return meeting.mode !== 'in-person' && /\bzoom\b/i.test(`${meeting.address} ${meeting.formatNotes} ${meeting.modalityLabel ?? ''}`);
       return meeting.mode === format;
     })
     .filter((meeting) => matchesTimeRange(meeting.sortMinutes, filters.startAfterMinutes, filters.startBeforeMinutes))
-    .filter((meeting) => !query || [meeting.name, meeting.city, meeting.county ?? 'Stanislaus County', meeting.address, meeting.formatNotes]
+    .filter((meeting) => !query || [
+      meeting.name,
+      meeting.city,
+      meeting.county ?? 'Stanislaus County',
+      meeting.address,
+      meeting.formatNotes,
+      meeting.sourceTitle ?? '',
+      meeting.sourceUrl,
+      meeting.fellowshipLabel ?? '',
+      meeting.modalityLabel ?? '',
+      meeting.timeZoneNote ?? '',
+      meeting.verificationNote ?? '',
+      meeting.scopeNote ?? '',
+    ]
       .some((value) => value.toLocaleLowerCase().includes(query)))
     .slice()
     .sort((a, b) => a.day - b.day || a.sortMinutes - b.sortMinutes || a.fellowship.localeCompare(b.fellowship) || a.name.localeCompare(b.name));
