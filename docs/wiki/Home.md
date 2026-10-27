@@ -11,6 +11,7 @@ Stillpoint Recovery is a local-first, privacy-focused, faith-centered sobriety a
 - [Testing and CI](Testing-and-CI.md) — run checks locally and understand the GitHub Actions workflow.
 - [Content and Licensing](Content-and-Licensing.md) — distinguish MIT-covered source from bundled and linked content.
 - [Contributing and Troubleshooting](Contributing-and-Troubleshooting.md) — make focused changes and diagnose common issues.
+- [Technical Design Template](Technical-Design-Template.md) — propose features and design consistent REST APIs.
 
 ## Product principles
 
