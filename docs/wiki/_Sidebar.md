@@ -8,3 +8,4 @@
 - [Testing and CI](Testing-and-CI)
 - [Content and Licensing](Content-and-Licensing)
 - [Contributor Guidelines and Troubleshooting](Contributing-and-Troubleshooting)
+- [Technical Design Template](Technical-Design-Template)
