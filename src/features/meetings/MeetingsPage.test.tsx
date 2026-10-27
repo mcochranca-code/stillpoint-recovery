@@ -128,6 +128,22 @@ describe('MeetingsPage', () => {
     expect(screen.getByText(/not the presence or absence of local meetings/)).toBeTruthy();
   });
 
+  it('selects up to four meeting listings and opens an accessible branded-card preview', () => {
+    render(<MeetingsPage />);
+    fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
+    const selectors = screen.getAllByRole('checkbox', { name: /Select .+ for a share card/ });
+    expect(selectors.length).toBeGreaterThan(4);
+    selectors.slice(0, 4).forEach((selector) => fireEvent.click(selector));
+    expect(screen.getByRole('button', { name: 'Share selected meetings (4)' })).toBeTruthy();
+    expect(selectors[4]?.hasAttribute('disabled')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Share selected meetings (4)' }));
+    expect(screen.getByRole('dialog', { name: 'Share selected meetings' })).toBeTruthy();
+    expect(screen.getAllByRole('article', { name: /share preview/ })).toHaveLength(4);
+    fireEvent.click(screen.getByRole('button', { name: 'Close meeting share preview' }));
+    expect(screen.getByRole('button', { name: 'Share selected meetings (4)' })).toBeTruthy();
+  });
+
   it('loads the map only after explicit opt-in and unmounts it when hidden', async () => {
     render(<MeetingsPage />);
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
