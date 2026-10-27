@@ -4,7 +4,6 @@ import { CURRENT_SCHEMA_VERSION, db } from '../db/database';
 import { ensureDefaults } from '../db/repository';
 import type { RecoveryProfile, UserPreferences } from '../domain/types';
 import { getNextDailyReminderAt, getNextMeetingReminder } from '../domain/reminders';
-import { meetingListings } from '../data/meetings';
 
 async function deliverLocalNotification(title: string, body: string, tag: string) {
   const options: NotificationOptions = { body, tag };
@@ -79,7 +78,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (cancelled || !current) return;
       const now = new Date();
       const dailyAt = current.reminderEnabled ? getNextDailyReminderAt(now, current.reminderTime) : null;
-      const meetingReminder = getNextMeetingReminder(current.meetingReminders ?? [], meetingListings, now);
+      const meetingReminders = current.meetingReminders ?? [];
+      let meetingReminder = null;
+      if (meetingReminders.length) {
+        const { meetingListings } = await import('../data/meetings');
+        if (cancelled) return;
+        meetingReminder = getNextMeetingReminder(meetingReminders, meetingListings, now);
+      }
       const nextAt = dailyAt && (!meetingReminder || dailyAt.getTime() <= meetingReminder.notifyAt.getTime())
         ? dailyAt
         : meetingReminder?.notifyAt;
