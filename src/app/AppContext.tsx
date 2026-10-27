@@ -79,9 +79,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const now = new Date();
       const dailyAt = current.reminderEnabled ? getNextDailyReminderAt(now, current.reminderTime) : null;
       const meetingReminders = current.meetingReminders ?? [];
-      const meetingReminder = meetingReminders.length
-        ? getNextMeetingReminder(meetingReminders, (await import('../data/meetings')).meetingListings, now)
-        : null;
+      let meetingReminder = null;
+      if (meetingReminders.length) {
+        const { meetingListings } = await import('../data/meetings');
+        if (cancelled) return;
+        meetingReminder = getNextMeetingReminder(meetingReminders, meetingListings, now);
+      }
       const nextAt = dailyAt && (!meetingReminder || dailyAt.getTime() <= meetingReminder.notifyAt.getTime())
         ? dailyAt
         : meetingReminder?.notifyAt;
