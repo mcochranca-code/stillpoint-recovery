@@ -131,12 +131,16 @@ export async function shareOrCopy(payload: SharePayload): Promise<ShareResult> {
 }
 
 /** Share a standalone HTML file when the browser supports sharing files. */
-export async function shareHtmlCard(content: string): Promise<HtmlCardShareResult> {
+export async function shareHtmlCard(
+  content: string,
+  filename = 'stillpoint-milestone-card.html',
+  title = 'Stillpoint Recovery milestone card',
+): Promise<HtmlCardShareResult> {
   if (typeof navigator === 'undefined' || typeof File === 'undefined' || typeof navigator.share !== 'function' || typeof navigator.canShare !== 'function') return 'unavailable';
-  const file = new File([content], 'stillpoint-milestone-card.html', { type: 'text/html' });
+  const file = new File([content], safeFilename(filename), { type: 'text/html' });
   try {
     if (!navigator.canShare({ files: [file] })) return 'unavailable';
-    await navigator.share({ title: 'Stillpoint Recovery milestone card', files: [file] });
+    await navigator.share({ title, files: [file] });
     return 'shared';
   } catch (error) {
     return isAbortError(error) ? 'cancelled' : 'unavailable';

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { CalendarDays, ExternalLink, MapPin, Search, UsersRound } from 'lucide-react';
+import { CalendarDays, ExternalLink, MapPin, Search, Share2, UsersRound } from 'lucide-react';
 import { meetingListings, meetingSnapshotCheckedAt, meetingSources, onlineWorkbookDuplicateRowCount } from '../../data/meetings';
 import { meetingVenueCoordinateFor } from '../../data/meeting-coordinates';
 import { workbookMeetingCoverage } from '../../data/workbook-meeting-coverage';
@@ -8,6 +8,8 @@ import { onlineWorkbookCoverage } from '../../data/online-workbook-coverage';
 import { db } from '../../db/database';
 import { filterMeetingListings, type FellowshipFilter, type MeetingDayFilter, type MeetingFormatFilter } from '../../domain/meetings';
 import { buildMeetingMapLocations } from '../../domain/meeting-map';
+import { MEETING_SHARE_LIMIT } from '../../domain/meeting-sharing';
+import { MeetingShareDialog } from '../../components/MeetingShareDialog';
 import './meetings.css';
 
 const InteractiveMeetingMap = lazy(() => import('../../components/InteractiveMeetingMap'));
@@ -55,9 +57,15 @@ export function MeetingsPage() {
   const [limit, setLimit] = useState(30);
   const [mapOpen, setMapOpen] = useState(false);
   const [reminderNotice, setReminderNotice] = useState('');
+  const [selectedMeetingIds, setSelectedMeetingIds] = useState<string[]>([]);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const effectiveDay = day === 'today' ? today : day;
   const hasSnapshotForScope = county !== 'all' && meetingListings.some((meeting) =>
     (meeting.county ?? 'Stanislaus County') === county && (fellowship === 'all' || meeting.fellowship === fellowship));
+  const selectedMeetings = useMemo(() => selectedMeetingIds
+    .map((id) => meetingListings.find((meeting) => meeting.id === id))
+    .filter((meeting) => meeting !== undefined), [selectedMeetingIds]);
+  const selectedMeetingIdSet = new Set(selectedMeetingIds);
   const filtered = useMemo(() => filterMeetingListings(meetingListings, {
     fellowship,
     day: effectiveDay,
@@ -85,6 +93,14 @@ export function MeetingsPage() {
     setStartAfter('');
     setStartBefore('');
     setLimit(30);
+  }
+
+  function changeShareSelection(meetingId: string, selected: boolean) {
+    setSelectedMeetingIds((current) => {
+      if (!selected) return current.filter((id) => id !== meetingId);
+      if (current.includes(meetingId) || current.length >= MEETING_SHARE_LIMIT) return current;
+      return [...current, meetingId];
+    });
   }
 
   async function changeMeetingReminder(meetingId: string, enabled: boolean) {
@@ -216,6 +232,15 @@ export function MeetingsPage() {
           Showing {visible.length} of {filtered.length} {filtered.length === 1 ? 'listing' : 'listings'}{county !== 'all' ? ` in ${county}` : ''}{day === 'today' ? ` for ${weekdayNames[today]}` : ''}{startAfter || startBefore ? ` · time ${startAfter || 'any'}–${startBefore || 'any'}` : ''}.
           <button type="button" className="button button-quiet meeting-clear-button" onClick={clearFilters}>Clear filters</button>
         </div>
+        <div className="meeting-share-toolbar" role="group" aria-label="Share meeting listings">
+          <p role="status" aria-live="polite">{selectedMeetings.length} of {MEETING_SHARE_LIMIT} selected for one card. Selections are temporary and are not saved to recovery records.</p>
+          <div className="meeting-share-toolbar-actions">
+            <button type="button" className="button button-primary" onClick={() => setShareDialogOpen(true)} disabled={!selectedMeetings.length} aria-haspopup="dialog">
+              <Share2 size={15} aria-hidden="true" /> Share selected meetings ({selectedMeetings.length})
+            </button>
+            <button type="button" className="button button-quiet" onClick={() => setSelectedMeetingIds([])} disabled={!selectedMeetings.length}>Clear selection</button>
+          </div>
+        </div>
         <p className="meeting-reminder-status" role="status" aria-live="polite">{reminderNotice}</p>
 
         {mapLocations.length > 0 && <section className="meeting-map-panel" aria-labelledby="meeting-map-title">
@@ -252,6 +277,16 @@ export function MeetingsPage() {
             const locality = [meeting.city, meeting.county ?? 'Stanislaus County'].filter(Boolean).join(', ');
             return <li key={meeting.id}>
               <article className="meeting-listing">
+                <label className="meeting-select-control">
+                  <input
+                    type="checkbox"
+                    checked={selectedMeetingIdSet.has(meeting.id)}
+                    disabled={!selectedMeetingIdSet.has(meeting.id) && selectedMeetings.length >= MEETING_SHARE_LIMIT}
+                    onChange={(event) => changeShareSelection(meeting.id, event.target.checked)}
+                    aria-label={`Select ${meeting.name} for a share card`}
+                  />
+                  <span>{selectedMeetingIdSet.has(meeting.id) ? 'Selected for share' : 'Select for share card'}</span>
+                </label>
                 <div className="meeting-listing-top"><span className={`meeting-fellowship-badge ${meeting.fellowship.toLowerCase()}`}>{meeting.fellowship}</span><span>{meeting.modalityLabel ?? meeting.mode} · {meeting.dayName} · {meeting.time}</span></div>
                 <h3>{meeting.name}</h3>
                 <p className="meeting-location"><MapPin size={15} aria-hidden="true" /><span>{locality || 'Locality not listed'} · {meeting.address}</span></p>
@@ -300,6 +335,7 @@ export function MeetingsPage() {
       </section>
 
       <p className="fine-print meetings-privacy-note">Stillpoint does not request your location, record attendance, or transmit meeting search text, filter values, or recovery details to a service. Bundled listings and reminder choices stay on this device. The public demo intentionally omits direct Zoom invitations, meeting IDs and passcodes; use the linked official detail page for current access information. Loading the optional in-app map sends OpenStreetMap tile requests that reveal the viewed map area, which may correlate with local filters; external directory and map links open only after you choose them. FA search criteria are entered on the official external site only after you choose its link. NA format abbreviations follow the source’s key.</p>
+      {shareDialogOpen && <MeetingShareDialog meetings={selectedMeetings} onClose={() => setShareDialogOpen(false)} />}
     </div>
   );
 }
