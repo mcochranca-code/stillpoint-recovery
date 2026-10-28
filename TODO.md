@@ -1,7 +1,7 @@
 # Stillpoint Recovery — Outcome TODO
 
 - [x] **Reconcile source and history.** Review the current GitHub `main`, the Manus-side copy available in this new workspace, the existing Netlify site, and their latest accepted versions. Keep the Manus app, GitHub `main`, and Netlify demo aligned to the most up-to-date features. Add only eligible changes/commits not yet in `main` when integration is conflict-free; use additive commits and never rewrite or force-push history. Preserve current application behavior.
-  - GitHub `main` is `3b98778e5c63d935e18779ea6803c9d1e7d9fc9a`; Manus canonical `main` is `a0d6e3011df28a6334da209add666671406eb205`. All 89 app-source files are byte-identical. Netlify served the current share-card bundle and 11-route manifest; Manus auto-publication reached success for `a0d6e30`. Both Git pushes were additive; no history was rewritten.
+  - GitHub `main` is `38aeabee746600f2ca841e8b73d771cc293576ad`; Manus canonical `main` is `cc337b1e68ed7ba4f722617a18aad4248557ab79`. All 92 app-source files are byte-identical, including the new milestone-token component and tests. GitHub and Manus updates were additive, with no history rewritten. Netlify returned HTTP 200 for the new token JavaScript/CSS assets and the 11-route manifest.
 
 - [x] **Preserve the established product, privacy, and accessibility.** Keep the current Stillpoint visual identity and local-first operation. Recovery records, journals, meditation history, and other sensitive recovery data remain on the user's device and are not transmitted to a server or analytics service. Preserve compassionate, nonjudgmental language, accessible interactions, responsive behavior, and offline functionality.
 
