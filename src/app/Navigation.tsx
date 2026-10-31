@@ -1,11 +1,14 @@
 import { useCallback, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, Compass, Heart, Home, Search, Settings, Wind } from 'lucide-react';
+import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, Compass, Heart, Home, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
 import { QuickFindDialog } from '../components/QuickFindDialog';
 
-const items = [
+type NavigationItem = { to: string; label: string; mobileLabel?: string; accessibleLabel?: string; icon: LucideIcon; end?: boolean };
+
+const items: NavigationItem[] = [
   { to: '/', label: 'Today', mobileLabel: 'Today', icon: Home, end: true },
   { to: '/progress', label: 'Progress', mobileLabel: 'Progress', icon: ChartNoAxesColumnIncreasing },
+  { to: '/tokens', label: 'Tokens', mobileLabel: 'Tokens', accessibleLabel: 'Current milestone token', icon: Award },
   { to: '/journal', label: 'Journal', mobileLabel: 'Journal', icon: BookOpen },
   { to: '/meditation', label: 'Meditation', mobileLabel: 'Meditate', icon: Heart },
   { to: '/meetings', label: 'Meetings', mobileLabel: 'Meetings', icon: CalendarDays },
@@ -27,8 +30,8 @@ export default function Navigation() {
           <span><strong>Stillpoint</strong><small>Recovery, one day at a time</small></span>
         </NavLink>
         <nav className="side-links">
-          {items.map(({ to, label, icon: Icon, end }) => (
-            <NavLink key={to} to={to} end={end} aria-label={label} title={label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
+          {items.map(({ to, label, accessibleLabel, icon: Icon, end }) => (
+            <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
               <Icon size={19} aria-hidden="true" /><span>{label}</span>
             </NavLink>
           ))}
@@ -43,8 +46,8 @@ export default function Navigation() {
         <p className="sidebar-quote">“For this day, this moment, this breath.”</p>
       </aside>
       <nav className="mobile-nav" aria-label="Mobile primary navigation">
-        {items.map(({ to, label, mobileLabel, icon: Icon, end }) => (
-          <NavLink key={to} to={to} end={end} aria-label={label} className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}>
+        {items.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end }) => (
+          <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}>
             <Icon size={21} aria-hidden="true" /><span aria-hidden="true">{mobileLabel ?? label}</span>
           </NavLink>
         ))}

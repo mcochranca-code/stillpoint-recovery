@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import {
-  ArrowRight, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, Compass,
+  ArrowRight, Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, Compass,
   Flower2, Heart, Home, Leaf, Settings, Shield, Sparkles, Wind,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -21,16 +21,18 @@ type QuickFindItem = {
 const quickFindItems: QuickFindItem[] = [
   { id: 'reset-now', label: 'I need a moment', detail: 'Open the 90-second reset and grounding choices', path: '/reset', group: 'Quick actions', keywords: 'pause craving panic grounding breathe support', icon: Wind, featured: true },
   { id: 'find-meeting', label: 'Find a meeting', detail: 'Browse local and online meeting listings', path: '/meetings', group: 'Quick actions', keywords: 'AA NA FA SMART recovery support Fresno Mariposa Merced online map', icon: CalendarDays, featured: true },
+  { id: 'current-token', label: 'Current sobriety token', detail: 'View the latest reached milestone as an AA medallion or NA keytag', path: '/tokens', group: 'Quick actions', keywords: 'token tokens AA Alcoholics Anonymous medallion NA Narcotics Anonymous keytag sobriety day counter current marker', icon: Award, featured: true },
   { id: 'start-meditation', label: 'Begin a meditation', detail: 'Choose a short, optional guided practice', path: '/meditation', group: 'Quick actions', keywords: 'breathe relax calm audio mindfulness', icon: Heart, featured: true },
-  { id: 'open-charms', label: 'Explore progress charms', detail: 'View earned charms and recovery-time tokens', path: '/charms', group: 'Quick actions', keywords: 'keytag medallion milestone badge token progress', icon: Sparkles, featured: true },
+  { id: 'open-charms', label: 'Explore activity charms', detail: 'View earned charms and private memories', path: '/charms', group: 'Quick actions', keywords: 'achievement badge collection garden activity progress', icon: Sparkles, featured: true },
   { id: 'open-journal', label: 'Write a private note', detail: 'Open your on-device journal', path: '/journal', group: 'Quick actions', keywords: 'journal reflection gratitude feelings private', icon: BookOpen, featured: true },
   { id: 'open-today', label: 'Today', detail: 'Your daily recovery companion', path: '/', group: 'Pages', keywords: 'home dashboard reflection scripture counter', icon: Home },
   { id: 'open-progress', label: 'Progress', detail: 'Activity, milestones, and personal timeline', path: '/progress', group: 'Pages', keywords: 'statistics activity timeline growth', icon: ChartNoAxesColumnIncreasing },
+  { id: 'open-tokens', label: 'Current token', detail: 'AA medallion or NA keytag for your current counter', path: '/tokens', group: 'Pages', keywords: 'token tokens AA medallion NA keytag sobriety day milestone', icon: Award },
   { id: 'open-journal', label: 'Journal', detail: 'Private notes saved on this device', path: '/journal', group: 'Pages', keywords: 'writing diary reflection', icon: BookOpen },
   { id: 'open-meditation', label: 'Meditation', detail: 'Breathing, grounding, and quiet practices', path: '/meditation', group: 'Pages', keywords: 'breathing audio relaxation', icon: Heart },
   { id: 'open-meetings', label: 'Meeting finder', detail: 'Offline AA, NA, FA, and SMART listings', path: '/meetings', group: 'Pages', keywords: 'AA NA FA SMART directory recovery support map', icon: CalendarDays },
   { id: 'open-library', label: 'Library', detail: 'Browse readings and recovery tools', path: '/library', group: 'Pages', keywords: 'reading scripture tools explore', icon: Compass },
-  { id: 'open-charms-page', label: 'Journey Collection', detail: 'Charms, keytags, and medallions', path: '/charms', group: 'Pages', keywords: 'charms keytags tokens milestones', icon: Sparkles },
+  { id: 'open-charms-page', label: 'Journey Collection', detail: 'Activity charms and private memories', path: '/charms', group: 'Pages', keywords: 'charms activity collection achievement garden memories', icon: Sparkles },
   { id: 'open-garden', label: 'Living Garden', detail: 'A visual record of care over time', path: '/garden', group: 'Pages', keywords: 'garden plants scenery activity', icon: Flower2 },
   { id: 'open-field-guide', label: 'Personal Recovery Field Guide', detail: 'Your private, locally saved playbook', path: '/field-guide', group: 'Pages', keywords: 'coping strategy triggers contacts support private', icon: Leaf },
   { id: 'open-settings', label: 'Settings & privacy', detail: 'Themes, accessibility, reminders, and data tools', path: '/settings', group: 'Pages', keywords: 'backup restore json export import privacy colors accessible', icon: Shield },
