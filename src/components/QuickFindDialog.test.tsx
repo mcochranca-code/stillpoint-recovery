@@ -39,8 +39,9 @@ describe('Quick Find', () => {
     const search = within(dialog).getByRole('searchbox');
 
     fireEvent.change(search, { target: { value: 'tokens' } });
-    expect(within(dialog).getByRole('link', { name: /Journey Collection/ })).toBeTruthy();
-    expect(within(dialog).getByRole('link', { name: /Explore progress charms/ })).toBeTruthy();
+    expect(within(dialog).getByRole('link', { name: /Current sobriety token/ })).toHaveAttribute('href', '/tokens');
+    expect(within(dialog).queryByRole('link', { name: /Journey Collection/ })).toBeNull();
+    expect(within(dialog).queryByRole('link', { name: /Explore activity charms/ })).toBeNull();
     expect(within(dialog).queryByRole('link', { name: /Living Garden/ })).toBeNull();
 
     fireEvent.change(search, { target: { value: 'private_entry_content_90531' } });
