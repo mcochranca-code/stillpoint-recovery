@@ -1,11 +1,12 @@
 import { regionalMeetingListings } from './regional-meetings';
 import { workbookMeetingListings } from './workbook-meetings';
 import { onlineWorkbookMeetingListings } from './online-workbook-meetings';
+import { faithBasedMeetingListings } from './faith-based-meetings';
 
 // Static public Stanislaus meeting-directory snapshot checked 2026-10-23.
 // No meeting data is fetched by the app at runtime. Verify details with the linked
 // local services before traveling; schedules can change.
-export type Fellowship = 'AA' | 'NA' | 'FA' | 'SMART';
+export type Fellowship = 'AA' | 'NA' | 'FA' | 'SMART' | 'FAITH';
 export type MeetingMode = 'in-person' | 'online' | 'hybrid';
 export interface MeetingListing {
   id: string;
@@ -21,6 +22,7 @@ export interface MeetingListing {
   checkedAt?: string;
   address: string;
   mode: MeetingMode;
+  mapEligible?: boolean;
   modalityLabel?: string;
   formatNotes: string;
   timeZoneNote?: string;
@@ -4757,6 +4759,7 @@ const priorLocalMeetingListings: MeetingListing[] = [
   ...stanislausMeetingListings,
   ...nonDuplicateRegionalMeetingListings,
   ...workbookMeetingListings,
+  ...faithBasedMeetingListings,
 ];
 
 function onlineScheduleCore(meeting: MeetingListing): string {

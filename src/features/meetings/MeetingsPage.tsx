@@ -141,7 +141,7 @@ export function MeetingsPage() {
           <h1>Local meeting finder.</h1>
           <p>Search offline meeting snapshots by fellowship, county, day, format and time. A missing listing means the snapshot does not include it—not that no meeting exists. Confirm details with the official source before traveling.</p>
         </div>
-          <span className="pill"><UsersRound size={14} aria-hidden="true" /> AA · NA · FA · SMART finder</span>
+          <span className="pill"><UsersRound size={14} aria-hidden="true" /> AA · NA · FA · SMART · Faith-based finder</span>
       </header>
 
       <section className="card meetings-sources" aria-labelledby="meeting-sources-title">
@@ -159,7 +159,7 @@ export function MeetingsPage() {
           <a href={meetingSources.SMART} {...sourceLinkProps}>SMART Recovery live finder <ExternalLink size={14} aria-hidden="true" /></a>
           <a href={meetingSources.NAWorldServicesFinder} {...sourceLinkProps}>NA World Services meeting finder <ExternalLink size={14} aria-hidden="true" /></a>
         </div>
-        <p className="meeting-source-note">The Stanislaus AA/NA snapshot was checked {checkedDateLabel()}. The local directory includes a user-validated 233-row workbook snapshot and a separate 157-row online/hybrid schedule snapshot, both dated October 26, 2026, plus earlier regional examples. These are partial snapshots, not complete county directories. Exact repeats from earlier snapshots are shown once. All listings are source-linked and may change; verify the time, host scope, venue and access before attending. A missing listing is not evidence that no meeting exists. These independent directories are not endorsements or claims of affiliation.</p>
+        <p className="meeting-source-note">The Stanislaus AA/NA snapshot was checked {checkedDateLabel()}. The local directory includes a user-validated 233-row workbook snapshot and a separate 157-row online/hybrid schedule snapshot, both dated October 26, 2026, plus earlier regional examples. These are partial snapshots, not complete county directories. Exact repeats from earlier snapshots are shown once. AA/NA/FA/SMART rows have source links; Faith-Based demo rows are unverified, have no per-meeting official links or checked date, and are not mapped. Confirm the current time, venue and access before attending. A missing listing is not evidence that no meeting exists. These independent directories are not endorsements or claims of affiliation.</p>
         <details className="meeting-coverage-details">
           <summary>Workbook row counts and county coverage notes</summary>
           <p>{workbookMeetingCoverage.completenessNote}</p>
@@ -179,6 +179,10 @@ export function MeetingsPage() {
             ))}
           </ul>
         </details>
+        <details className="meeting-coverage-details">
+          <summary>Faith-Based snapshot: {meetingListings.filter((meeting) => meeting.fellowship === 'FAITH').length} user-provided rows; unverified</summary>
+          <p>These fixed-schedule rows were imported from the user-provided Faith-Based Recovery Directory demo. The file says its listings and “Verified” labels were not independently rechecked; it supplies no per-meeting official links or checked date. One variable-time global online row was excluded. Confirm directly with each organization before attending; these imported rows are deliberately excluded from map pins.</p>
+        </details>
       </section>
 
       <section className="card" aria-labelledby="meeting-list-title">
@@ -187,14 +191,14 @@ export function MeetingsPage() {
           <span className="pill">{filtered.length} {filtered.length === 1 ? 'listing' : 'listings'}</span>
         </div>
         <div className="meeting-filter-grid">
-          <label className="field-label" htmlFor="meeting-county">County
+          <label className="field-label" htmlFor="meeting-county">County / source region
             <select id="meeting-county" value={county} onChange={(event) => { setCounty(event.target.value); setCity('all'); setLimit(30); }}>
-              <option value="all">All requested counties</option>{countyNames.map((name) => <option key={name} value={name}>{name}</option>)}
+              <option value="all">All counties and source regions</option>{countyNames.map((name) => <option key={name} value={name}>{name}</option>)}
             </select>
           </label>
           <label className="field-label" htmlFor="meeting-fellowship">Fellowship
             <select id="meeting-fellowship" value={fellowship} onChange={(event) => { setFellowship(event.target.value as FellowshipFilter); setLimit(30); }}>
-              <option value="all">All bundled listings</option><option value="AA">AA only</option><option value="NA">NA only</option><option value="FA">Food Addicts (FA)</option><option value="SMART">SMART Recovery</option>
+              <option value="all">All bundled listings</option><option value="AA">AA only</option><option value="NA">NA only</option><option value="FA">Food Addicts (FA)</option><option value="SMART">SMART Recovery</option><option value="FAITH">Faith-Based Recovery</option>
             </select>
           </label>
           <label className="field-label" htmlFor="meeting-format">Meeting format
@@ -272,7 +276,7 @@ export function MeetingsPage() {
 
         {visible.length ? <ul className="meeting-cards" aria-label="Meeting listings">
           {visible.map((meeting) => {
-            const mapReady = (meeting.mode === 'in-person' || meeting.mode === 'hybrid') && Boolean(meetingVenueCoordinateFor(meeting));
+            const mapReady = meeting.mapEligible !== false && (meeting.mode === 'in-person' || meeting.mode === 'hybrid') && Boolean(meetingVenueCoordinateFor(meeting));
             const reminder = preferences?.meetingReminders?.find((item) => item.meetingId === meeting.id);
             const locality = [meeting.city, meeting.county ?? 'Stanislaus County'].filter(Boolean).join(', ');
             return <li key={meeting.id}>
@@ -287,7 +291,7 @@ export function MeetingsPage() {
                   />
                   <span>{selectedMeetingIdSet.has(meeting.id) ? 'Selected for share' : 'Select for share card'}</span>
                 </label>
-                <div className="meeting-listing-top"><span className={`meeting-fellowship-badge ${meeting.fellowship.toLowerCase()}`}>{meeting.fellowship}</span><span>{meeting.modalityLabel ?? meeting.mode} · {meeting.dayName} · {meeting.time}</span></div>
+                <div className="meeting-listing-top"><span className={`meeting-fellowship-badge ${meeting.fellowship.toLowerCase()}`}>{meeting.fellowshipLabel ?? meeting.fellowship}</span><span>{meeting.modalityLabel ?? meeting.mode} · {meeting.dayName} · {meeting.time}</span></div>
                 <h3>{meeting.name}</h3>
                 <p className="meeting-location"><MapPin size={15} aria-hidden="true" /><span>{locality || 'Locality not listed'} · {meeting.address}</span></p>
                 {meeting.scopeNote && <p className="meeting-format"><strong>Host city / directory scope:</strong> {meeting.scopeNote}</p>}
@@ -297,7 +301,7 @@ export function MeetingsPage() {
                 {meeting.verificationNote && <p className="meeting-format"><strong>Verification note:</strong> {meeting.verificationNote}</p>}
                 {meeting.checkedAt && <p className="meeting-format">This listing was checked {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${meeting.checkedAt}T12:00:00Z`))}.</p>}
                 <div className="meeting-listing-actions">
-                  <a href={meeting.sourceUrl} {...sourceLinkProps}>Official listing <ExternalLink size={13} aria-hidden="true" /></a>
+                  {meeting.sourceUrl && <a href={meeting.sourceUrl} {...sourceLinkProps}>Official listing <ExternalLink size={13} aria-hidden="true" /></a>}
                   {mapReady && <a href={mapsUrl(meeting.address, meeting.city)} {...sourceLinkProps}>Map <MapPin size={13} aria-hidden="true" /></a>}
                 </div>
                 <div className="meeting-reminder-controls">
@@ -314,8 +318,8 @@ export function MeetingsPage() {
           })}
         </ul> : <div className="empty-state meeting-empty">
           {county !== 'all' && !hasSnapshotForScope ? <>
-            <h3>No bundled {fellowship === 'all' ? 'AA, NA, FA or SMART Recovery' : fellowship} snapshot is available for {county}.</h3>
-            <p>This reflects the limited checked source sample, not the presence or absence of local meetings. Review the official local directories above for current coverage.</p>
+            <h3>No bundled {fellowship === 'all' ? 'meeting' : fellowship === 'FAITH' ? 'Faith-Based' : fellowship} snapshot is available for {county}.</h3>
+            <p>This reflects the limited checked source sample, not the presence or absence of local meetings. Review the official local directories above for current coverage. Faith-Based demo rows are unverified.</p>
           </> : fellowship === 'FA' && !meetingListings.some((meeting) => meeting.fellowship === 'FA' && (county === 'all' || meeting.county === county)) ? <>
             <h3>No Food Addicts listing is bundled for this selection.</h3>
             <p>This does not mean there are no meetings nearby. The bundled extract is incomplete; the official live finder supports location, day, type, language and time-of-day filters.</p>
