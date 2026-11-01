@@ -24,9 +24,12 @@ export interface MeetingReminderRecord {
   lastNotifiedOccurrenceAt?: string;
 }
 
+export type ContentPreset = 'faith-based' | 'faith-neutral';
+
 export interface UserPreferences {
   id: 'preferences';
   schemaVersion: number;
+  contentPreset: ContentPreset;
   onboardingComplete: boolean;
   theme: ThemeMode;
   colorTheme: ColorTheme;

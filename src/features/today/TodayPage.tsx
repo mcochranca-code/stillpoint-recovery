@@ -18,6 +18,7 @@ import { scriptureEntries } from '../../data/scripture';
 import { charmDefinitions } from '../../data/charms';
 import { getDailyReflection } from '../../data/reflections';
 import { createReflectionJournalEntry } from '../../domain/journal';
+import { shouldShowFaithContent } from '../../domain/content-preset';
 import { dateOnlyToTimestamp, elapsedParts, formatLocalDate, localDateKey, nextMilestone } from '../../domain/time';
 
 function dayNumber(date: Date): number {
@@ -28,6 +29,7 @@ function dayNumber(date: Date): number {
 /** Render today's reflection, optional recovery counter, and next-step resources. */
 export function TodayPage() {
   const { profile, preferences, notify, updatePreferences } = useAppContext();
+  const showFaithContent = shouldShowFaithContent(preferences?.contentPreset);
   const [now, setNow] = useState(() => Date.now());
   const [dateDialog, setDateDialog] = useState(false);
   const [editDate, setEditDate] = useState('');
@@ -225,9 +227,9 @@ export function TodayPage() {
       </section>
 
       <NaDailyReadingCard />
-      <OdbResourcesCard />
+      {showFaithContent && <OdbResourcesCard />}
 
-      <div className="today-grid">
+      <div className={`today-grid${showFaithContent ? '' : ' today-grid-neutral'}`}>
         <section className="card reflection-card" aria-labelledby="reflection-heading">
           <div className="card-header"><div><p className="eyebrow">An original daily recovery reflection</p><h2 id="reflection-heading">TODAY’S STILLPOINT REFLECTION</h2></div><button className="icon-button" aria-label={reflectionActivity?.favorite ? 'Remove reflection from saved items' : 'Save reflection'} onClick={() => void toggleReflectionFavorite()}><Bookmark size={18} fill={reflectionActivity?.favorite ? 'currentColor' : 'none'} /></button></div>
           <div className="reflection-art" aria-hidden="true"><img src="/assets/backgrounds/sunrise-hills.svg" alt="" /><span>{reflection.theme}</span></div>
@@ -245,7 +247,7 @@ export function TodayPage() {
           <p className="content-integrity">Original reflection inspired by the one-day-at-a-time principle; not affiliated with a recovery fellowship.</p>
         </section>
 
-        <section className="card scripture-card" aria-labelledby="scripture-heading">
+        {showFaithContent && <section className="card scripture-card" aria-labelledby="scripture-heading">
           <div className="card-header"><div><p className="eyebrow">Optional encouragement for the journey</p><h2 id="scripture-heading">SCRIPTURE FOR THE JOURNEY</h2></div><button className="icon-button" aria-label={scriptureActivity?.favorite ? 'Remove scripture from favorites' : 'Save scripture'} onClick={() => void exploreScripture(true)}><Heart size={18} fill={scriptureActivity?.favorite ? 'currentColor' : 'none'} /></button></div>
           <span className="pill pill-sage">{scripture.principle}</span>
           <blockquote className="scripture-verse">“{scripture.verse}”</blockquote>
@@ -255,7 +257,7 @@ export function TodayPage() {
           {scripture.contemplation && <p className="contemplation"><em>{scripture.contemplation}</em></p>}
           <p className="fine-print">Faith is a source of encouragement for some. It is not a measure of worth or a replacement for professional or peer support.</p>
           <button className="button button-secondary" onClick={() => void exploreScripture(false)}><BookOpen size={16} /> {scriptureActivity ? 'Revisit this passage' : 'Mark as explored'}</button>
-        </section>
+        </section>}
       </div>
 
       <section className="quick-actions" aria-label="Quick actions">

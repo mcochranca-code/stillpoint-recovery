@@ -22,6 +22,7 @@ describe('local data repositories', () => {
     expect(preferences).toMatchObject({
       id: 'preferences',
       schemaVersion: 5,
+      contentPreset: 'faith-based',
       theme: 'system',
       onboardingComplete: false,
       supportResources: [],
@@ -42,6 +43,18 @@ describe('local data repositories', () => {
     expect(await db.preferences.count()).toBe(1);
     expect(await db.recoveryProfiles.count()).toBe(1);
     expect((await db.preferences.get('preferences'))?.onboardingComplete).toBe(true);
+  });
+
+  it('backfills existing preference records without a content preset to Faith-based', async () => {
+    await ensureDefaults();
+    const existing = await db.preferences.get('preferences');
+    const legacy = { ...existing! };
+    Reflect.deleteProperty(legacy, 'contentPreset');
+    await db.preferences.put(legacy);
+
+    await ensureDefaults();
+
+    expect((await db.preferences.get('preferences'))?.contentPreset).toBe('faith-based');
   });
 
   it('upgrades legacy recovery-profile records to the current schema version', async () => {

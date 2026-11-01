@@ -216,6 +216,7 @@ textarea { resize: vertical; line-height: 1.65; }
 .milestone-copy strong { font-size: 12px; }
 .milestone-copy small { color: var(--muted); font-size: 11px; }
 .today-grid { display: grid; grid-template-columns: minmax(0,1.25fr) minmax(290px,.75fr); gap: 19px; align-items: start; }
+.today-grid-neutral { grid-template-columns: minmax(0,1fr); }
 .reflection-card, .scripture-card { display: flex; flex-direction: column; gap: 9px; }
 .reflection-card .card-header, .scripture-card .card-header { margin-bottom: 3px; }
 .reflection-card h2, .scripture-card h2 { font-size: 16px; letter-spacing: .05em; }
