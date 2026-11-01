@@ -85,13 +85,27 @@ describe('local JSON backup restore', () => {
 
   it('exports and restores the selected Faith-neutral preset', async () => {
     await db.preferences.put({ ...defaultPreferences(), contentPreset: 'faith-neutral' });
-    const text = JSON.stringify(await createBackup());
+    const exported = await createBackup();
+    expect(exported.checksum).toMatch(/^[a-f0-9]{64}$/);
+    const text = JSON.stringify(exported);
     expect(text).toContain('"contentPreset":"faith-neutral"');
 
     await db.preferences.put({ ...defaultPreferences(), contentPreset: 'faith-based' });
     await importBackupText(text);
 
     expect((await db.preferences.get('preferences'))?.contentPreset).toBe('faith-neutral');
+  });
+
+  it('rejects a modified checksummed backup without changing local data', async () => {
+    await db.journalEntries.add(validJournalEntry('journal:local'));
+    const exported = await createBackup();
+    const tampered = JSON.stringify({
+      ...exported,
+      tables: { ...exported.tables, journalEntries: [validJournalEntry('journal:tampered', 'changed')] },
+    });
+
+    await expect(importBackupText(tampered)).rejects.toThrow('checksum does not match');
+    expect(await db.journalEntries.toArray()).toMatchObject([{ id: 'journal:local' }]);
   });
 
   it('replaces singleton preferences and profile while merging records from a backup', async () => {

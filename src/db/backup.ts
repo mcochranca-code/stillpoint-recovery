@@ -9,6 +9,7 @@ const STORE_NAMES = [
 ] as const;
 const SINGLETON_STORES = new Set<string>(['preferences', 'recoveryProfiles']);
 export const MAX_BACKUP_FILE_BYTES = 15_000_000;
+const SHA256_HEX = /^[a-f0-9]{64}$/;
 const COLOR_THEMES = new Set(['stillpoint', 'catppuccin', 'monokai', 'obsidian', 'lucide']);
 const THEME_MODES = new Set(['light', 'dark', 'system']);
 const GARDEN_STYLES = new Set(['woodland', 'desert-bloom']);
@@ -23,7 +24,8 @@ const GUIDE_KINDS = new Set(['strategy', 'trigger', 'reflection', 'prayer', 'not
 export async function createBackup(): Promise<BackupPayload> {
   const tables: Record<string, unknown[]> = {};
   for (const name of STORE_NAMES) tables[name] = await db.table(name).toArray();
-  return { application: 'stillpoint-recovery', schemaVersion: CURRENT_SCHEMA_VERSION, exportedAt: new Date().toISOString(), tables };
+  const payload = { application: 'stillpoint-recovery' as const, schemaVersion: CURRENT_SCHEMA_VERSION, exportedAt: new Date().toISOString(), tables };
+  return { ...payload, checksum: await checksumFor(payload) };
 }
 
 /** Trigger a browser download for a previously created local-data backup. */
@@ -195,7 +197,18 @@ interface ParsedBackup {
   tables: Record<string, unknown[]>;
 }
 
-function parseBackupText(text: string): ParsedBackup {
+interface ChecksumPayload {
+  application: 'stillpoint-recovery';
+  schemaVersion: number;
+  exportedAt: string;
+  tables: Record<string, unknown[]>;
+}
+async function checksumFor(payload: ChecksumPayload): Promise<string> {
+  const encoded = new TextEncoder().encode(JSON.stringify(payload));
+  const digest = await crypto.subtle.digest('SHA-256', encoded);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+async function parseBackupText(text: string): Promise<ParsedBackup> {
   if (text.length > MAX_BACKUP_FILE_BYTES) throw new Error('This backup is larger than the supported 15 MB limit.');
   let payload: unknown;
   try {
@@ -211,6 +224,16 @@ function parseBackupText(text: string): ParsedBackup {
     || typeof candidate.tables !== 'object' || Array.isArray(candidate.tables)) {
     throw new Error('The backup format is not supported by this version of Stillpoint.');
   }
+  if (candidate.checksum !== undefined) {
+    if (typeof candidate.checksum !== 'string' || !SHA256_HEX.test(candidate.checksum)) {
+      throw new Error('The backup checksum is invalid. Select an unmodified Stillpoint backup.');
+    }
+    const withoutChecksum = { ...(candidate as BackupPayload) };
+    delete withoutChecksum.checksum;
+    if (await checksumFor(withoutChecksum as ChecksumPayload) !== candidate.checksum) {
+      throw new Error('The backup checksum does not match. The file may be incomplete or modified.');
+    }
+  }
   const tables = candidate.tables as Record<string, unknown[]>;
   for (const name of STORE_NAMES) {
     if (tables[name] !== undefined && !Array.isArray(tables[name])) {
@@ -222,7 +245,7 @@ function parseBackupText(text: string): ParsedBackup {
 
 /** Validate a selected backup and count what would be restored without changing local data. */
 export async function inspectBackupText(text: string): Promise<BackupPreview> {
-  const candidate = parseBackupText(text);
+  const candidate = await parseBackupText(text);
   const stores: BackupStorePreview[] = [];
 
   for (const name of STORE_NAMES) {
@@ -271,7 +294,7 @@ export async function inspectBackupText(text: string): Promise<BackupPreview> {
  * Preferences and the recovery profile are restored as singleton records; other records are added only when their IDs are new.
  */
 export async function importBackupText(text: string): Promise<ImportResult> {
-  const candidate = parseBackupText(text);
+  const candidate = await parseBackupText(text);
   const result: ImportResult = { imported: 0, skippedDuplicates: 0, skippedInvalid: 0 };
   await db.transaction('rw', STORE_NAMES.map((name) => db.table(name)), async () => {
     for (const name of STORE_NAMES) {

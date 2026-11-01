@@ -247,5 +247,7 @@ export interface BackupPayload {
   application: 'stillpoint-recovery';
   schemaVersion: number;
   exportedAt: string;
+  /** SHA-256 of the canonical payload without this field; optional for legacy backups. */
+  checksum?: string;
   tables: Record<string, unknown[]>;
 }
