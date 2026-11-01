@@ -34,6 +34,7 @@
 .meeting-fellowship-badge.na { background: color-mix(in srgb, var(--sage) 17%, transparent); color: var(--sage); }
 .meeting-fellowship-badge.fa { background: color-mix(in srgb, var(--gold) 25%, transparent); color: var(--ink); }
 .meeting-fellowship-badge.smart { background: color-mix(in srgb, var(--sage) 26%, transparent); color: var(--ink); }
+.meeting-fellowship-badge.faith { background: color-mix(in srgb, var(--gold) 17%, transparent); color: var(--ink); }
 .meeting-listing-top > span:last-child { max-width: 72%; text-align: right; overflow-wrap: anywhere; }
 .meeting-listing h3 { margin: 11px 0 8px; font-size: 15px; line-height: 1.35; }
 .meeting-location { display: flex; align-items: flex-start; gap: 6px; margin: 0; color: var(--ink); font-size: 11px; line-height: 1.5; }

@@ -41,7 +41,7 @@ describe('MeetingsPage', () => {
     expect(screen.getByText(/Direct Zoom invite URLs, meeting IDs, passcodes/i)).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
-    fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Fresno County' } });
+    fireEvent.change(screen.getByLabelText('County / source region'), { target: { value: 'Fresno County' } });
     fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'AA' } });
     fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'online' } });
     fireEvent.change(screen.getByLabelText('Search group, city, address or platform'), { target: { value: 'Women with GUTS' } });
@@ -59,6 +59,24 @@ describe('MeetingsPage', () => {
     fireEvent.change(screen.getByLabelText('Search group, city, address or platform'), { target: { value: 'true solutions' } });
     expect(screen.getByRole('heading', { name: 'True Solutions' })).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'Northside Fellowship' })).toBeNull();
+  });
+
+  it('shows a user-provided Faith-Based row as unverified and without a fabricated source link or map pin', () => {
+    render(<MeetingsPage />);
+    fireEvent.click(screen.getByText(/Faith-Based snapshot: 39 user-provided rows/));
+    expect(screen.getByText(/not independently rechecked/i)).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
+    fireEvent.change(screen.getByLabelText('County / source region'), { target: { value: 'Central Valley' } });
+    fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'FAITH' } });
+    fireEvent.change(screen.getByLabelText('Search group, city, address or platform'), { target: { value: 'The Bridge' } });
+
+    expect(screen.getByRole('heading', { name: 'The Bridge' })).toBeTruthy();
+    expect(screen.getByText(/UNVERIFIED — User-provided Faith-Based Recovery Directory demo/)).toBeTruthy();
+    expect(screen.getByText(/UNVERIFIED — confirm directly before attending/i)).toBeTruthy();
+    expect(screen.queryByRole('link', { name: 'Official listing' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Map' })).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Interactive meeting map' })).toBeNull();
   });
 
   it('filters local listings by an inclusive meeting start-time range', () => {
@@ -98,7 +116,7 @@ describe('MeetingsPage', () => {
   it('includes a local Fresno FA listing and retains the official live finder link', () => {
     render(<MeetingsPage />);
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
-    fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Fresno County' } });
+    fireEvent.change(screen.getByLabelText('County / source region'), { target: { value: 'Fresno County' } });
     fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'FA' } });
     fireEvent.change(screen.getByLabelText('Meeting format'), { target: { value: 'in-person' } });
     expect(screen.getByRole('heading', { name: 'Central Valley Church of Christ, Room 6' })).toBeTruthy();
@@ -111,7 +129,7 @@ describe('MeetingsPage', () => {
   it('exposes SMART Recovery and hybrid formats from the offline workbook', () => {
     render(<MeetingsPage />);
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
-    fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Merced County' } });
+    fireEvent.change(screen.getByLabelText('County / source region'), { target: { value: 'Merced County' } });
     fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'SMART' } });
     expect(screen.getAllByRole('article').length).toBeGreaterThan(0);
     fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'all' } });
@@ -122,7 +140,7 @@ describe('MeetingsPage', () => {
   it('explains that a missing county/fellowship sample does not mean no meetings exist', () => {
     render(<MeetingsPage />);
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
-    fireEvent.change(screen.getByLabelText('County'), { target: { value: 'Mariposa County' } });
+    fireEvent.change(screen.getByLabelText('County / source region'), { target: { value: 'Mariposa County' } });
     fireEvent.change(screen.getByLabelText('Fellowship'), { target: { value: 'NA' } });
     expect(screen.getByRole('heading', { name: 'No bundled NA snapshot is available for Mariposa County.' })).toBeTruthy();
     expect(screen.getByText(/not the presence or absence of local meetings/)).toBeTruthy();

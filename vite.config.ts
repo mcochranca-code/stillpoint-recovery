@@ -20,12 +20,13 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
-    allowedHosts: ['.us3.manus.computer'],
+    allowedHosts: ['.us3.manus.computer', '.us5.manus.computer'],
   },
   preview: {
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
+    allowedHosts: ['.us5.manus.computer'],
   },
   test: {
     environment: 'jsdom',
