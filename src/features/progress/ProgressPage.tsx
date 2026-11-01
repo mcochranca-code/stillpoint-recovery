@@ -6,6 +6,7 @@ import { useAppContext } from '../../app/AppContext';
 import { CharmGallery } from '../../components/CharmGallery';
 import { MilestoneShareDialog, type MilestoneShareTarget } from '../../components/MilestoneShareDialog';
 import { db } from '../../db/database';
+import { shouldShowFaithContent } from '../../domain/content-preset';
 import { elapsedParts, formatLocalDate, localDateKey, nextMilestone, periodStart } from '../../domain/time';
 import type { DailyActivity, PersonalGoal, PersonalMilestone } from '../../domain/types';
 
@@ -39,11 +40,12 @@ export function ProgressPage() {
   const personalMilestones = useLiveQuery(() => db.personalMilestones.orderBy('daysAfterStart').toArray(), []) ?? EMPTY_PERSONAL_MILESTONES;
   const duration = elapsedParts(profile?.startAt, now);
   const durationDays = duration?.days;
+  const showFaithContent = shouldShowFaithContent(preferences?.contentPreset);
   const next = nextMilestone(profile?.startAt ?? null, now);
   const meditationMinutes = sessions.reduce((sum, session) => sum + session.plannedMinutes, 0);
   const completedSessions = sessions.length;
   const reflectionCount = new Set(reflections.filter((item) => item.reflectedAt).map((item) => item.reflectionId)).size;
-  const scriptureCount = new Set(scripture.map((item) => item.scriptureId)).size;
+  const scriptureCount = showFaithContent ? new Set(scripture.map((item) => item.scriptureId)).size : 0;
   const chartRows = useMemo(() => {
     const count = period === 7 ? 7 : period === 30 ? 30 : 12;
     return Array.from({ length: count }, (_, index) => {
@@ -54,11 +56,11 @@ export function ProgressPage() {
       const matching = period === 365
         ? activities.filter((item) => item.localDate.startsWith(key))
         : activities.filter((item) => item.localDate === key);
-      const value = matching.reduce((sum, row) => sum + row.reflectionsCompleted + row.scriptureExplored + row.journalEntries + row.meditationMinutes, 0);
+      const value = matching.reduce((sum, row) => sum + row.reflectionsCompleted + (showFaithContent ? row.scriptureExplored : 0) + row.journalEntries + row.meditationMinutes, 0);
       const label = period === 365 ? date.toLocaleDateString(undefined, { month: 'short' }) : date.toLocaleDateString(undefined, { weekday: 'short' });
       return { key, label, value };
     });
-  }, [period, activities]);
+  }, [period, activities, showFaithContent]);
   const maxValue = Math.max(1, ...chartRows.map((row) => row.value));
 
   useEffect(() => {
@@ -145,7 +147,7 @@ export function ProgressPage() {
           <article className="card metric-card"><p className="eyebrow">{preferences?.discreetMode ? 'Personal timeline' : 'Selected recovery date'}</p><div className="metric-value" aria-label={preferences?.discreetMode ? 'Duration hidden in discreet mode' : undefined}>{preferences?.discreetMode ? 'Hidden' : duration ? `${duration.days}` : '—'}</div><span className="metric-label">{preferences?.discreetMode ? 'Details are hidden while discreet display is on' : duration ? `days · since ${formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}` : 'Set a date whenever it feels useful'}</span><Link to="/" className="inline-link">{preferences?.discreetMode ? 'Open Today' : duration ? 'Adjust date on Today' : 'Set date on Today'} <ArrowRight size={14} /></Link></article>
           <article className="card metric-card"><p className="eyebrow">Meditation</p><div className="metric-value">{meditationMinutes}<small> min</small></div><span className="metric-label">{completedSessions} completed {completedSessions === 1 ? 'session' : 'sessions'}</span></article>
           <article className="card metric-card"><p className="eyebrow">Journal</p><div className="metric-value">{journalCount}</div><span className="metric-label">entries saved on this device</span></article>
-          <article className="card metric-card"><p className="eyebrow">Reflections & scripture</p><div className="metric-value">{reflectionCount + scriptureCount}</div><span className="metric-label">{reflectionCount} reflections · {scriptureCount} scripture passages</span></article>
+          <article className="card metric-card"><p className="eyebrow">{showFaithContent ? 'Reflections & scripture' : 'Reflections'}</p><div className="metric-value">{showFaithContent ? reflectionCount + scriptureCount : reflectionCount}</div><span className="metric-label">{showFaithContent ? `${reflectionCount} reflections · ${scriptureCount} scripture passages` : `${reflectionCount} reflections saved`}</span></article>
         </section>
 
         <div className="two-column">

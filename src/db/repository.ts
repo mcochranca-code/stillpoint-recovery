@@ -1,12 +1,13 @@
 import { CURRENT_SCHEMA_VERSION, db } from './database';
 import type { DailyActivity, RecoveryProfile, UserPreferences } from '../domain/types';
+import { DEFAULT_CONTENT_PRESET, isContentPreset } from '../domain/content-preset';
 import { localDateKey } from '../domain/time';
 
 /** Create the initial preferences record with privacy-conscious and accessible defaults. */
 export const defaultPreferences = (): UserPreferences => {
   const now = new Date().toISOString();
   return {
-    id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
+    id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: DEFAULT_CONTENT_PRESET, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
     highContrast: false, reducedMotion: false, hideMeditationVisual: false, textScale: 1,
     timeFormat: '12h', counterStyle: 'full', liveCounter: true, reminderEnabled: false,
     reminderTime: '19:00', meetingReminders: [], trustedContacts: [], supportResources: [], discreetMode: false, gardenStyle: 'woodland',
@@ -26,10 +27,11 @@ export async function ensureDefaults(): Promise<void> {
     const preferences = await db.preferences.get('preferences');
     if (!preferences) {
       await db.preferences.add(defaultPreferences());
-    } else if (preferences.schemaVersion !== CURRENT_SCHEMA_VERSION) {
+    } else if (preferences.schemaVersion !== CURRENT_SCHEMA_VERSION || !isContentPreset(preferences.contentPreset)) {
       await db.preferences.put({
         ...preferences,
         schemaVersion: CURRENT_SCHEMA_VERSION,
+        contentPreset: isContentPreset(preferences.contentPreset) ? preferences.contentPreset : DEFAULT_CONTENT_PRESET,
         supportResources: Array.isArray(preferences.supportResources) ? preferences.supportResources : [],
         meetingReminders: Array.isArray(preferences.meetingReminders) ? preferences.meetingReminders : [],
         colorTheme: preferences.colorTheme ?? 'stillpoint',

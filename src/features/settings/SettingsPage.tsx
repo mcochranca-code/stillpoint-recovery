@@ -6,7 +6,7 @@ import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText, 
 import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
-import type { ThemeMode } from '../../domain/types';
+import type { ContentPreset, ThemeMode } from '../../domain/types';
 import { getNotificationPermission, requestNotificationPermission, type NotificationPermissionStatus } from '../../platform/notificationPermissions';
 
 function formatBytes(value: number): string {
@@ -143,6 +143,11 @@ export function SettingsPage() {
         <label className="toggle-row"><span><strong>Live sobriety counter</strong><small>Update the exact timer continuously when it is shown.</small></span><input type="checkbox" checked={preferences.liveCounter} onChange={(event) => void updatePreferences({ liveCounter: event.target.checked })} /></label>
         <label className="toggle-row discreet-row"><span><strong><EyeOff size={15} /> Discreet display</strong><small>Hide exact sobriety duration and sensitive headings from casual view.</small></span><input type="checkbox" checked={preferences.discreetMode} onChange={(event) => void updatePreferences({ discreetMode: event.target.checked })} /></label>
         <div className="form-grid"><label className="field-label" htmlFor="garden-style">Living Garden style<select id="garden-style" value={preferences.gardenStyle} onChange={(event) => void updatePreferences({ gardenStyle: event.target.value as 'woodland' | 'desert-bloom' })}><option value="woodland">Woodland</option><option value="desert-bloom">Desert bloom</option></select></label></div>
+      </section>
+
+      <section className="card"><div className="card-header"><div><p className="eyebrow">Choose what appears</p><h2>Content preferences</h2></div></div>
+        <label className="field-label" htmlFor="content-preset">Content preset<select id="content-preset" value={preferences.contentPreset ?? 'faith-based'} onChange={(event) => void updatePreferences({ contentPreset: event.target.value as ContentPreset })}><option value="faith-based">Faith-based content included</option><option value="faith-neutral">Faith-neutral · hide faith-based sections</option></select></label>
+        <p className="fine-print">Faith-neutral hides Our Daily Bread and Scripture for the Journey on Today, the Scripture tab in Library, and Scripture-specific saved-reading and progress labels. This choice stays on this device; switching presets hides or restores these views without deleting your saved data.</p>
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Gentle reminders</h2><p>Neutral wording. No guilt or recovery details in notifications.</p></div></div>

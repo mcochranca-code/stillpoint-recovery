@@ -1,5 +1,6 @@
 import { CURRENT_SCHEMA_VERSION, db } from './database';
 import type { BackupPayload, JournalType } from '../domain/types';
+import { DEFAULT_CONTENT_PRESET, isContentPreset } from '../domain/content-preset';
 
 const STORE_NAMES = [
   'preferences', 'recoveryProfiles', 'recoveryDateHistory', 'dailyReflections', 'scriptureActivity',
@@ -120,6 +121,7 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
         && typeof row.liveCounter === 'boolean' && typeof row.reminderEnabled === 'boolean' && isTime(row.reminderTime)
         && (row.meetingReminders === undefined || isMeetingReminderArray(row.meetingReminders))
         && isStringArray(row.trustedContacts) && (row.supportResources === undefined || isStringArray(row.supportResources))
+        && (row.contentPreset === undefined || isContentPreset(row.contentPreset))
         && typeof row.discreetMode === 'boolean' && typeof row.gardenStyle === 'string' && GARDEN_STYLES.has(row.gardenStyle)
         && typeof row.allowBreathHolds === 'boolean' && isDate(row.createdAt) && isDate(row.updatedAt);
     case 'recoveryProfiles':
@@ -287,6 +289,7 @@ export async function importBackupText(text: string): Promise<ImportResult> {
           await table.put({
             ...raw,
             schemaVersion: CURRENT_SCHEMA_VERSION,
+            contentPreset: isContentPreset(raw.contentPreset) ? raw.contentPreset : DEFAULT_CONTENT_PRESET,
             colorTheme: typeof raw.colorTheme === 'string' && COLOR_THEMES.has(raw.colorTheme) ? raw.colorTheme : 'stillpoint',
             supportResources: isStringArray(raw.supportResources) ? raw.supportResources : [],
             meetingReminders: isMeetingReminderArray(raw.meetingReminders) ? raw.meetingReminders : [],
