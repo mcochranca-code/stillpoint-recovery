@@ -7,8 +7,6 @@ import { Leaf } from 'lucide-react';
 
 const TodayPage = lazy(() => import('../features/today/TodayPage').then((page) => ({ default: page.TodayPage })));
 const ProgressPage = lazy(() => import('../features/progress/ProgressPage').then((page) => ({ default: page.ProgressPage })));
-const CharmCollectionPage = lazy(() => import('../features/progress/CharmCollectionPage').then((page) => ({ default: page.CharmCollectionPage })));
-const CurrentMilestoneTokenPage = lazy(() => import('../features/progress/CurrentMilestoneTokenPage').then((page) => ({ default: page.CurrentMilestoneTokenPage })));
 const JournalPage = lazy(() => import('../features/journal/JournalPage').then((page) => ({ default: page.JournalPage })));
 const MeditationPage = lazy(() => import('../features/meditation/MeditationPage').then((page) => ({ default: page.MeditationPage })));
 const LibraryPage = lazy(() => import('../features/library/LibraryPage').then((page) => ({ default: page.LibraryPage })));
@@ -35,8 +33,6 @@ function AppRoutes() {
         <Routes>
           <Route path="/" element={<TodayPage />} />
           <Route path="/progress" element={<ProgressPage />} />
-          <Route path="/charms" element={<CharmCollectionPage />} />
-          <Route path="/tokens" element={<CurrentMilestoneTokenPage />} />
           <Route path="/journal" element={<JournalPage />} />
           <Route path="/meditation" element={<MeditationPage />} />
           <Route path="/library" element={<LibraryPage />} />
@@ -53,7 +49,6 @@ function AppRoutes() {
   );
 }
 
-/** Render the app providers and lazy-loaded route shell. */
 export default function App() {
   return <AppProvider><AppRoutes /></AppProvider>;
 }

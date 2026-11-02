@@ -18,6 +18,12 @@ export function getNextDailyReminderAt(now: Date, time: string): Date | null {
   return next;
 }
 
+export function isDailyReminderDue(now: Date, scheduledAt: Date, lastDeliveredLocalDate: string | null | undefined): boolean {
+  if (scheduledAt.getTime() > now.getTime()) return false;
+  const localDate = `${scheduledAt.getFullYear()}-${String(scheduledAt.getMonth() + 1).padStart(2, '0')}-${String(scheduledAt.getDate()).padStart(2, '0')}`;
+  return lastDeliveredLocalDate !== localDate;
+}
+
 function parseMeetingTime(value: string): { hour: number; minute: number } | null {
   const match = /^(1[0-2]|[1-9]):([0-5]\d)\s*(AM|PM)$/i.exec(value.trim());
   if (!match) return null;

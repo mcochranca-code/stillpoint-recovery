@@ -20,26 +20,20 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
-    allowedHosts: ['.us3.manus.computer', '.us5.manus.computer'],
+    allowedHosts: ['.us3.manus.computer'],
+    proxy: {
+      '/api': { target: 'http://127.0.0.1:3001', changeOrigin: false },
+    },
   },
   preview: {
     host: '0.0.0.0',
     port: 3000,
     strictPort: true,
-    allowedHosts: ['.us5.manus.computer'],
   },
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
-    include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.{ts,tsx}'],
-    testTimeout: 15_000,
+    include: ['src/**/*.test.{ts,tsx}', 'tests/**/*.test.{ts,tsx}', 'server/**/*.test.mjs'],
     restoreMocks: true,
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html', 'json-summary'],
-      reportsDirectory: './coverage',
-      include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.d.ts'],
-    },
   },
 });

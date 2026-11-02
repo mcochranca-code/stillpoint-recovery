@@ -1,6 +1,6 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, Compass, Heart, Home, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
+import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronUp, Compass, Heart, Home, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
 import { QuickFindDialog } from '../components/QuickFindDialog';
 
 type NavigationItem = { to: string; label: string; mobileLabel?: string; accessibleLabel?: string; icon: LucideIcon; end?: boolean };
@@ -14,13 +14,23 @@ const items: NavigationItem[] = [
   { to: '/meetings', label: 'Meetings', mobileLabel: 'Meetings', icon: CalendarDays },
   { to: '/library', label: 'Library', mobileLabel: 'Library', icon: Compass },
 ];
+const MOBILE_NAV_PREFERENCE = 'stillpoint-mobile-nav-expanded-v1';
 
 /** Render primary navigation and route-aware page controls. */
 export default function Navigation() {
   const [quickFindOpen, setQuickFindOpen] = useState(false);
+  const [mobileExpanded, setMobileExpanded] = useState(false);
   const openQuickFind = useCallback(() => setQuickFindOpen(true), []);
   const closeQuickFind = useCallback(() => setQuickFindOpen(false), []);
   const shortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
+  useEffect(() => {
+    try { setMobileExpanded(window.localStorage.getItem(MOBILE_NAV_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
+  }, []);
+  useEffect(() => {
+    document.documentElement.dataset.mobileNavExpanded = String(mobileExpanded);
+    try { window.localStorage.setItem(MOBILE_NAV_PREFERENCE, String(mobileExpanded)); } catch { /* Storage is optional. */ }
+    return () => { delete document.documentElement.dataset.mobileNavExpanded; };
+  }, [mobileExpanded]);
 
   return (
     <>
@@ -45,16 +55,29 @@ export default function Navigation() {
         </NavLink>
         <p className="sidebar-quote">“For this day, this moment, this breath.”</p>
       </aside>
-      <nav className="mobile-nav" aria-label="Mobile primary navigation">
-        {items.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end }) => (
-          <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}>
-            <Icon size={21} aria-hidden="true" /><span aria-hidden="true">{mobileLabel ?? label}</span>
-          </NavLink>
-        ))}
-        <button type="button" className="quick-find-trigger quick-find-trigger--mobile" aria-label="Search Stillpoint" title={`Quick Find (${shortcutLabel})`} onClick={openQuickFind}>
-          <Search aria-hidden="true" /><span aria-hidden="true">Search</span>
+      <div className={`mobile-nav-wrap${mobileExpanded ? ' expanded' : ''}`}>
+        <button
+          type="button"
+          className="mobile-nav-toggle"
+          aria-expanded={mobileExpanded}
+          aria-controls="mobile-primary-navigation"
+          aria-label={mobileExpanded ? 'Collapse mobile navigation labels' : 'Expand mobile navigation labels'}
+          title={mobileExpanded ? 'Collapse navigation' : 'Expand navigation'}
+          onClick={() => setMobileExpanded((value) => !value)}
+        >
+          {mobileExpanded ? <ChevronDown size={18} aria-hidden="true" /> : <ChevronUp size={18} aria-hidden="true" />}
         </button>
-      </nav>
+        <nav id="mobile-primary-navigation" className="mobile-nav" aria-label="Mobile primary navigation">
+          {items.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end }) => (
+            <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}>
+              <Icon size={21} aria-hidden="true" /><span>{mobileLabel ?? label}</span>
+            </NavLink>
+          ))}
+          <button type="button" className="quick-find-trigger quick-find-trigger--mobile" aria-label="Search Stillpoint" title={`Quick Find (${shortcutLabel})`} onClick={openQuickFind}>
+            <Search aria-hidden="true" /><span>Search</span>
+          </button>
+        </nav>
+      </div>
       <QuickFindDialog open={quickFindOpen} onOpen={openQuickFind} onClose={closeQuickFind} />
     </>
   );

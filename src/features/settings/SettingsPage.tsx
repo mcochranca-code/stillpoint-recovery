@@ -44,7 +44,7 @@ export function SettingsPage() {
   }, []);
   useEffect(() => {
     let active = true;
-    void getNotificationPermission().then((permission) => { if (active) setNotificationPermission(permission); });
+    void Promise.resolve(getNotificationPermission()).then((permission) => { if (active) setNotificationPermission(permission); });
     return () => { active = false; };
   }, []);
 
