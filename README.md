@@ -208,9 +208,9 @@ pnpm build
 pnpm preview
 ```
 
-The production build creates `dist/`, a web app manifest, a service worker, and a precache manifest for local app assets. Offline availability depends on the app shell and assets being successfully cached by your browser.
+The production build creates `dist/`, a web app manifest, a service worker, and a precache manifest for local app assets. Offline availability depends on the app shell and assets being successfully cached by your browser. The PWA check verifies install metadata, route metadata, same-origin precache entries, and the offline navigation fallback.
 
-The Vitest suite covers domain rules, journal entry creation/editing/deletion and draft recovery, backup validation and transactional restore, and IndexedDB activity, milestone, and charm persistence. `pnpm test:coverage` writes diagnostic V8 coverage reports to `coverage/`; the workflow reports coverage without imposing a threshold.
+The Vitest suite covers domain rules, onboarding, journal entry creation/editing/deletion and draft recovery, meditation session state, backup validation and transactional restore, historical IndexedDB migrations, keyboard focus behavior, and IndexedDB activity, milestone, and charm persistence. `pnpm test:coverage` writes V8 coverage reports to `coverage/` and enforces minimum repository-wide thresholds. Lighthouse also checks the production app shell's accessibility score in CI.
 
 ### Install and offline behavior
 
