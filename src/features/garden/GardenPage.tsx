@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Flower2, Leaf, Sprout, TreePine } from 'lucide-react';
@@ -11,6 +11,9 @@ import { CharmMedallion } from '../../components/CharmMedallion';
 /** Render the non-punitive garden visualization derived from supportive activity. */
 export function GardenPage() {
   const { preferences, updatePreferences } = useAppContext();
+  const gardenSceneRef = useRef<HTMLElement>(null);
+  const [sceneVisible, setSceneVisible] = useState(false);
+  const [pageVisible, setPageVisible] = useState(true);
   const activities = useLiveQuery(() => db.dailyActivity.toArray(), []) ?? [];
   const sessions = useLiveQuery(() => db.meditationSessions.where('status').equals('completed').toArray(), []) ?? [];
   const awardsQuery = useLiveQuery(() => db.earnedCharms.toArray(), []);
@@ -24,16 +27,33 @@ export function GardenPage() {
   const earnedDefinitions = useMemo(() => awards.map((award) => charmDefinitions.find((charm) => charm.id === award.charmId)).filter(Boolean), [awards]);
   const woodland = preferences?.gardenStyle !== 'desert-bloom';
 
+  useEffect(() => {
+    const scene = gardenSceneRef.current;
+    if (!scene || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      setSceneVisible(Boolean(entry?.isIntersecting));
+    }, { threshold: 0.1 });
+    observer.observe(scene);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const updateVisibility = () => setPageVisible(document.visibilityState === 'visible');
+    updateVisibility();
+    document.addEventListener('visibilitychange', updateVisibility);
+    return () => document.removeEventListener('visibilitychange', updateVisibility);
+  }, []);
+
   return (
     <div className="page-stack">
       <header className="page-header"><div><p className="eyebrow">Growth that does not ask for a streak</p><h1>The Living Garden.</h1><p>A visual record of care you chose to give. Missed days never make anything here wither.</p></div><span className="pill">{stage}</span></header>
-      <section className={`garden-scene ${woodland ? 'woodland' : 'desert-bloom'}`} aria-label={`${woodland ? 'Woodland' : 'Desert bloom'} garden, ${stage}`}>
+      <section ref={gardenSceneRef} className={`garden-scene ${woodland ? 'woodland' : 'desert-bloom'}${sceneVisible && pageVisible ? ' motion-active' : ''}`} aria-label={`${woodland ? 'Woodland' : 'Desert bloom'} garden, ${stage}`}>
         <img className="garden-landscape" src={woodland ? '/assets/backgrounds/forest-path.svg' : '/assets/backgrounds/sunrise-hills.svg'} alt="" />
         <div className="garden-sun" aria-hidden="true" />
         <div className="garden-plants" aria-hidden="true">
           {Array.from({ length: plantCount }, (_, index) => {
             const Icon = index % 5 === 0 ? TreePine : index % 3 === 0 ? Flower2 : index % 2 === 0 ? Sprout : Leaf;
-            return <div className={`garden-plant plant-${index % 6}`} key={index}><Icon size={index % 5 === 0 ? 44 : 30 + index % 4 * 5} strokeWidth={1.35} /></div>;
+            return <div className={`garden-plant plant-${index % 6}`} key={index}><span className="garden-plant-motion"><Icon size={index % 5 === 0 ? 44 : 30 + index % 4 * 5} strokeWidth={1.35} /></span></div>;
           })}
         </div>
         <div className="garden-scene-label"><span>{woodland ? 'WOODLAND' : 'DESERT BLOOM'}</span><strong>{stage}</strong></div>
