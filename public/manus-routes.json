@@ -2,6 +2,7 @@
   "routes": [
     { "path": "/", "title": "Today" },
     { "path": "/progress", "title": "Progress" },
+    { "path": "/tokens", "title": "Current milestone token" },
     { "path": "/journal", "title": "Journal" },
     { "path": "/meditation", "title": "Meditation" },
     { "path": "/library", "title": "Library" },

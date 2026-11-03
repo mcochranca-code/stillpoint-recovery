@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronUp, Compass, Heart, Home, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
+import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Compass, Heart, Home, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
 import { QuickFindDialog } from '../components/QuickFindDialog';
 
 type NavigationItem = { to: string; label: string; mobileLabel?: string; accessibleLabel?: string; icon: LucideIcon; end?: boolean };
@@ -15,11 +15,13 @@ const items: NavigationItem[] = [
   { to: '/library', label: 'Library', mobileLabel: 'Library', icon: Compass },
 ];
 const MOBILE_NAV_PREFERENCE = 'stillpoint-mobile-nav-expanded-v1';
+const DESKTOP_SIDEBAR_PREFERENCE = 'stillpoint-desktop-sidebar-collapsed-v1';
 
 /** Render primary navigation and route-aware page controls. */
 export default function Navigation() {
   const [quickFindOpen, setQuickFindOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const openQuickFind = useCallback(() => setQuickFindOpen(true), []);
   const closeQuickFind = useCallback(() => setQuickFindOpen(false), []);
   const shortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
@@ -31,15 +33,25 @@ export default function Navigation() {
     try { window.localStorage.setItem(MOBILE_NAV_PREFERENCE, String(mobileExpanded)); } catch { /* Storage is optional. */ }
     return () => { delete document.documentElement.dataset.mobileNavExpanded; };
   }, [mobileExpanded]);
+  useEffect(() => {
+    try { setDesktopCollapsed(window.localStorage.getItem(DESKTOP_SIDEBAR_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
+  }, []);
+  useEffect(() => {
+    try { window.localStorage.setItem(DESKTOP_SIDEBAR_PREFERENCE, String(desktopCollapsed)); } catch { /* Storage is optional. */ }
+  }, [desktopCollapsed]);
 
   return (
     <>
-      <aside className="desktop-sidebar" aria-label="Main navigation">
+      <aside className={`desktop-sidebar${desktopCollapsed ? ' is-collapsed' : ''}`} aria-label="Main navigation">
         <NavLink className="brand-lockup" to="/" aria-label="Stillpoint Recovery, Today">
           <img src="/assets/branding/stillpoint-logo.svg" alt="" />
           <span><strong>Stillpoint</strong><small>Recovery, one day at a time</small></span>
         </NavLink>
-        <nav className="side-links">
+        <button type="button" className="desktop-sidebar-toggle" aria-expanded={!desktopCollapsed} aria-controls="desktop-primary-navigation" aria-label={desktopCollapsed ? 'Expand sidebar navigation' : 'Collapse sidebar navigation'} title={desktopCollapsed ? 'Expand sidebar' : 'Collapse sidebar'} onClick={() => setDesktopCollapsed((value) => !value)}>
+          {desktopCollapsed ? <ChevronRight size={17} aria-hidden="true" /> : <ChevronLeft size={17} aria-hidden="true" />}
+          <span>{desktopCollapsed ? 'Expand' : 'Collapse'}</span>
+        </button>
+        <nav id="desktop-primary-navigation" className="side-links">
           {items.map(({ to, label, accessibleLabel, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
               <Icon size={19} aria-hidden="true" /><span>{label}</span>
