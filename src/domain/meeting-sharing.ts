@@ -171,6 +171,7 @@ export function buildMeetingShareCardHtml(
     .badge { min-width: 34px; padding: 5px 9px; border-radius: 999px; background: ${colors.primarySoft}; color: ${colors.primary}; text-align: center; font-size: 10px; font-weight: 850; }
     .badge.na, .badge.smart { background: color-mix(in srgb, ${colors.sage} 20%, transparent); color: ${colors.primary}; }
     .badge.fa { background: color-mix(in srgb, ${colors.gold} 24%, transparent); color: ${colors.ink}; }
+    .badge.faith { background: color-mix(in srgb, ${colors.gold} 17%, transparent); color: ${colors.ink}; }
     .mode { text-align: right; }
     .meeting h2 { margin: 11px 0 7px; font: 600 19px/1.32 Georgia, serif; overflow-wrap: anywhere; }
     .meeting p { margin: 8px 0 0; color: ${colors.muted}; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }

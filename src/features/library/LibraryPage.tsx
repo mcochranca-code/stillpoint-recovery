@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { BookOpen, Compass, Heart, Leaf, Search, Settings2, Sparkles, Wind } from 'lucide-react';
@@ -12,6 +12,7 @@ import { scriptureEntries } from '../../data/scripture';
 import { reflections } from '../../data/reflections';
 import { meditationExercises } from '../../data/exercises';
 import { createReflectionJournalEntry } from '../../domain/journal';
+import { shouldShowFaithContent } from '../../domain/content-preset';
 import { localDateKey, elapsedParts } from '../../domain/time';
 import type { DailyReflection, ScriptureActivity } from '../../domain/types';
 
@@ -36,7 +37,9 @@ export function LibraryPage() {
   const [tab, setTab] = useState<LibraryTab>('reflections');
   const [query, setQuery] = useState('');
   const [need, setNeed] = useState('All needs');
-  const { profile, notify } = useAppContext();
+  const { profile, preferences, notify } = useAppContext();
+  const showFaithContent = shouldShowFaithContent(preferences?.contentPreset);
+  const visibleTabs = showFaithContent ? tabs : tabs.filter((item) => item.id !== 'scripture');
   const today = localDateKey(new Date());
   const reflectionActivity = useLiveQuery(() => db.dailyReflections.where('localDate').equals(today).toArray(), [today]) ?? EMPTY_REFLECTION_ACTIVITY;
   const favoriteReflections = useLiveQuery(() => db.dailyReflections.where('favoriteKey').equals(1).toArray(), []) ?? EMPTY_REFLECTION_ACTIVITY;
@@ -51,6 +54,14 @@ export function LibraryPage() {
     return (need === 'All needs' || needs.some((itemNeed) => itemNeed.toLowerCase() === need.toLowerCase()) || (need === 'Temptation' && /craving|temptation|urge/i.test(`${item.explanation} ${item.application}`)))
       && (!term || `${item.reference} ${item.verse} ${item.explanation} ${item.principle} ${needs.join(' ')}`.toLowerCase().includes(term));
   }), [need, term]);
+
+  useEffect(() => {
+    if (!showFaithContent && tab === 'scripture') {
+      setTab('reflections');
+      setQuery('');
+      setNeed('All needs');
+    }
+  }, [showFaithContent, tab]);
 
   async function favoriteReflection(reflectionId: string) {
     const today = localDateKey(new Date());
@@ -105,13 +116,13 @@ export function LibraryPage() {
         <Link to="/field-guide" className="signature-link"><span><BookOpen size={19} /></span><strong>Recovery Field Guide<small>Your private playbook</small></strong></Link>
         <Link to="/settings" className="signature-link"><span><Settings2 size={19} /></span><strong>Settings & privacy<small>Control this space</small></strong></Link>
       </div>
-      <div className="library-tabs" role="tablist" aria-label="Library categories">{tabs.map((item) => <button role="tab" aria-selected={tab === item.id} key={item.id} className={`library-tab${tab === item.id ? ' active' : ''}`} onClick={() => { setTab(item.id); setQuery(''); setNeed('All needs'); }}>{item.label}</button>)}</div>
+      <div className="library-tabs" role="tablist" aria-label="Library categories">{visibleTabs.map((item) => <button role="tab" aria-selected={tab === item.id} key={item.id} className={`library-tab${tab === item.id ? ' active' : ''}`} onClick={() => { setTab(item.id); setQuery(''); setNeed('All needs'); }}>{item.label}</button>)}</div>
 
       {tab === 'reflections' && <section className="page-stack"><div className="library-search"><Search size={17} /><label className="sr-only" htmlFor="reflection-search">Search original reflections</label><input id="reflection-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by theme, title, or principle…" /></div><p className="fine-print">{reflections.length} original reflections · selected by local calendar day · not affiliated with a recovery fellowship.</p>
         <div className="library-list">{reflectionList.map((item) => <article className="card library-entry" key={item.id}><div className="library-entry-head"><div><span className="pill pill-sage">{item.theme}</span><h2>{item.title}</h2></div><button className="icon-button" aria-label={savedReflections.has(item.id) ? 'Unsave reflection' : 'Save reflection'} onClick={() => void favoriteReflection(item.id)}><Heart size={17} fill={savedReflections.has(item.id) ? 'currentColor' : 'none'} /></button></div><p>{item.reading}</p><div className="principle-callout"><span>PRINCIPLE</span><strong>{item.principle}</strong></div><details className="library-details"><summary>Read the practice and question</summary><p><strong>For today:</strong> {item.practice}</p><p><strong>To consider:</strong> {item.question}</p></details><div className="action-row"><button className="button button-small button-primary" onClick={() => void markReflection(item.id)}>{reflectedToday.has(item.id) ? 'Reflected today' : 'Mark reflected'}</button><button className="button button-small button-secondary" onClick={() => void saveReflection(item.id)}>Save to journal</button></div></article>)}</div>
       </section>}
 
-      {tab === 'scripture' && <section className="page-stack"><div className="library-filter-grid"><div className="library-search"><Search size={17} /><label className="sr-only" htmlFor="scripture-search">Search scripture and context</label><input id="scripture-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search reference, passage, or principle…" /></div><label className="sr-only" htmlFor="need-filter">Browse scripture by emotional need</label><select id="need-filter" value={need} onChange={(event) => setNeed(event.target.value)}>{emotionalFilters.map((item) => <option key={item}>{item}</option>)}</select></div><p className="fine-print">Quotations are from the public-domain King James Version (KJV); context and recovery applications are original and optional.</p>
+      {showFaithContent && tab === 'scripture' && <section className="page-stack"><div className="library-filter-grid"><div className="library-search"><Search size={17} /><label className="sr-only" htmlFor="scripture-search">Search scripture and context</label><input id="scripture-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search reference, passage, or principle…" /></div><label className="sr-only" htmlFor="need-filter">Browse scripture by emotional need</label><select id="need-filter" value={need} onChange={(event) => setNeed(event.target.value)}>{emotionalFilters.map((item) => <option key={item}>{item}</option>)}</select></div><p className="fine-print">Quotations are from the public-domain King James Version (KJV); context and recovery applications are original and optional.</p>
         <div className="library-list">{scriptureList.map((item) => { const isSaved = savedScripture.has(item.id); const needs = scriptureNeeds[item.reference] ?? []; return <article className="card library-entry scripture-library-card" key={item.id}><div className="library-entry-head"><div><span className="pill pill-sage">{needs.join(' · ') || item.principle}</span><h2>{item.reference}</h2></div><button className="icon-button" aria-label={isSaved ? 'Unsave scripture' : 'Save scripture'} onClick={() => void toggleScripture(item.id)}><Heart size={17} fill={isSaved ? 'currentColor' : 'none'} /></button></div><blockquote>“{item.verse}”</blockquote><small className="muted">{item.translation}</small><p>{item.explanation}</p><div className="principle-callout"><span>RECOVERY PRINCIPLE</span><strong>{item.principle}</strong></div><p><strong>A small practice:</strong> {item.application}</p>{item.contemplation && <p className="fine-print"><em>{item.contemplation}</em></p>}</article>; })}{!scriptureList.length && <div className="empty-state">No passage matched this filter. Try another emotional need or search phrase.</div>}</div>
       </section>}
 

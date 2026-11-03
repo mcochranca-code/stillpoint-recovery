@@ -138,7 +138,7 @@ Stillpoint is a client-only React application. Features read and write through t
 
 ```mermaid
 flowchart TD
-    UI[React routes and accessible components] --> Features[Feature pages\nToday · Progress · Journal · Meditation\nMeetings · Library · Reset · Garden · Field Guide · Settings]
+    UI[React routes and accessible components] --> Features[Feature pages\nToday · Progress · Journal · Meditation\nMeetings · Library · Community · Reset · Garden · Field Guide · Settings]
     Features --> Domain[Typed domain rules\ndates · timers · milestones · sharing]
     Features --> Repositories[Database repositories]
     Repositories --> IndexedDB[(IndexedDB\nStillpointRecovery)]
@@ -151,7 +151,7 @@ flowchart TD
     MapTiles[OpenStreetMap tile images] -. only after in-app map opt-in .-> Features
 ```
 
-There is no application API, account system, analytics pipeline, or cloud database in the core experience. AA/NA meeting filters run locally over the bundled snapshot; the FA option opens its official live finder only after the user chooses that link, with no search criteria transferred from Stillpoint. The in-app map is also user-initiated; OpenStreetMap receives tile requests and the viewed map area, which may correlate with locally filtered results, but not the filter values, search text, recovery data or device location. No device location or attendance is collected. The app does not fetch or rehost publisher content.
+There is no application API, account system, analytics pipeline, or cloud database in the core local-first experience. The optional `/community` route is a deliberate exception: it can connect to the separately deployed hosted community service only when a person opens the notes thread and chooses to post. It accepts only a short date-scoped note and never sends recovery profile, sobriety date, journal, meeting, location, or meditation data. Notes are public, retained for up to 90 days, and deletion keys remain only in the posting browser. If the service is not configured, the tab stays visible and reports that hosted notes are unavailable. AA/NA meeting filters run locally over the bundled snapshot; the FA option opens its official live finder only after the user chooses that link, with no search criteria transferred from Stillpoint. The in-app map is also user-initiated; OpenStreetMap receives tile requests and the viewed map area, which may correlate with locally filtered results, but not the filter values, search text, recovery data or device location. No device location or attendance is collected. The app does not fetch or rehost publisher content.
 
 ## Motion is part of the design—not decoration
 
@@ -271,7 +271,7 @@ React · TypeScript · Vite · Tailwind CSS · Framer Motion · Dexie/IndexedDB 
 <summary><strong>Project map</strong></summary>
 
 - `src/app/` — application shell, routes, onboarding, and dialog focus management.
-- `src/features/` — Today, Progress, Journal, Meditation, Meetings, Library, Settings, Reset, Garden, and Field Guide.
+- `src/features/` — Today, Progress, Journal, Meditation, Meetings, Community, Library, Settings, Reset, Garden, and Field Guide.
 - `src/components/` — reusable interface components and dialogs.
 - `src/db/` — IndexedDB schema, migrations, repositories, milestones, and JSON backups.
 - `src/domain/` — typed data, date math, sharing, achievement criteria, and domain calculations.
@@ -279,6 +279,7 @@ React · TypeScript · Vite · Tailwind CSS · Framer Motion · Dexie/IndexedDB 
 - `public/` — supplied brand assets, local soundscapes, PWA manifest, and service worker.
 - `docs/media/` — still and motion visuals used by this README.
 - `docs/meeting-sources.md` — source dates, directory links, and privacy boundaries for the bundled county schedule.
+- `server/community/` — optional account-free hosted community API, migration, moderation policy, and deployment notes.
 - `docs/copyright/` — authorized third-party literature, attribution notices, and a non-reproducing navigation index.
 - `.github/readme-media/` — editable HTML/CSS motion sources and their renderer.
 
@@ -293,6 +294,7 @@ flowchart LR
     Shell --> Journal[/journal\nprivate entries · drafts · search /]
     Shell --> Meditation[/meditation\nexercises · timer · sessions /]
     Shell --> Meetings[/meetings\nAA · NA · FA · regional map /]
+    Shell --> Community[/community\noptional public notes on today’s original reading /]
     Shell --> Library[/library\nreadings · practices · collection /]
     Shell --> Reset[/reset\nbrief grounding flow /]
     Shell --> Garden[/garden\nnon-punitive visual growth /]
@@ -325,3 +327,7 @@ The documentation checker runs on documentation changes, pull requests, manual d
 The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational documentation close to the implementation. It covers getting started, architecture, data and privacy, PWA/offline behavior, testing and CI, content boundaries, and contribution troubleshooting. See also the [project handoff](docs/project-handoff.md), [presentation script](docs/presentation-script.md), and [reminder and survey review](docs/reminder-and-survey-review.md). The [static release and contributor preview](docs/release-contributor-preview.html) presents the npm release path and contributor quality rhythm visually, while the [interactive GitHub dashboard](docs/release-contributor-dashboard.html) reads current public workflow, issue, commit, pull-request, and comment data without a backend or token. Keeping these pages in the repository makes changes reviewable alongside code; they can also seed a GitHub Wiki if that separate space is initialized later.
 
 <p align="center"><sub>Made for the day you are in. Not affiliated with Narcotics Anonymous World Services.</sub></p>
+
+### Navigation controls
+
+On desktop widths, use the sidebar control to collapse the navigation to an icon rail or expand it back to full labels. On mobile widths, use the bottom navigation chevron to expand or collapse the labeled navigation tray. Both preferences are stored locally in the browser and do not leave the device.

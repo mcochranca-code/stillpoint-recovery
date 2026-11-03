@@ -6,7 +6,7 @@ import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText, 
 import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
-import type { ThemeMode } from '../../domain/types';
+import type { ContentPreset, ThemeMode } from '../../domain/types';
 import { getNotificationPermission, requestNotificationPermission, type NotificationPermissionStatus } from '../../platform/notificationPermissions';
 
 function formatBytes(value: number): string {
@@ -44,7 +44,7 @@ export function SettingsPage() {
   }, []);
   useEffect(() => {
     let active = true;
-    void getNotificationPermission().then((permission) => { if (active) setNotificationPermission(permission); });
+    void Promise.resolve(getNotificationPermission()).then((permission) => { if (active) setNotificationPermission(permission); });
     return () => { active = false; };
   }, []);
 
@@ -102,7 +102,7 @@ export function SettingsPage() {
         storeSummary || 'No records are present in supported Stillpoint tables.',
         '',
         'Preferences and the recovery profile will replace their current values. Other records merge by ID; matching local records are kept, and no table is cleared.',
-        'This preview has not changed local data. The JSON backup is unencrypted and may contain sensitive recovery information. Restore it now?',
+        'This preview has not changed local data. The JSON backup is unencrypted and may contain sensitive recovery information. New Stillpoint backups include a checksum; modified or incomplete files are rejected. Restore it now?',
       ].join('\n');
       if (!window.confirm(confirmation)) return;
       const result = await importBackupText(text);
@@ -145,6 +145,11 @@ export function SettingsPage() {
         <div className="form-grid"><label className="field-label" htmlFor="garden-style">Living Garden style<select id="garden-style" value={preferences.gardenStyle} onChange={(event) => void updatePreferences({ gardenStyle: event.target.value as 'woodland' | 'desert-bloom' })}><option value="woodland">Woodland</option><option value="desert-bloom">Desert bloom</option></select></label></div>
       </section>
 
+      <section className="card"><div className="card-header"><div><p className="eyebrow">Choose what appears</p><h2>Content preferences</h2></div></div>
+        <label className="field-label" htmlFor="content-preset">Content preset<select id="content-preset" value={preferences.contentPreset ?? 'faith-based'} onChange={(event) => void updatePreferences({ contentPreset: event.target.value as ContentPreset })}><option value="faith-based">Faith-based content included</option><option value="faith-neutral">Faith-neutral · hide faith-based sections</option></select></label>
+        <p className="fine-print">Faith-neutral hides Our Daily Bread and Scripture for the Journey on Today, the Scripture tab in Library, and Scripture-specific saved-reading and progress labels. This choice stays on this device; switching presets hides or restores these views without deleting your saved data.</p>
+      </section>
+
       <section className="card"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Gentle reminders</h2><p>Neutral wording. No guilt or recovery details in notifications.</p></div></div>
         <label className="toggle-row"><span><strong>Daily meditation reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available on this browser or mobile host.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
         <label className="field-label" htmlFor="reminder-time">Daily meditation reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
@@ -160,7 +165,7 @@ export function SettingsPage() {
       <section className="card"><div className="card-header"><div><p className="eyebrow">Your information belongs to you</p><h2>Backup & restore</h2><p>To move between devices, download a backup here, transfer the JSON file using a private method you trust, then choose Restore from JSON on the other device. Stillpoint does not upload or sync the file.</p></div></div>
         <div className="backup-actions"><button className="button button-primary" disabled={busy} onClick={() => void exportBackup()}><Download size={16} /> Download JSON backup</button><button className="button button-secondary" disabled={busy} onClick={() => inputRef.current?.click()}><FileUp size={16} /> Restore from JSON</button><input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" aria-label="Select Stillpoint JSON backup" onChange={(event) => void restoreBackup(event.target.files?.[0])} /></div>
         <p className="fine-print">Restore previews record counts before confirmation. Preferences and the recovery profile replace their local values; other records merge by ID, duplicates are kept as-is, and existing records are not cleared.</p>
-        <p className="fine-print">Backup files are ordinary, unencrypted JSON and may contain journals, recovery dates and other sensitive details. Keep them private and use a transfer method you trust.</p>
+        <p className="fine-print">Backup files are ordinary, unencrypted JSON and may contain journals, recovery dates and other sensitive details. New backups include a SHA-256 checksum to detect accidental changes, but checksums do not encrypt the file or prove who created it. Keep backups private and use a transfer method you trust.</p>
         <p className="fine-print">Date-only recovery dates are interpreted as local midnight on the date selected. Travel and time-zone changes may affect the local clock display; the saved start instant remains the source for elapsed time.</p>
         <p className="storage-note"><ShieldCheck size={16} /> Stored in this browser profile on this device · {storageUse} · not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it.</p>
       </section>

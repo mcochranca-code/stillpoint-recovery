@@ -21,7 +21,7 @@ flowchart TD
 - `src/components/` contains reusable cards, forms, dialogs, audio controls, and sharing UI.
 - `src/db/` contains the Dexie schema, migrations, repositories, milestones, backup validation, import, and deletion.
 - `src/domain/` contains date policy, timer math, achievement criteria, presentation helpers, and share payload rules.
-- `src/data/` contains local reflections, scripture entries, exercises, themes, charm definitions, and the dated Stanislaus County AA/NA meeting snapshot.
+- `src/data/` contains local reflections, scripture entries, exercises, themes, charm definitions, and dated AA/NA/FA/SMART/Faith-Based meeting snapshots, with county coverage and source notes for Fresno, Merced, Mariposa, and the user-supplied Faith-Based dataset.
 - `public/` contains static brand assets, soundscapes, the PWA manifest, service worker, and declared routes.
 
 ## Routes
@@ -32,13 +32,13 @@ The app shell lazy-loads these routes:
 - `/progress` — activity, milestones, goals, and Journey Collection.
 - `/journal` — private entries, search, editing, and draft recovery.
 - `/meditation` — exercises, timer controls, phase-synchronized Box Breathing orb, local soundscapes, and history.
-- `/meetings` — offline AA/NA directory snapshot with local fellowship, weekday, city, and text filters.
+- `/meetings` — offline AA/NA/FA/SMART/Faith-Based directory snapshots with fellowship, county/source region, weekday, city, format, and text filters, source links where available, and explicit unverified provenance for Faith-Based demo rows.
 - `/library` — reflections, scripture, practices, and collection browsing.
 - `/reset` — the brief “I need a moment” support flow.
 - `/garden` — visual, non-punitive growth from supportive activity.
 - `/field-guide` — user-built coping notes and strategies.
 - `/settings` — accessibility, privacy, reminders, backup, restore, and deletion.
 
-Meeting filters run entirely on the bundled snapshot. No location permission or attendance tracking is used; official schedule and map links open only after an explicit click.
+Meeting filters run entirely on the bundled snapshots. No location permission or attendance tracking is used; official schedule and map links open only after an explicit click. Coverage notes distinguish bundled records from partial or dynamic official directories instead of implying that an incomplete snapshot is exhaustive.
 
 The router redirects unknown paths to `/`.

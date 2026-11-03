@@ -7,6 +7,7 @@ import { useDialogFocus } from '../../app/useDialogFocus';
 import { db } from '../../db/database';
 import { reflections } from '../../data/reflections';
 import { scriptureEntries } from '../../data/scripture';
+import { shouldShowFaithContent } from '../../domain/content-preset';
 import { formatLocalDate } from '../../domain/time';
 import type { DailyReflection, FieldGuideNote, ScriptureActivity } from '../../domain/types';
 
@@ -23,6 +24,7 @@ type GuideTab = 'notes' | 'what-helped' | 'difficult-moments' | 'favorites' | 'c
 /** Render the user's private collection of coping strategies and field-guide notes. */
 export function FieldGuidePage() {
   const { preferences, notify } = useAppContext();
+  const showFaithContent = shouldShowFaithContent(preferences?.contentPreset);
   const [tab, setTab] = useState<GuideTab>('notes');
   const [editor, setEditor] = useState<FieldGuideNote | 'new' | null>(null);
   const notes = useLiveQuery(() => db.fieldGuideNotes.orderBy('updatedAt').reverse().toArray(), []) ?? [];
@@ -59,7 +61,14 @@ export function FieldGuidePage() {
 
       {tab === 'difficult-moments' && <section className="page-stack"><div className="card"><p className="eyebrow">Only situations you chose to record</p><h2>{preferences?.discreetMode ? 'Private notes' : 'Difficult moments'}</h2><p className="muted">This is a list of your own saved notes. It does not label risk, analyze patterns, or make predictions.</p></div>{triggers.length ? triggers.map((entry) => <article className="card field-source-card" key={entry.id}><h3>{preferences?.discreetMode ? 'Private moment' : entry.title || 'A moment I noted'}</h3>{!preferences?.discreetMode && entry.trigger && <p><strong>Situation:</strong> {entry.trigger}</p>}{!preferences?.discreetMode && entry.copingStrategy && <p><strong>What I wrote might help:</strong> {entry.copingStrategy}</p>}{!preferences?.discreetMode && <small>{formatLocalDate(entry.createdAt)}</small>}<Link to="/journal" className="text-button">Review journal entry</Link></article>) : <div className="card empty-state"><p>Nothing here until you choose to record a difficult moment. You can use the Reset for an immediate pause without saving anything.</p><Link className="button button-primary" to="/reset">I need a moment</Link></div>}</section>}
 
-      {tab === 'favorites' && <section className="page-stack"><div className="card"><p className="eyebrow">Words you chose to keep nearby</p><h2>Saved reflections & scripture</h2></div><div className="field-guide-grid">{reflections.filter((item) => savedReflections.has(item.id)).map((item) => <article className="card" key={item.id}><span className="pill pill-sage">{preferences?.discreetMode ? 'Saved reading' : 'Original reflection'}</span><h3>{preferences?.discreetMode ? 'Details hidden' : item.title}</h3><p>{preferences?.discreetMode ? 'Details hidden while discreet display is on.' : item.reading}</p>{!preferences?.discreetMode && <small>{item.principle}</small>}</article>)}{savedScripture.map((item) => { const verse = scriptureEntries.find((scripture) => scripture.id === item.scriptureId); return verse ? <article className="card" key={item.id}><span className="pill pill-sage">{preferences?.discreetMode ? 'Saved reading' : verse.translation}</span><h3>{preferences?.discreetMode ? 'Details hidden' : verse.reference}</h3>{!preferences?.discreetMode && <blockquote>“{verse.verse}”</blockquote>}<p>{preferences?.discreetMode ? 'Details hidden while discreet display is on.' : verse.explanation}</p>{!preferences?.discreetMode && <small>{verse.principle}</small>}</article> : null; })}{!savedReflections.size && !savedScripture.length && <div className="card empty-state">Save reflections or scripture from the Library to gather them here.</div>}</div></section>}
+      {tab === 'favorites' && <section className="page-stack">
+        <div className="card"><p className="eyebrow">Words you chose to keep nearby</p><h2>{showFaithContent ? 'Saved reflections & scripture' : 'Saved reflections'}</h2></div>
+        <div className="field-guide-grid">
+          {reflections.filter((item) => savedReflections.has(item.id)).map((item) => <article className="card" key={item.id}><span className="pill pill-sage">{preferences?.discreetMode ? 'Saved reading' : 'Original reflection'}</span><h3>{preferences?.discreetMode ? 'Details hidden' : item.title}</h3><p>{preferences?.discreetMode ? 'Details hidden while discreet display is on.' : item.reading}</p>{!preferences?.discreetMode && <small>{item.principle}</small>}</article>)}
+          {showFaithContent && savedScripture.map((item) => { const verse = scriptureEntries.find((scripture) => scripture.id === item.scriptureId); return verse ? <article className="card" key={item.id}><span className="pill pill-sage">{preferences?.discreetMode ? 'Saved reading' : verse.translation}</span><h3>{preferences?.discreetMode ? 'Details hidden' : verse.reference}</h3>{!preferences?.discreetMode && <blockquote>“{verse.verse}”</blockquote>}<p>{preferences?.discreetMode ? 'Details hidden while discreet display is on.' : verse.explanation}</p>{!preferences?.discreetMode && <small>{verse.principle}</small>}</article> : null; })}
+          {!savedReflections.size && (!showFaithContent || !savedScripture.length) && <div className="card empty-state">{showFaithContent ? 'Save reflections or scripture from the Library to gather them here.' : 'Save a reflection from Today or Library to gather it here.'}</div>}
+        </div>
+      </section>}
 
       {tab === 'contacts' && <section className="page-stack"><div className="card"><p className="eyebrow">People you choose</p><h2>Trusted contacts</h2><p className="muted">Your list is managed in Settings. Stillpoint does not contact anyone automatically.</p><Link to="/settings" className="button button-secondary">Manage contacts</Link></div>{preferences?.trustedContacts.length ? <div className="field-guide-grid">{preferences.trustedContacts.map((contact, index) => <article className="card contact-card" key={`${index}-${contact}`}><HeartHandshake size={19} /><strong>{preferences.discreetMode ? 'Contact details hidden' : contact}</strong><small>Stored only in your local preferences</small></article>)}</div> : <div className="card empty-state">No contacts have been added. If you want, add people you trust in <Link to="/settings">Settings</Link>.</div>}</section>}
 

@@ -1,0 +1,9 @@
+# Current sobriety-token tab
+
+The **Current sobriety token** route (`/tokens`) reads the same on-device recovery start date, elapsed-day counter, and fixed time milestones used by Progress. It renders only the latest milestone the user has already reached; it does not preview future milestones or change sobriety dates, thresholds, awards, or recovery records. If no start date is set, the first 24-hour milestone has not been reached, discreet mode is active, or WebGL is unavailable, the page shows its corresponding privacy-preserving or static fallback state.
+
+The user can view that same current milestone as either an **NA Keytag** or an **AA Medallion**. Their lettering, symbols, visual language, and source colorways are adapted from the user-provided `sobriety_medallion_keytags_3d.html`. The medallion uses contrast-aware engraving so the current milestone label remains readable. A persistent notice clarifies that the artwork is a virtual personal rendering, not an official AA/NA-issued token, and does not imply endorsement by either fellowship. The time label is Stillpoint's existing milestone value; it should not be mistaken for a fellowship's official denomination.
+
+Three.js `0.128.0` is bundled locally; the page does not load the supplied demo's CDN dependency or any other runtime image/model service. Canvas textures are generated in-browser. The renderer stays inside the app shell and its route-specific code is lazy-loaded for the rest of the PWA. Dragging turns the token; accessible **Spin**, **Flip token**, and **Reset view** controls provide non-pointer interactions. Reduced-motion preference disables automatic rotation and float while keeping manual controls available. The canvas does not modify user data or send it to a server.
+
+The Journey Collection remains focused on activity charms. It links to `/tokens` rather than repeating the full set of time-token thresholds; **Quick Find** also indexes the single current-token route.

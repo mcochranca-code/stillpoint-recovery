@@ -24,9 +24,22 @@ export interface MeetingReminderRecord {
   lastNotifiedOccurrenceAt?: string;
 }
 
+export interface CommunityCommentCredential {
+  id: string;
+  readingKey: string;
+  text: string;
+  createdAt: string;
+  deletionToken: string;
+}
+
+export type MeetingReminder = MeetingReminderRecord & { lastAttemptedOccurrenceAt?: string };
+
+export type ContentPreset = 'faith-based' | 'faith-neutral';
+
 export interface UserPreferences {
   id: 'preferences';
   schemaVersion: number;
+  contentPreset: ContentPreset;
   onboardingComplete: boolean;
   theme: ThemeMode;
   colorTheme: ColorTheme;
@@ -39,6 +52,7 @@ export interface UserPreferences {
   liveCounter: boolean;
   reminderEnabled: boolean;
   reminderTime: string;
+  meetingReminderLeadMinutes: 15 | 30 | 60;
   meetingReminders?: MeetingReminderRecord[];
   trustedContacts: string[];
   supportResources: string[];
@@ -244,5 +258,7 @@ export interface BackupPayload {
   application: 'stillpoint-recovery';
   schemaVersion: number;
   exportedAt: string;
+  /** SHA-256 of the canonical payload without this field; optional for legacy backups. */
+  checksum?: string;
   tables: Record<string, unknown[]>;
 }

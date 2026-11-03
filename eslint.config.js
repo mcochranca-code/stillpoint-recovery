@@ -21,7 +21,11 @@ export default tseslint.config(
     },
   },
   {
-    files: ['*.js'],
-    languageOptions: { globals: { ...globals.node, ...globals.es2022 } },
+    files: ['server/**/*.mjs'],
+    languageOptions: { globals: { ...globals.node, ...globals.es2022, fetch: 'readonly' } },
+    rules: {
+      'no-control-regex': 'off',
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
   },
 );

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { meetingListings, nonDuplicateOnlineWorkbookListings } from './meetings';
 import { regionalMeetingListings } from './regional-meetings';
+import { faithBasedMeetingListings } from './faith-based-meetings';
 
 describe('regional offline meeting sample', () => {
   it('includes a dated, source-linked sample for the verified county/fellowship pairs', () => {
@@ -26,6 +27,6 @@ describe('regional offline meeting sample', () => {
   it('combines the regional and workbook snapshots with the existing Stanislaus list without duplicate IDs', () => {
     const ids = meetingListings.map((meeting) => meeting.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(meetingListings).toHaveLength(607 + nonDuplicateOnlineWorkbookListings.length);
+    expect(meetingListings).toHaveLength(607 + nonDuplicateOnlineWorkbookListings.length + faithBasedMeetingListings.length);
   });
 });

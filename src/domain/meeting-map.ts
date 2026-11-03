@@ -15,7 +15,7 @@ export function buildMeetingMapLocations(listings: readonly MeetingListing[]): M
   const grouped = new Map<string, MeetingMapLocation>();
 
   for (const meeting of listings) {
-    if (meeting.mode !== 'in-person' && meeting.mode !== 'hybrid') continue;
+    if (meeting.mapEligible === false || (meeting.mode !== 'in-person' && meeting.mode !== 'hybrid')) continue;
     const coordinate = meetingVenueCoordinateFor(meeting);
     if (!coordinate) continue;
 
