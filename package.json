@@ -12,7 +12,9 @@
     "test": "vitest run",
     "preview": "vite preview",
     "start": "node server/index.mjs",
-    "check:server": "node --check server/index.mjs && node --check server/community-router.mjs && node --check server/community-policy.mjs && node --check server/database.mjs"
+    "check:server": "node --check server/index.mjs && node --check server/community-router.mjs && node --check server/community-policy.mjs && node --check server/database.mjs",
+    "test:coverage": "vitest run --coverage",
+    "verify:pwa": "node scripts/check-pwa-artifact.mjs"
   },
   "dependencies": {
     "dexie": "4.0.10",
@@ -37,6 +39,7 @@
     "@types/react-dom": "18.3.1",
     "@types/three": "0.128.0",
     "@vitejs/plugin-react": "4.3.4",
+    "@vitest/coverage-v8": "2.1.8",
     "autoprefixer": "10.4.20",
     "concurrently": "10.0.6",
     "eslint": "9.17.0",
