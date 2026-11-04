@@ -62,6 +62,7 @@ export function ProgressPage() {
     });
   }, [period, activities, showFaithContent]);
   const maxValue = Math.max(1, ...chartRows.map((row) => row.value));
+  const hasActivity = chartRows.some((row) => row.value > 0);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
@@ -153,11 +154,16 @@ export function ProgressPage() {
         <div className="two-column">
           <section className="card">
             <div className="card-header"><div><p className="eyebrow">Recorded activity, not a score</p><h2>Activity over time</h2><p>Counts reflect saved actions in your selected period.</p></div><div className="filter-row" role="group" aria-label="Activity chart period">{filters.map((item) => <button key={item.days} className={`filter-chip${period === item.days ? ' selected' : ''}`} onClick={() => setPeriod(item.days)}>{item.label}</button>)}</div></div>
-            <div className="activity-bars" role="img" aria-label={`${filters.find((item) => item.days === period)?.label} activity chart. ${chartRows.map((row) => `${row.label}: ${row.value}`).join(', ')}`}>
-              {chartRows.map((row) => <div className="activity-bar" key={row.key} title={`${row.label}: ${row.value} recorded activity units`}><div className="activity-bar-track"><span className="activity-bar-fill" style={{ height: `${Math.max(3, row.value / maxValue * 100)}%` }} /></div><small>{row.label}</small></div>)}
-            </div>
-            <p className="fine-print">Activity measures recorded participation only; it is not clinical evidence or a prediction of relapse.</p>
-            <div className="activity-legend"><span><i className="legend-dot legend-reflection" /> Reflections</span><span><i className="legend-dot legend-journal" /> Journal</span><span><i className="legend-dot legend-meditation" /> Meditation minutes</span></div>
+            {hasActivity ? <>
+              <div className="activity-bars" role="img" aria-label={`${filters.find((item) => item.days === period)?.label} activity chart. ${chartRows.map((row) => `${row.label}: ${row.value}`).join(', ')}`}>
+                {chartRows.map((row) => <div className="activity-bar" key={row.key} title={`${row.label}: ${row.value} recorded activity units`}><div className="activity-bar-track"><span className="activity-bar-fill" style={{ height: `${row.value ? Math.max(3, row.value / maxValue * 100) : 0}%` }} /></div><small>{row.label}</small></div>)}
+              </div>
+              <p className="fine-print">Activity measures recorded participation only; it is not clinical evidence or a prediction of relapse.</p>
+              <div className="activity-legend"><span><i className="legend-dot legend-reflection" /> Reflections</span><span><i className="legend-dot legend-journal" /> Journal</span><span><i className="legend-dot legend-meditation" /> Meditation minutes</span></div>
+            </> : <div className="activity-empty-state">
+              <p>No recorded activity in this period yet.</p>
+              <p>There is no score to meet. If it feels useful, you could <Link to="/library">browse a reflection</Link> or <Link to="/meditation">take a quiet pause</Link>.</p>
+            </div>}
           </section>
           <section className="card milestone-card">
             <div className="card-header"><div><p className="eyebrow">{preferences?.discreetMode ? 'Personal timeline' : 'Recovery timeline'}</p><h2>{preferences?.discreetMode ? 'A saved moment' : next ? `Next · ${next.label}` : 'A date you choose'}</h2></div><CalendarDays size={20} aria-hidden="true" /></div>
