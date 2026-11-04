@@ -127,6 +127,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         if (selectedMeetings.length) {
           const { stanislausMeetingListings } = await import('../data/meetings');
+          if (stopped) return;
           const scheduled = getNextMeetingReminder(selectedMeetings, stanislausMeetingListings, now);
           if (scheduled && scheduled.notifyAt.getTime() <= now.getTime()) {
             const occurrenceAt = scheduled.meetingStartsAt.toISOString();
