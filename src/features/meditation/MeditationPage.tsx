@@ -185,6 +185,7 @@ export function MeditationPage() {
         {!active && <section className="card">
           <div className="card-header"><div><p className="eyebrow">Choose a comfortable length</p><h2>Time for yourself</h2></div></div>
           <div className="duration-options" role="group" aria-label="Meditation duration">{durations.map((minutes) => <button key={minutes} onClick={() => setDuration(minutes)} className={`duration-option${duration === minutes ? ' selected' : ''}`} aria-pressed={duration === minutes}><strong>{minutes}</strong><span>minutes</span></button>)}</div>
+          <h3 className="exercise-section-title">Choose a practice</h3>
           <div className="exercise-grid">
             {meditationExercises.map((item) => <button key={item.id} className={`exercise-choice${item.id === selectedId ? ' selected' : ''}`} onClick={() => { setSelectedId(item.id); setSearchParams({ exercise: item.id }, { replace: true }); }} aria-pressed={item.id === selectedId}>
               <span className="exercise-visual-thumb"><img src={item.visual === 'orb' ? '/assets/meditation/breathing-orb.svg' : item.visual === 'box' ? '/assets/meditation/box-breathing.svg' : item.visual === 'ripples' ? '/assets/meditation/grounding-ripples.svg' : item.visual === 'horizon' ? '/assets/backgrounds/still-lake.svg' : '/assets/backgrounds/soft-bokeh.svg'} alt="" loading="lazy" /></span><span className="exercise-choice-copy"><strong>{item.name}</strong><small>{item.description}</small></span>
