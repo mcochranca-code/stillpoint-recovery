@@ -9,6 +9,8 @@
   <p>
     <a href="https://stillpoint-recovery-demo.netlify.app/"><strong>Open the live demo</strong></a>
     &nbsp; · &nbsp;
+    <a href="https://manus.im/app/7k3Csc5jVMN5imwHWfCUcR?collab=1"><strong>Open the Manus PWA workspace</strong></a>
+    &nbsp; · &nbsp;
     <a href="https://github.com/mcochranca-code/stillpoint-recovery/archive/refs/heads/main.zip"><strong>Download the source ZIP</strong></a>
     &nbsp; · &nbsp;
     <a href="#take-a-look-around">See the screenshots</a>
@@ -330,4 +332,4 @@ The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational doc
 
 ### Navigation controls
 
-On desktop widths, use the sidebar control to collapse the navigation to an icon rail or expand it back to full labels. On mobile widths, use the bottom navigation chevron to expand or collapse the labeled navigation tray. Both preferences are stored locally in the browser and do not leave the device.
+On desktop widths, use the sidebar control to collapse the navigation to an icon rail or expand it back to full labels. On mobile widths, use the eye control to hide or show the bottom navigation and the chevron to expand or collapse its labels. The Home button opens Today, and all navigation preferences are stored locally in the browser and do not leave the device.
