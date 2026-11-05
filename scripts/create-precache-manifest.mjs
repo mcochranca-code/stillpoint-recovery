@@ -18,9 +18,11 @@ async function walk(directory) {
   return result;
 }
 
-const publicAssets = (await walk(path.join(root, 'public', 'assets')))
-  .filter((file) => /\.(?:svg|png|jpe?g|webp|gif|css|woff2?|mp3)$/i.test(file))
-  .map((file) => `/${path.posix.join('assets', path.relative(path.join(root, 'public', 'assets'), file).split(path.sep).join('/'))}`);
+const publicAssetRoot = path.join(root, 'public', 'assets');
+const publicAssets = (await walk(publicAssetRoot))
+  .filter((file) => /\.(?:svg|png|jpe?g|webp|gif|css|woff2?|mp3)$/i.test(file)
+    && !path.relative(publicAssetRoot, file).split(path.sep).includes('reference'))
+  .map((file) => `/${path.posix.join('assets', path.relative(publicAssetRoot, file).split(path.sep).join('/'))}`);
 
 const core = ['/', '/manifest.webmanifest', '/manus-routes.json', '/precache-manifest.json'];
 const generated = generatedFiles.filter(Boolean).map((file) => `/${file}`);
