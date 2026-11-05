@@ -12,6 +12,7 @@ const JournalPage = lazy(() => import('../features/journal/JournalPage').then((p
 const MeditationPage = lazy(() => import('../features/meditation/MeditationPage').then((page) => ({ default: page.MeditationPage })));
 const LibraryPage = lazy(() => import('../features/library/LibraryPage').then((page) => ({ default: page.LibraryPage })));
 const MeetingsPage = lazy(() => import('../features/meetings/MeetingsPage').then((page) => ({ default: page.MeetingsPage })));
+const CommunityNotesPage = lazy(() => import('../features/community/CommunityNotesPage').then((page) => ({ default: page.CommunityNotesPage })));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage').then((page) => ({ default: page.SettingsPage })));
 const ResetPage = lazy(() => import('../features/reset/ResetPage').then((page) => ({ default: page.ResetPage })));
 const GardenPage = lazy(() => import('../features/garden/GardenPage').then((page) => ({ default: page.GardenPage })));
@@ -39,6 +40,7 @@ function AppRoutes() {
           <Route path="/meditation" element={<MeditationPage />} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/meetings" element={<MeetingsPage />} />
+          <Route path="/community" element={<CommunityNotesPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/reset" element={<ResetPage />} />
           <Route path="/garden" element={<GardenPage />} />

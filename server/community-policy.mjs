@@ -7,6 +7,7 @@ export const MAX_REPORTS_PER_BROWSER_PER_DAY = 10;
 export const REPORT_HIDE_THRESHOLD = 3;
 
 const readingKeyPattern = /^stillpoint:(\d{4}-\d{2}-\d{2}):([a-z0-9-]{1,64})$/;
+const communityNotesBoardKey = 'stillpoint:community-notes';
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const urlPattern = /(?:https?:\/\/|www\.|\b[a-z0-9-]+\.(?:com|net|org|io|co)\b)/iu;
 const emailPattern = /\b[\w.+-]+@[\w.-]+\.[a-z]{2,}\b/iu;
@@ -20,6 +21,7 @@ const directHarmPatterns = [
 ];
 
 export function isValidReadingKey(value) {
+  if (value === communityNotesBoardKey) return true;
   if (typeof value !== 'string') return false;
   const match = readingKeyPattern.exec(value);
   if (!match) return false;

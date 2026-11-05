@@ -48,6 +48,19 @@ describe('Quick Find', () => {
     expect(within(dialog).getByText('No matches.')).toBeTruthy();
   });
 
+  it('finds the Home page and dedicated Community Notes destination', () => {
+    renderNavigation();
+    fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
+    const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
+    const search = within(dialog).getByRole('searchbox');
+
+    fireEvent.change(search, { target: { value: 'home' } });
+    expect(within(dialog).getByRole('link', { name: /Home Your daily recovery companion/ })).toHaveAttribute('href', '/');
+
+    fireEvent.change(search, { target: { value: 'community notes' } });
+    expect(within(dialog).getByRole('link', { name: /Community Notes/ })).toHaveAttribute('href', '/community');
+  });
+
   it('opens with Ctrl+K and supports arrow-key movement through results', () => {
     renderNavigation();
     fireEvent.keyDown(window, { key: 'k', ctrlKey: true });

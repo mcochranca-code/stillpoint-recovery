@@ -59,9 +59,9 @@ The main path stays deliberately small: open the app, decide what you need today
 ```mermaid
 flowchart LR
     Open[Open Stillpoint] --> Setup{Optional setup}
-    Setup -->|Skip| Today[Today dashboard]
-    Setup -->|Save preferences| Today
-    Today --> Choice{What would help now?}
+    Setup -->|Skip| Home[Home dashboard]
+    Setup -->|Save preferences| Home
+    Home --> Choice{What would help now?}
     Choice --> Reflect[Reflection or scripture]
     Choice --> Write[Journal or field guide]
     Choice --> Reset[90-second Reset]
@@ -84,7 +84,7 @@ The choices are invitations rather than requirements. No route depends on a stre
   <tr>
     <td width="50%" valign="top">
       <a href="docs/media/today.webp"><img src="docs/media/today.webp" alt="Today screen showing a visual recovery counter, NA Just for Today link, original daily reflection and scripture" width="100%"></a>
-      <h3>Today — one moment at a time</h3>
+      <h3>Home — one moment at a time</h3>
       <p>A visual, live day counter sits alongside an original daily reflection, optional scripture, and the official NA Just for Today reader link. Adjust or hide the counter whenever you want.</p>
     </td>
     <td width="50%" valign="top">
@@ -124,11 +124,12 @@ The choices are invitations rather than requirements. No route depends on a stre
 - **Private journaling** supports gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing—with editable entries, search, and recoverable drafts.
 - **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline. In active Box Breathing, a highlighted sphere moves around the square in time with the inhale/hold/exhale/rest cues.
 - **Meetings** bundles a partial source-linked sample of public AA/NA schedules from Stanislaus, Fresno, Mariposa and Merced counties, plus one Fresno FA listing, for offline browsing. Coverage is not exhaustive; blank results do not mean no meeting exists. County, fellowship, weekday, city, format and start-time filters run locally. New regional records are not pinned on the approximate map; its existing Stanislaus pins use on-demand OpenStreetMap tiles. See [source, coverage and privacy notes](docs/meeting-sources.md), and confirm details with official directories before traveling.
+- **Community Notes** is a first-class, account-free navigation destination with its own shared board, separate from notes attached to the original daily reflection. It fetches only after you explicitly open the board and accepts only a short public note; hosted notes expire after up to 90 days. See the in-app disclosure for pseudonymity, moderation and deletion limits.
 - **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
 - **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
 - **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
-- **Milestones you can turn over.** Open the Journey Collection directly from Today or Progress, then tap or keyboard-activate a two-sided 3D charm to spin its medallion; the interaction is local, keyboard accessible, and reduced-motion aware.
-- **A clearer first step.** Today offers optional shortcuts to a quiet practice, peer meetings, and the private journal near the top of the page; all existing Today content and actions remain available below.
+- **Milestones you can turn over.** Open the Journey Collection directly from Home or Progress, then tap or keyboard-activate a two-sided 3D charm to spin its medallion; the interaction is local, keyboard accessible, and reduced-motion aware.
+- **A clearer first step.** Home offers optional shortcuts to a quiet practice, peer meetings, and the private journal near the top of the page; all existing Home content and actions remain available below.
 
 ## Help shape future improvements
 
@@ -140,7 +141,7 @@ Stillpoint is a client-only React application. Features read and write through t
 
 ```mermaid
 flowchart TD
-    UI[React routes and accessible components] --> Features[Feature pages\nToday · Progress · Journal · Meditation\nMeetings · Library · Community · Reset · Garden · Field Guide · Settings]
+    UI[React routes and accessible components] --> Features[Feature pages\nHome · Progress · Journal · Meditation\nMeetings · Community Notes · Library · Reset · Garden · Field Guide · Settings]
     Features --> Domain[Typed domain rules\ndates · timers · milestones · sharing]
     Features --> Repositories[Database repositories]
     Repositories --> IndexedDB[(IndexedDB\nStillpointRecovery)]
@@ -153,7 +154,7 @@ flowchart TD
     MapTiles[OpenStreetMap tile images] -. only after in-app map opt-in .-> Features
 ```
 
-There is no application API, account system, analytics pipeline, or cloud database in the core local-first experience. The optional `/community` route is a deliberate exception: it can connect to the separately deployed hosted community service only when a person opens the notes thread and chooses to post. It accepts only a short date-scoped note and never sends recovery profile, sobriety date, journal, meeting, location, or meditation data. Notes are public, retained for up to 90 days, and deletion keys remain only in the posting browser. If the service is not configured, the tab stays visible and reports that hosted notes are unavailable. AA/NA meeting filters run locally over the bundled snapshot; the FA option opens its official live finder only after the user chooses that link, with no search criteria transferred from Stillpoint. The in-app map is also user-initiated; OpenStreetMap receives tile requests and the viewed map area, which may correlate with locally filtered results, but not the filter values, search text, recovery data or device location. No device location or attendance is collected. The app does not fetch or rehost publisher content.
+There is no application API, account system, analytics pipeline, or cloud database in the core local-first experience. The optional `/community` route and reflection-specific thread are deliberate exceptions: each can connect to the separately deployed hosted community service only after a person explicitly opens the notes area. The route uses a fixed board key, never a reflection date or id; the Home page thread remains separately scoped to one original Stillpoint reflection. Both accept only short notes and never send recovery profile, sobriety date, journal, meeting, location, or meditation data. Notes are public, retained for up to 90 days, and deletion keys remain only in the posting browser. If the service is not configured, the board stays visible and reports that hosted notes are unavailable. AA/NA meeting filters run locally over the bundled snapshot; the FA option opens its official live finder only after the user chooses that link, with no search criteria transferred from Stillpoint. The in-app map is also user-initiated; OpenStreetMap receives tile requests and the viewed map area, which may correlate with locally filtered results, but not the filter values, search text, recovery data or device location. No device location or attendance is collected. The app does not fetch or rehost publisher content.
 
 ## Motion is part of the design—not decoration
 
