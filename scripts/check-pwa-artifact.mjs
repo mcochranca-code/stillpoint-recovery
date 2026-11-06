@@ -29,6 +29,9 @@ const precache = JSON.parse(await readFile(resolve(dist, 'precache-manifest.json
 if (!Array.isArray(precache.assets) || precache.assets.length === 0) {
   throw new Error('Precache manifest must contain at least one asset');
 }
+if (precache.assets.some((asset) => asset.startsWith('/assets/reference/'))) {
+  throw new Error('Reference-only assets must not be included in the offline precache');
+}
 
 const serviceWorker = await readFile(resolve(dist, 'sw.js'), 'utf8');
 if (!serviceWorker.includes('precache-manifest.json')) {

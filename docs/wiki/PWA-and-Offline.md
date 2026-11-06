@@ -12,7 +12,7 @@ After opening the app in a supported browser, use **Install app** or **Add to Ho
 
 ## Service worker
 
-`public/sw.js` uses a versioned cache name. During installation it caches the shell, manifest, declared route file, logo assets, and the generated precache manifest. The build script creates that precache list from the final production assets.
+`public/sw.js` uses a versioned cache name. During installation it caches the shell, manifest, declared route file, logo assets, and the generated precache manifest. The build script creates that precache list from the final production assets and omits reference-only assets that are not used by the app.
 
 For same-origin navigation, the service worker tries the network first and falls back to a cached response or `/`. Static assets are served from cache when present and cached after a successful same-origin request. API-like and managed-storage paths are excluded.
 
