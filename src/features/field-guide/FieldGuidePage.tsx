@@ -7,6 +7,8 @@ import { useDialogFocus } from '../../app/useDialogFocus';
 import { db } from '../../db/database';
 import { reflections } from '../../data/reflections';
 import { scriptureEntries } from '../../data/scripture';
+import { findReading } from '../../data/readings';
+import { traditionInfo } from '../../domain/traditions';
 import { shouldShowFaithContent } from '../../domain/content-preset';
 import { formatLocalDate } from '../../domain/time';
 import type { DailyReflection, FieldGuideNote, ScriptureActivity } from '../../domain/types';
@@ -32,6 +34,8 @@ export function FieldGuidePage() {
   const entriesQuery = useLiveQuery(() => db.journalEntries.orderBy('createdAt').reverse().toArray(), []);
   const entries = useMemo(() => entriesQuery ?? [], [entriesQuery]);
   const savedScripture = useLiveQuery(() => db.scriptureActivity.where('favoriteKey').equals(1).toArray(), []) ?? EMPTY_SCRIPTURE_ACTIVITY;
+  // Readings saved from other traditions; Christian scripture keeps its existing view above.
+  const savedOtherReadings = useMemo(() => savedScripture.flatMap((item) => { const reading = findReading(item.scriptureId); return reading && reading.tradition !== 'christian' ? [{ item, reading }] : []; }), [savedScripture]);
   const savedReflectionsQuery = useLiveQuery(() => db.dailyReflections.where('favoriteKey').equals(1).toArray(), []) ?? EMPTY_REFLECTION_ACTIVITY;
   const savedReflections = useMemo(() => new Set(savedReflectionsQuery.map((item) => item.reflectionId)), [savedReflectionsQuery]);
   const strategies = useMemo(() => entries.filter((entry) => Boolean(entry.copingStrategy?.trim())), [entries]);
@@ -68,7 +72,8 @@ export function FieldGuidePage() {
         <div className="field-guide-grid">
           {reflections.filter((item) => savedReflections.has(item.id)).map((item) => <article className="card" key={item.id}><span className="pill pill-sage">{preferences?.discreetMode ? 'Saved reading' : 'Original reflection'}</span><h3>{preferences?.discreetMode ? 'Details hidden' : item.title}</h3><p>{preferences?.discreetMode ? 'Details hidden while discreet display is on.' : item.reading}</p>{!preferences?.discreetMode && <small>{item.principle}</small>}</article>)}
           {showFaithContent && savedScripture.map((item) => { const verse = scriptureEntries.find((scripture) => scripture.id === item.scriptureId); return verse ? <article className="card" key={item.id}><span className="pill pill-sage">{preferences?.discreetMode ? 'Saved reading' : verse.translation}</span><h3>{preferences?.discreetMode ? 'Details hidden' : verse.reference}</h3>{!preferences?.discreetMode && <blockquote>“{verse.verse}”</blockquote>}<p>{preferences?.discreetMode ? 'Details hidden while discreet display is on.' : verse.explanation}</p>{!preferences?.discreetMode && <small>{verse.principle}</small>}</article> : null; })}
-          {!savedReflections.size && (!showFaithContent || !savedScripture.length) && <div className="card empty-state">{showFaithContent ? 'Save reflections or scripture from the Library to gather them here.' : 'Save a reflection from Today or Library to gather it here.'}</div>}
+          {savedOtherReadings.map(({ item, reading }) => <article className={`card tradition-${reading.tradition}`} key={item.id}><span className="pill tradition-pill">{preferences?.discreetMode ? 'Saved reading' : traditionInfo(reading.tradition).label}</span><h3>{preferences?.discreetMode ? 'Details hidden' : reading.citation}</h3>{!preferences?.discreetMode && (reading.kind === 'verbatim' ? <blockquote>“{reading.text}”</blockquote> : <p>{reading.text}</p>)}{!preferences?.discreetMode && <small>{reading.translation}</small>}</article>)}
+          {!savedReflections.size && (!showFaithContent || !savedScripture.length) && !savedOtherReadings.length && <div className="card empty-state">{showFaithContent ? 'Save reflections or scripture from the Library to gather them here.' : 'Save a reflection from Today or Library to gather it here.'}</div>}
         </div>
       </section>}
 

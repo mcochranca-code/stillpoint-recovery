@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, Bookmark, BookOpen, CalendarDays, Check, Clock3, EyeOff, Heart, Leaf, RotateCcw, Settings2, Sprout, Volume2, Wind } from 'lucide-react';
+import { DailyReadingCard } from './DailyReadingCard';
+import { DaypartSky } from '../../components/DaypartSky';
+import { daypartFor } from '../../domain/daypart';
 import { useAppContext } from '../../app/AppContext';
 import { useDialogFocus } from '../../app/useDialogFocus';
 import { AmbientAudioPlayer } from '../../components/AmbientAudioPlayer';
@@ -19,15 +22,9 @@ import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { syncReachedMilestones } from '../../db/milestones';
 import { returnedAfterActivityBreak, updateDailyActivity } from '../../db/repository';
-import { scriptureEntries } from '../../data/scripture';
 import { getDailyReflection } from '../../data/reflections';
 import { dateOnlyToTimestamp, elapsedParts, formatLocalDate, localDateKey, nextMilestone } from '../../domain/time';
 import type { JournalEntry } from '../../domain/types';
-
-function dayNumber(date: Date): number {
-  const start = new Date(date.getFullYear(), 0, 0);
-  return Math.floor((date.getTime() - start.getTime()) / 86400000);
-}
 
 export function TodayPage() {
   const { profile, preferences, notify, updatePreferences } = useAppContext();
@@ -47,9 +44,7 @@ export function TodayPage() {
   const navigate = useNavigate();
   const today = localDateKey(new Date(now));
   const reflection = getDailyReflection(new Date(now));
-  const scripture = scriptureEntries[dayNumber(new Date(now)) % scriptureEntries.length] ?? scriptureEntries[0]!;
   const reflectionActivity = useLiveQuery(() => db.dailyReflections.get(`reflection:${today}:${reflection.id}`), [today, reflection.id]);
-  const scriptureActivity = useLiveQuery(() => db.scriptureActivity.get(`scripture:${scripture.id}`), [scripture.id]);
   const recentHistory = useLiveQuery(() => db.recoveryDateHistory.orderBy('recordedAt').reverse().limit(4).toArray(), []);
   const activityDays = useLiveQuery(() => db.dailyActivity.count(), []);
   const parts = elapsedParts(profile?.startAt, now);
@@ -145,15 +140,6 @@ export function TodayPage() {
     notify(existing?.favorite ? 'Removed from saved reflections.' : 'Saved with your reflections.');
   }
 
-  async function exploreScripture(favorite = false) {
-    const id = `scripture:${scripture.id}`;
-    const existing = await db.scriptureActivity.get(id);
-    await db.scriptureActivity.put({ id, scriptureId: scripture.id, favorite: favorite ? !existing?.favorite : (existing?.favorite ?? false), exploredAt: existing?.exploredAt ?? new Date().toISOString() });
-    if (!existing) await updateDailyActivity({ scriptureExplored: 1 }, true);
-    await awardEligibleCharms(parts?.days ?? 0, await returnedAfterActivityBreak());
-    notify(favorite ? (existing?.favorite ? 'Removed from scripture favorites.' : 'Saved to scripture favorites.') : 'Scripture reflection noted for your journey.');
-  }
-
   function speakReflection() {
     if (!('speechSynthesis' in window)) { notify('Text-to-speech is not available in this browser.'); return; }
     if (spoken) { window.speechSynthesis.cancel(); setSpoken(false); return; }
@@ -182,7 +168,8 @@ export function TodayPage() {
 
   return (
     <div className="page-stack today-page">
-      <header className="page-header">
+      <header className="page-header today-header">
+        <DaypartSky daypart={daypartFor(new Date(now))} />
         <div><p className="eyebrow">{discreet ? 'A private space' : new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p><h1>A little space for today.</h1><p>There’s no perfect way through—only the next kind step.</p></div>
         <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} aria-hidden="true" /> Show private details</button>}<Link to="/reset" className="button button-secondary"><Wind size={16} aria-hidden="true" /> I need a moment</Link><Link to="/settings" className="icon-button" aria-label="Open settings" title="Settings and privacy"><Settings2 size={18} aria-hidden="true" /></Link></div>
       </header>
@@ -245,17 +232,7 @@ export function TodayPage() {
           <p className="content-integrity">Original reflection inspired by the one-day-at-a-time principle; not affiliated with a recovery fellowship.</p>
         </section>
 
-        <section className="card scripture-card" aria-labelledby="scripture-heading">
-          <div className="card-header"><div><p className="eyebrow">Optional encouragement for the journey</p><h2 id="scripture-heading">SCRIPTURE FOR THE JOURNEY</h2></div><button className="icon-button" aria-label={scriptureActivity?.favorite ? 'Remove scripture from favorites' : 'Save scripture'} onClick={() => void exploreScripture(true)}><Heart size={18} fill={scriptureActivity?.favorite ? 'currentColor' : 'none'} aria-hidden="true" /></button></div>
-          <span className="pill pill-sage">{scripture.principle}</span>
-          <blockquote className="scripture-verse">“{scripture.verse}”</blockquote>
-          <p className="scripture-ref">{scripture.reference} <span>·</span> {scripture.translation}</p>
-          <p className="scripture-explanation">{scripture.explanation}</p>
-          <div className="principle-callout"><span>A SMALL PRACTICE</span><strong>{scripture.application}</strong></div>
-          {scripture.contemplation && <p className="contemplation"><em>{scripture.contemplation}</em></p>}
-          <p className="fine-print">Faith is a source of encouragement for some. It is not a measure of worth or a replacement for professional or peer support.</p>
-          <button className="button button-secondary" onClick={() => void exploreScripture(false)}><BookOpen size={16} aria-hidden="true" /> {scriptureActivity ? 'Revisit this passage' : 'Mark as explored'}</button>
-        </section>
+        <DailyReadingCard date={new Date(now)} daysInRecovery={parts?.days ?? 0} />
       </div>
 
       <section className="quick-actions" aria-label="Quick actions">

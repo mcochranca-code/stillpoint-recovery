@@ -4,7 +4,9 @@ import { CURRENT_SCHEMA_VERSION, db } from '../db/database';
 import { defaultPreferences } from '../db/repository';
 import { colorThemePresets } from '../data/themes';
 import { dateOnlyToTimestamp, localDateKey } from '../domain/time';
-import type { ColorTheme, ThemeMode } from '../domain/types';
+import type { ColorTheme, ThemeMode, TraditionPreference } from '../domain/types';
+import { TraditionPicker } from '../components/TraditionPicker';
+import { normalizeTraditionPreference } from '../domain/traditions';
 import { clearLocalSignal, readLocalSignal, writeLocalSignal } from '../platform/localSignals';
 import { useAppContext } from './AppContext';
 
@@ -31,6 +33,7 @@ export interface OnboardingDraft {
   liveCounter: boolean;
   highContrast: boolean;
   reducedMotion: boolean;
+  traditionPreference?: TraditionPreference;
 }
 
 function readDraft(): Partial<OnboardingDraft> {
@@ -57,6 +60,7 @@ export default function Onboarding() {
   const [liveCounter, setLiveCounter] = useState(draft.liveCounter ?? preferences?.liveCounter ?? true);
   const [highContrast, setHighContrast] = useState(draft.highContrast ?? preferences?.highContrast ?? false);
   const [reducedMotion, setReducedMotion] = useState(draft.reducedMotion ?? preferences?.reducedMotion ?? false);
+  const [traditionPreference, setTraditionPreference] = useState<TraditionPreference>(() => normalizeTraditionPreference(draft.traditionPreference ?? preferences?.traditionPreference, preferences?.contentPreset));
   const [busy, setBusy] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
@@ -64,9 +68,9 @@ export default function Onboarding() {
   const today = localDateKey(new Date());
 
   useEffect(() => {
-    const next: OnboardingDraft = { step, startDate, startTime, focus, customFocus, intention, theme, colorTheme, liveCounter, highContrast, reducedMotion };
+    const next: OnboardingDraft = { step, startDate, startTime, focus, customFocus, intention, theme, colorTheme, liveCounter, highContrast, reducedMotion, traditionPreference };
     writeLocalSignal('onboardingDraft', JSON.stringify(next));
-  }, [step, startDate, startTime, focus, customFocus, intention, theme, colorTheme, liveCounter, highContrast, reducedMotion]);
+  }, [step, startDate, startTime, focus, customFocus, intention, theme, colorTheme, liveCounter, highContrast, reducedMotion, traditionPreference]);
 
   useEffect(() => {
     if (firstRender.current) { firstRender.current = false; return; }
@@ -94,7 +98,7 @@ export default function Onboarding() {
       const current = preferences ?? defaultPreferences();
       // Comfort choices (contrast, motion, appearance) apply even when the rest of setup is skipped.
       await db.preferences.put({
-        ...current, onboardingComplete: true, theme, colorTheme, liveCounter, highContrast, reducedMotion,
+        ...current, onboardingComplete: true, theme, colorTheme, liveCounter, highContrast, reducedMotion, traditionPreference,
         updatedAt: new Date().toISOString(),
       });
       if (configureDate && intention.trim()) {
@@ -151,6 +155,10 @@ export default function Onboarding() {
             <label className="field-label" htmlFor="recovery-focus">Recovery focus</label>
             <select id="recovery-focus" value={focus} onChange={(event) => setFocus(event.target.value)}>{focusOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select>
             {focus === 'custom' && <input aria-label="Custom recovery focus" placeholder="Your focus, if you wish" value={customFocus} onChange={(event) => setCustomFocus(event.target.value)} />}
+          </details>
+          <details className="onboarding-more">
+            <summary>Daily readings <span className="optional-label">Optional</span></summary>
+            <TraditionPicker legend="Where your daily reading comes from" value={traditionPreference} onChange={setTraditionPreference} />
           </details>
           <p className="fine-print">Reminders are offered later, only if they would help—never on first launch.</p>
           <div className="onboarding-actions"><button className="button button-quiet" onClick={() => setStep(0)}><ArrowLeft size={16} aria-hidden="true" /> Back</button><button className="button button-primary" disabled={busy} onClick={() => void finish(true)}>{busy ? 'Saving…' : 'Open my space'} <ArrowRight size={16} aria-hidden="true" /></button></div>
