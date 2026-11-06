@@ -18,7 +18,7 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 const DAILY_REMINDER_STORAGE_KEY = 'stillpoint-daily-reminder-last-attempt-v1';
-type ReminderPath = '/meditation' | '/meetings';
+type ReminderPath = '/' | '/meditation' | '/meetings';
 
 function readLastDailyReminderDate(): string | undefined {
   try { return window.localStorage.getItem(DAILY_REMINDER_STORAGE_KEY) ?? undefined; }
@@ -117,7 +117,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const date = localDateKey(nextDailyAt);
           lastDailyDate = date;
           try { window.localStorage.setItem(DAILY_REMINDER_STORAGE_KEY, date); } catch { /* Attempt is still de-duplicated in this session. */ }
-          await showLocalReminder('A few quiet minutes for meditation, if it helps.', `stillpoint-meditation-${date}`, '/meditation');
+          await showLocalReminder('A quiet moment for today, if it helps.', `stillpoint-daily-${date}`, '/');
           nextDailyAt = getNextDailyReminderAt(new Date(), preferences?.reminderTime ?? '');
           armDailyTimer();
         } else if (dailyEnabled && nextDailyAt && nextDailyAt.getTime() <= now.getTime()) {

@@ -1,14 +1,20 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Bookmark, BookOpen, CalendarDays, Check, Clock3, EyeOff, Heart, Leaf, Settings2, Volume2, Wind } from 'lucide-react';
+import { ArrowRight, Bookmark, BookOpen, CalendarDays, Check, Clock3, EyeOff, Heart, Leaf, RotateCcw, Settings2, Sprout, Volume2, Wind } from 'lucide-react';
 import { useAppContext } from '../../app/AppContext';
 import { useDialogFocus } from '../../app/useDialogFocus';
 import { AmbientAudioPlayer } from '../../components/AmbientAudioPlayer';
 import { NaDailyReadingCard } from './NaDailyReadingCard';
 import { OdbResourcesCard } from './OdbResourcesCard';
 import { CommunityDiscussion } from './CommunityDiscussion';
+import { DailyCheckIn } from './DailyCheckIn';
+import { TodayNudge } from './TodayNudge';
+import { WelcomeBack } from './WelcomeBack';
+import { TodayQuickStart } from '../../components/TodayQuickStart';
+import { previousStretchDays } from '../../domain/engagement';
+import './retention.css';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { syncReachedMilestones } from '../../db/milestones';
@@ -30,6 +36,8 @@ export function TodayPage() {
   const [editDate, setEditDate] = useState('');
   const [editTime, setEditTime] = useState('00:00');
   const [keepHistory, setKeepHistory] = useState(false);
+  const [beginAgain, setBeginAgain] = useState(false);
+  const checkInRef = useRef<HTMLElement>(null);
   const [savingDate, setSavingDate] = useState(false);
   const [comebackOpen, setComebackOpen] = useState(false);
   const [spoken, setSpoken] = useState(false);
@@ -43,6 +51,7 @@ export function TodayPage() {
   const reflectionActivity = useLiveQuery(() => db.dailyReflections.get(`reflection:${today}:${reflection.id}`), [today, reflection.id]);
   const scriptureActivity = useLiveQuery(() => db.scriptureActivity.get(`scripture:${scripture.id}`), [scripture.id]);
   const recentHistory = useLiveQuery(() => db.recoveryDateHistory.orderBy('recordedAt').reverse().limit(4).toArray(), []);
+  const activityDays = useLiveQuery(() => db.dailyActivity.count(), []);
   const parts = elapsedParts(profile?.startAt, now);
   const next = nextMilestone(profile?.startAt ?? null, now);
   const milestones = useMemo(() => profile?.startAt ? (awaitMilestones(profile.startAt)) : [], [profile?.startAt]);
@@ -88,6 +97,7 @@ export function TodayPage() {
         await db.recoveryDateHistory.add({
           id: `date-change:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
           previousStartAt: previousStart, nextStartAt: nextStart, recordedAt: new Date().toISOString(),
+          ...(beginAgain ? { note: 'began-again' } : {}),
         });
       }
       await db.recoveryProfiles.put({
@@ -101,7 +111,7 @@ export function TodayPage() {
       await syncReachedMilestones(nextStart);
       setDateDialog(false);
       if (previousStart && previousStart !== nextStart) setComebackOpen(true);
-      notify(awards.length ? 'Your date is updated. The Journey Collection and your saved history remain yours.' : 'Your recovery date is updated. Your saved entries, sessions and charms remain yours.');
+      notify(beginAgain ? 'Today is a new beginning. Everything you saved is still yours.' : awards.length ? 'Your date is updated. The Journey Collection and your saved history remain yours.' : 'Your recovery date is updated. Your saved entries, sessions and charms remain yours.');
     } catch (error) {
       notify(error instanceof Error ? error.message : 'The date could not be saved. Please try again.');
     } finally { setSavingDate(false); }
@@ -154,6 +164,20 @@ export function TodayPage() {
   }
 
   const discreet = preferences?.discreetMode ?? false;
+  const priorDays = previousStretchDays(profile?.startAt, new Date(now).toISOString());
+  function openAdjustDate() {
+    setBeginAgain(false); setKeepHistory(false);
+    setEditDate(profile?.localStartDate ?? localDateKey(new Date())); setEditTime(profile?.localStartTime ?? '00:00'); setDateDialog(true);
+  }
+  function openBeginAgain() {
+    const current = new Date();
+    setBeginAgain(true); setKeepHistory(true);
+    setEditDate(localDateKey(current)); setEditTime(`${String(current.getHours()).padStart(2, '0')}:${String(current.getMinutes()).padStart(2, '0')}`); setDateDialog(true);
+  }
+  function focusCheckIn() {
+    checkInRef.current?.focus();
+    checkInRef.current?.scrollIntoView?.({ block: 'center', behavior: preferences?.reducedMotion ? 'auto' : 'smooth' });
+  }
   function openNextSupport(path: string) { setComebackOpen(false); navigate(path); }
 
   return (
@@ -162,6 +186,8 @@ export function TodayPage() {
         <div><p className="eyebrow">{discreet ? 'A private space' : new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p><h1>A little space for today.</h1><p>There’s no perfect way through—only the next kind step.</p></div>
         <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} aria-hidden="true" /> Show private details</button>}<Link to="/reset" className="button button-secondary"><Wind size={16} aria-hidden="true" /> I need a moment</Link><Link to="/settings" className="icon-button" aria-label="Open settings" title="Settings and privacy"><Settings2 size={18} aria-hidden="true" /></Link></div>
       </header>
+
+      <WelcomeBack onCheckIn={focusCheckIn} />
 
       <section className="card sobriety-card sobriety-hero" aria-labelledby="sobriety-heading">
         <div className="sobriety-copy">
@@ -175,7 +201,7 @@ export function TodayPage() {
             </div>
             <p className="timer-caption">Since {formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}. A measure of time—not a measure of your worth.</p>
           </> : <><div className="counter-placeholder"><strong>—</strong><span>days in recovery</span></div><p className="timer-caption">Your dashboard is ready without a date. Add one later, if a counter feels useful.</p></>}
-          <button className="button button-secondary" onClick={() => { setEditDate(profile?.localStartDate ?? localDateKey(new Date())); setEditTime(profile?.localStartTime ?? '00:00'); setDateDialog(true); }}><CalendarDays size={16} aria-hidden="true" /> {discreet ? 'Review private date' : parts ? 'Adjust recovery date' : 'Set a recovery date'}</button>
+          <div className="action-row sobriety-actions"><button className="button button-secondary" onClick={openAdjustDate}><CalendarDays size={16} aria-hidden="true" /> {discreet ? 'Review private date' : parts ? 'Adjust recovery date' : 'Set a recovery date'}</button>{parts && !discreet && <button className="button button-quiet" onClick={openBeginAgain}><RotateCcw size={16} aria-hidden="true" /> Begin again today</button>}</div>
         </div>
         <div className="sobriety-progress">
           {discreet ? <div className="progress-ring" role="img" aria-label="Recovery timer and milestone details are hidden"><span aria-hidden="true"><EyeOff size={20} aria-hidden="true" /><small>hidden</small></span></div> : <>
@@ -192,6 +218,10 @@ export function TodayPage() {
           </>}
         </div>
       </section>
+
+      <DailyCheckIn ref={checkInRef} daysInRecovery={parts?.days ?? 0} />
+      <TodayNudge />
+      {activityDays === 0 && <TodayQuickStart />}
 
       <NaDailyReadingCard />
       <OdbResourcesCard />
@@ -238,13 +268,14 @@ export function TodayPage() {
 
       <AnimatePresence>{dateDialog && <motion.div className="dialog-backdrop" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onMouseDown={(event) => { if (event.target === event.currentTarget) setDateDialog(false); }}>
         <motion.section ref={dateDialogFocusRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="date-dialog-title" className="dialog-card" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="card-header"><div><p className="eyebrow">A private choice</p><h2 id="date-dialog-title">Recovery date</h2></div><button className="icon-button" onClick={() => setDateDialog(false)} aria-label="Close date editor">×</button></div>
-          <p className="fine-print">Change the date to reflect your path as you understand it today. Nothing else is erased—your journals, sessions and charms remain saved.</p>
+          <div className="card-header"><div><p className="eyebrow">{beginAgain ? 'A fresh start, with your story intact' : 'A private choice'}</p><h2 id="date-dialog-title">{beginAgain ? 'Begin again today' : 'Recovery date'}</h2></div><button className="icon-button" onClick={() => setDateDialog(false)} aria-label="Close date editor">×</button></div>
+          {beginAgain ? <div className="begin-again-note"><Sprout size={18} aria-hidden="true" /><p>Beginning again is part of recovery, not a failure of it.{priorDays ? ` The ${priorDays} ${priorDays === 1 ? 'day' : 'days'} behind you still happened and still count.` : ''} Your journals, sessions, charms and milestones all stay saved.</p></div>
+          : <p className="fine-print">Change the date to reflect your path as you understand it today. Nothing else is erased—your journals, sessions and charms remain saved.</p>}
           <form onSubmit={(event) => void saveRecoveryDate(event)}>
             <label className="field-label" htmlFor="adjust-date">Start date</label><input id="adjust-date" type="date" max={localDateKey(new Date())} required value={editDate} onChange={(event) => setEditDate(event.target.value)} />
             <label className="field-label" htmlFor="adjust-time">Optional start time</label><input id="adjust-time" type="time" value={editTime} onChange={(event) => setEditTime(event.target.value)} />
-            <label className="toggle-row history-toggle"><span><strong>Keep a local date-change record</strong><small>Off by default; saved only if you choose it</small></span><input type="checkbox" checked={keepHistory} onChange={(event) => setKeepHistory(event.target.checked)} /></label>
-            <div className="dialog-actions"><button type="button" className="button button-quiet" onClick={() => setDateDialog(false)}>Cancel</button><button type="submit" className="button button-primary" disabled={savingDate}>{savingDate ? 'Saving…' : 'Save date'}</button></div>
+            <label className="toggle-row history-toggle"><span><strong>{beginAgain ? 'Keep a private note of the stretch behind you' : 'Keep a local date-change record'}</strong><small>{beginAgain ? 'Shown in your Progress timeline on this device. Turn off if you’d rather not keep it.' : 'Off by default; saved only if you choose it'}</small></span><input type="checkbox" checked={keepHistory} onChange={(event) => setKeepHistory(event.target.checked)} /></label>
+            <div className="dialog-actions"><button type="button" className="button button-quiet" onClick={() => setDateDialog(false)}>Cancel</button><button type="submit" className="button button-primary" disabled={savingDate}>{savingDate ? 'Saving…' : beginAgain ? 'Begin again' : 'Save date'}</button></div>
           </form>
         </motion.section>
       </motion.div>}</AnimatePresence>
