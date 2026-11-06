@@ -78,17 +78,17 @@ export default function Onboarding() {
     <main className="onboarding-wrap">
       <section className="onboarding-card" aria-labelledby="onboarding-title">
         <div className="onboarding-brand"><img src="/assets/branding/stillpoint-logo.svg" alt="Stillpoint Recovery" /></div>
-        <div className="step-indicator" aria-label={`Setup step ${step + 1} of 3`}><span className={step >= 0 ? 'complete' : ''}></span><span className={step >= 1 ? 'complete' : ''}></span><span className={step >= 2 ? 'complete' : ''}></span></div>
+        <div className="step-indicator" role="img" aria-label={`Setup step ${step + 1} of 3`}><span className={step >= 0 ? 'complete' : ''}></span><span className={step >= 1 ? 'complete' : ''}></span><span className={step >= 2 ? 'complete' : ''}></span></div>
         {step === 0 && <div className="onboarding-content">
-          <div className="onboarding-icon"><Leaf size={27} /></div>
+          <div className="onboarding-icon"><Leaf size={27} aria-hidden="true" /></div>
           <p className="eyebrow">A quiet place to begin again</p>
           <h1 id="onboarding-title">One day is enough for today.</h1>
           <p className="lead">Stillpoint is a private space for reflection, recovery practices and the progress that matters to you.</p>
-          <div className="privacy-note"><ShieldCheck size={20} /><p><strong>Your recovery stays in this browser profile on this device.</strong><br />No account, cloud sync, ads or analytics. Storage is not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it—download a private backup in Settings to keep a copy.</p></div>
-          <button className="button button-primary button-wide" onClick={() => setStep(1)}>Make this space yours <ArrowRight size={17} /></button>
+          <div className="privacy-note"><ShieldCheck size={20} aria-hidden="true" /><p><strong>Your recovery stays in this browser profile on this device.</strong><br />No account, cloud sync, ads or analytics. Storage is not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it—download a private backup in Settings to keep a copy.</p></div>
+          <button className="button button-primary button-wide" onClick={() => setStep(1)}>Make this space yours <ArrowRight size={17} aria-hidden="true" /></button>
         </div>}
         {step === 1 && <div className="onboarding-content">
-          <div className="onboarding-icon"><HeartHandshake size={26} /></div>
+          <div className="onboarding-icon"><HeartHandshake size={26} aria-hidden="true" /></div>
           <p className="eyebrow">Optional, always in your control</p>
           <h1 id="onboarding-title">Choose what you’d like to keep track of.</h1>
           <label className="field-label" htmlFor="recovery-date">Recovery start date <span className="optional-label">Optional</span></label>
@@ -100,10 +100,10 @@ export default function Onboarding() {
           {focus === 'custom' && <input aria-label="Custom recovery focus" placeholder="Your focus, if you wish" value={customFocus} onChange={(event) => setCustomFocus(event.target.value)} />}
           <label className="field-label" htmlFor="intention">A personal intention <span className="optional-label">Optional</span></label>
           <textarea id="intention" rows={3} maxLength={240} placeholder="What would you like to remember on this journey?" value={intention} onChange={(event) => setIntention(event.target.value)} />
-          <div className="onboarding-actions"><button className="button button-quiet" onClick={() => setStep(0)}><ArrowLeft size={16} /> Back</button><button className="button button-primary" onClick={() => setStep(2)}>Continue <ArrowRight size={16} /></button></div>
+          <div className="onboarding-actions"><button className="button button-quiet" onClick={() => setStep(0)}><ArrowLeft size={16} aria-hidden="true" /> Back</button><button className="button button-primary" onClick={() => setStep(2)}>Continue <ArrowRight size={16} aria-hidden="true" /></button></div>
         </div>}
         {step === 2 && <div className="onboarding-content">
-          <div className="onboarding-icon"><Sparkles size={26} /></div>
+          <div className="onboarding-icon"><Sparkles size={26} aria-hidden="true" /></div>
           <p className="eyebrow">Make it comfortable</p>
           <h1 id="onboarding-title">Choose a few gentle preferences.</h1>
           <label className="field-label" htmlFor="theme">Appearance</label>
@@ -116,7 +116,7 @@ export default function Onboarding() {
           <label className="toggle-row"><span><strong>Optional daily meditation reminder</strong><small>{'Notification' in window ? 'Only enable if a gentle reminder would help. Wording is neutral.' : 'This browser does not support notifications.'}</small></span><input type="checkbox" checked={reminderEnabled} disabled={!('Notification' in window)} onChange={(event) => setReminderEnabled(event.target.checked)} /></label>
           <label className="field-label" htmlFor="reminder-time">Daily meditation reminder time</label><input id="reminder-time" type="time" value={reminderTime} disabled={!reminderEnabled} onChange={(event) => setReminderTime(event.target.value)} />
           <p className="fine-print">Reminders are optional. Enabling asks the browser for permission; closed-app delivery depends on browser support.</p>
-          <div className="onboarding-actions"><button className="button button-quiet" onClick={() => setStep(1)}><ArrowLeft size={16} /> Back</button><button className="button button-primary" disabled={busy} onClick={() => void finish(true)}>{busy ? 'Saving…' : 'Finish setup'} <ArrowRight size={16} /></button></div>
+          <div className="onboarding-actions"><button className="button button-quiet" onClick={() => setStep(1)}><ArrowLeft size={16} aria-hidden="true" /> Back</button><button className="button button-primary" disabled={busy} onClick={() => void finish(true)}>{busy ? 'Saving…' : 'Finish setup'} <ArrowRight size={16} aria-hidden="true" /></button></div>
         </div>}
         <button className="skip-setup" disabled={busy} onClick={() => void finish(false)}>Skip optional setup for now</button>
       </section>

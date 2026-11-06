@@ -111,7 +111,7 @@ export function MeetingShareDialog({ meetings, onClose }: MeetingShareDialogProp
 
         <section className="meeting-share-card-preview" aria-labelledby="meeting-share-preview-title">
           <div className="meeting-share-brand">
-            <span className="meeting-share-mark" aria-hidden="true"><Sprout size={21} /></span>
+            <span className="meeting-share-mark" aria-hidden="true"><Sprout size={21} aria-hidden="true" /></span>
             <span><strong>Stillpoint</strong><small>RECOVERY</small></span>
           </div>
           <div className="meeting-share-preview-heading">

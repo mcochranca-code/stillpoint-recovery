@@ -1,0 +1,106 @@
+/*
+ * Stillpoint design tokens.
+ *
+ * One place for the scales the interface is built from: spacing, radius,
+ * typography, elevation, layering and motion. Color tokens (surface, canvas,
+ * ink, muted, primary, focus ring…) stay with the theme palettes in
+ * styles.css because each color theme overrides them; brand hues live in
+ * /assets/branding/brand-tokens.css.
+ *
+ * Motion is deliberately quiet: short fades and small settles, no bounces.
+ * Every duration token collapses to 0ms when the person asks for reduced
+ * motion, either through the operating system or Stillpoint's own setting,
+ * so components that use the tokens never need their own override.
+ */
+:root {
+  /* Spacing — a 4px rhythm. */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 48px;
+
+  /* Radius. */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Typography. */
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
+  --text-2xs: 0.625rem;
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.3125rem;
+  --text-2xl: clamp(1.6875rem, 3vw, 2.25rem);
+  --leading-tight: 1.2;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  /* Focus. Color comes from the theme's --focus-ring. */
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 3px;
+
+  /* Layering. */
+  --z-base: 0;
+  --z-sidebar: 20;
+  --z-mobile-nav: 50;
+  --z-toast: 60;
+  --z-dialog: 70;
+  --z-skip-link: 100;
+
+  /* Minimum touch target (WCAG 2.5.8 asks for 24px; we aim for 44px). */
+  --target-min: 44px;
+
+  /* Motion — durations. */
+  --motion-instant: 80ms;
+  --motion-quick: 160ms;
+  --motion-gentle: 280ms;
+  --motion-calm: 480ms;
+  --motion-slow: 900ms;
+  /* One full, unhurried breath for ambient loops (splash halo, skeleton glow). */
+  --motion-breath: 4200ms;
+
+  /* Motion — easings. All decelerate softly; none overshoot. */
+  --ease-gentle: cubic-bezier(.25, .1, .25, 1);
+  --ease-settle: cubic-bezier(.22, .8, .36, 1);
+  --ease-out-soft: cubic-bezier(.16, 1, .3, 1);
+  --ease-breathe: cubic-bezier(.45, 0, .55, 1);
+
+  /* Motion — distances. Small, so movement reads as settling, not travelling. */
+  --motion-rise: 6px;
+  --motion-press-scale: .98;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-instant: 0ms;
+    --motion-quick: 0ms;
+    --motion-gentle: 0ms;
+    --motion-calm: 0ms;
+    --motion-slow: 0ms;
+    --motion-breath: 0ms;
+    --motion-rise: 0px;
+    --motion-press-scale: 1;
+  }
+}
+
+:root.reduce-motion {
+  --motion-instant: 0ms;
+  --motion-quick: 0ms;
+  --motion-gentle: 0ms;
+  --motion-calm: 0ms;
+  --motion-slow: 0ms;
+  --motion-breath: 0ms;
+  --motion-rise: 0px;
+  --motion-press-scale: 1;
+}
