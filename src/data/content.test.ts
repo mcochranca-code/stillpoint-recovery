@@ -26,8 +26,8 @@ describe('bundled local recovery content', () => {
     expect(getDailyReflection(morning).id).toBe(getDailyReflection(evening).id);
   });
 
-  it('includes the expected ten KJV scripture entries with complete recovery context', () => {
-    expect(scriptureEntries).toHaveLength(10);
+  it('includes the fifteen KJV scripture entries with complete recovery context', () => {
+    expect(scriptureEntries).toHaveLength(15);
     expect(unique(scriptureEntries.map((item) => item.id))).toBe(true);
     for (const item of scriptureEntries) {
       expect(item.reference).not.toBe('');
