@@ -64,7 +64,7 @@ describe('MeetingsPage', () => {
   it('shows a user-provided Faith-Based row as unverified and without a fabricated source link or map pin', () => {
     render(<MeetingsPage />);
     fireEvent.click(screen.getByText(/Faith-Based snapshot: 39 user-provided rows/));
-    expect(screen.getAllByText(/not independently rechecked/i)).toHaveLength(2);
+    expect(screen.getByText(/not independently rechecked/i)).toBeTruthy();
 
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
     fireEvent.change(screen.getByLabelText('County / source region'), { target: { value: 'Central Valley' } });

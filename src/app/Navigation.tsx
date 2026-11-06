@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Compass, Eye, EyeOff, Heart, Home, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
+import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Compass, Eye, EyeOff, Heart, Home, MessageCircle, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
 import { QuickFindDialog } from '../components/QuickFindDialog';
 
 type NavigationItem = { to: string; label: string; mobileLabel?: string; accessibleLabel?: string; icon: LucideIcon; end?: boolean };
@@ -12,6 +12,7 @@ const items: NavigationItem[] = [
   { to: '/journal', label: 'Journal', mobileLabel: 'Journal', icon: BookOpen },
   { to: '/meditation', label: 'Meditation', mobileLabel: 'Meditate', icon: Heart },
   { to: '/meetings', label: 'Meetings', mobileLabel: 'Meetings', icon: CalendarDays },
+  { to: '/community', label: 'Community', mobileLabel: 'Community', icon: MessageCircle },
   { to: '/library', label: 'Library', mobileLabel: 'Library', icon: Compass },
 ];
 const MOBILE_NAV_PREFERENCE = 'stillpoint-mobile-nav-expanded-v1';
@@ -53,7 +54,7 @@ export default function Navigation() {
   return (
     <>
       <aside className={`desktop-sidebar${desktopCollapsed ? ' is-collapsed' : ''}`} aria-label="Main navigation">
-        <NavLink className="brand-lockup" to="/" aria-label="Stillpoint Recovery, Today">
+        <NavLink className="brand-lockup" to="/" aria-label="Stillpoint Recovery, Home">
           <img src="/assets/branding/stillpoint-logo.svg" alt="" />
           <span><strong>Stillpoint</strong><small>Recovery, one day at a time</small></span>
         </NavLink>
