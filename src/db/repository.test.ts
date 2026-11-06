@@ -1,7 +1,7 @@
 import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { db } from './database';
-import { ensureDefaults, returnedAfterActivityBreak, updateDailyActivity } from './repository';
+import { defaultPreferences, ensureDefaults, returnedAfterActivityBreak, updateDailyActivity } from './repository';
 import { localDateKey } from '../domain/time';
 
 beforeEach(async () => {
@@ -21,7 +21,7 @@ describe('local data repositories', () => {
 
     expect(preferences).toMatchObject({
       id: 'preferences',
-      schemaVersion: 5,
+      schemaVersion: 6,
       contentPreset: 'faith-based',
       theme: 'system',
       onboardingComplete: false,
@@ -30,7 +30,7 @@ describe('local data repositories', () => {
     });
     expect(profile).toMatchObject({
       id: 'recovery-profile',
-      schemaVersion: 5,
+      schemaVersion: 6,
       startAt: null,
       localStartDate: null,
       intention: '',
@@ -77,7 +77,40 @@ describe('local data repositories', () => {
     legacy.close();
     await db.open();
 
-    expect((await db.recoveryProfiles.get('recovery-profile'))?.schemaVersion).toBe(5);
+    expect((await db.recoveryProfiles.get('recovery-profile'))?.schemaVersion).toBe(6);
+  });
+
+  it('migrates a version-5 database to v6 without losing data, mapping the content preset to a tradition', async () => {
+    db.close();
+    await db.delete();
+    const legacy = new Dexie('StillpointRecovery');
+    legacy.version(5).stores({ preferences: 'id', recoveryProfiles: 'id', journalEntries: 'id, type, createdAt, updatedAt, *tags', scriptureActivity: 'id, scriptureId, favoriteKey' });
+    await legacy.open();
+    const now = new Date().toISOString();
+    const v5 = { ...defaultPreferences(), schemaVersion: 5, contentPreset: 'faith-neutral', highContrast: true } as Record<string, unknown>;
+    Reflect.deleteProperty(v5, 'traditionPreference');
+    await legacy.table('preferences').put(v5);
+    await legacy.table('journalEntries').put({ id: 'journal:keep', type: 'free-writing', title: 'Kept', body: 'Still here', createdAt: now, updatedAt: now, tags: [], gratitude: [] });
+    await legacy.table('scriptureActivity').put({ id: 'scripture:romans-15-13', scriptureId: 'romans-15-13', favorite: true, favoriteKey: 1, exploredAt: now });
+    legacy.close();
+
+    await db.open();
+    const preferences = await db.preferences.get('preferences');
+    expect(preferences).toMatchObject({ schemaVersion: 6, contentPreset: 'faith-neutral', highContrast: true, traditionPreference: { mode: 'one', traditions: ['reflective'] } });
+    expect(await db.journalEntries.get('journal:keep')).toMatchObject({ body: 'Still here' });
+    expect(await db.scriptureActivity.get('scripture:romans-15-13')).toMatchObject({ favorite: true });
+  });
+
+  it('persists a tradition choice and repairs a malformed one on startup', async () => {
+    await ensureDefaults();
+    expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'one', traditions: ['christian'] });
+    const existing = (await db.preferences.get('preferences'))!;
+    await db.preferences.put({ ...existing, traditionPreference: { mode: 'several', traditions: ['jain', 'red-road'] } });
+    await ensureDefaults();
+    expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'several', traditions: ['jain', 'red-road'] });
+    await db.preferences.put({ ...existing, traditionPreference: { mode: 'several', traditions: ['unknown'] } as never });
+    await ensureDefaults();
+    expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'one', traditions: ['christian'] });
   });
 
   it('increments supplied daily counters and replaces them when requested', async () => {

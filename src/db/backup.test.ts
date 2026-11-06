@@ -68,7 +68,7 @@ describe('local JSON backup restore', () => {
     const result = await importBackupText(payload);
     expect(result).toEqual({ imported: 2, skippedDuplicates: 2, skippedInvalid: 1 });
     expect(await db.journalEntries.count()).toBe(2);
-    expect(await db.preferences.get('preferences')).toMatchObject({ onboardingComplete: false, schemaVersion: 5 });
+    expect(await db.preferences.get('preferences')).toMatchObject({ onboardingComplete: false, schemaVersion: 6 });
   });
 
   it('normalizes a legacy preference record to the default palette and current schema', async () => {
@@ -80,7 +80,7 @@ describe('local JSON backup restore', () => {
     };
     const result = await importBackupText(backup(1, { preferences: [legacy] }));
     expect(result.imported).toBe(1);
-    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'stillpoint', contentPreset: 'faith-based', supportResources: [], meetingReminders: [], schemaVersion: 5 });
+    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'stillpoint', contentPreset: 'faith-based', supportResources: [], meetingReminders: [], schemaVersion: 6 });
   });
 
   it('exports and restores the selected Faith-neutral preset', async () => {
@@ -94,6 +94,19 @@ describe('local JSON backup restore', () => {
     await importBackupText(text);
 
     expect((await db.preferences.get('preferences'))?.contentPreset).toBe('faith-neutral');
+  });
+
+  it('exports and restores the daily-reading tradition choice, and repairs a legacy backup without one', async () => {
+    await db.preferences.put({ ...defaultPreferences(), traditionPreference: { mode: 'several', traditions: ['buddhist', 'muslim'] } });
+    const text = JSON.stringify(await createBackup());
+    await db.preferences.put(defaultPreferences());
+    await importBackupText(text);
+    expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'several', traditions: ['buddhist', 'muslim'] });
+
+    const legacy = { ...defaultPreferences(), schemaVersion: 5, contentPreset: 'faith-neutral' } as Record<string, unknown>;
+    Reflect.deleteProperty(legacy, 'traditionPreference');
+    await importBackupText(backup(5, { preferences: [legacy] }));
+    expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'one', traditions: ['reflective'] });
   });
 
   it('rejects a modified checksummed backup without changing local data', async () => {
@@ -169,7 +182,7 @@ describe('local JSON backup restore', () => {
     legacy.close();
 
     await db.open();
-    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'obsidian', supportResources: [], schemaVersion: 5, meetingReminders: [] });
+    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'obsidian', supportResources: [], schemaVersion: 6, meetingReminders: [] });
     expect(await db.personalMilestones.count()).toBe(0);
     expect(await db.dailyReflections.where('favoriteKey').equals(1).count()).toBe(1);
     expect(await db.scriptureActivity.where('favoriteKey').equals(1).count()).toBe(1);

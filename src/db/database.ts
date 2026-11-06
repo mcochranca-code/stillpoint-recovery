@@ -18,8 +18,9 @@ import type {
   ScriptureActivity,
   UserPreferences,
 } from '../domain/types';
+import { normalizeTraditionPreference } from '../domain/traditions';
 
-export const CURRENT_SCHEMA_VERSION = 5;
+export const CURRENT_SCHEMA_VERSION = 6;
 
 export interface MilestoneRecord {
   id: string;
@@ -101,6 +102,14 @@ export class StillpointDatabase extends Dexie {
     this.version(5).stores(communityDatabaseSchema).upgrade(async (transaction) => {
       await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
         preferences.meetingReminders ??= [];
+        preferences.schemaVersion = 5;
+      });
+    });
+    // v6: daily readings can come from several traditions. Existing installs keep what they saw
+    // before: faith-based → Christian readings, faith-neutral → the reflective (non-religious) set.
+    this.version(6).stores(communityDatabaseSchema).upgrade(async (transaction) => {
+      await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
+        preferences.traditionPreference = normalizeTraditionPreference(preferences.traditionPreference, preferences.contentPreset);
         preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
       });
     });
