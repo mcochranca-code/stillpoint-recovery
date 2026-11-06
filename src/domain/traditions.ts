@@ -53,6 +53,12 @@ export const TRADITIONS: readonly TraditionInfo[] = [
 
 export const TRADITION_IDS: readonly TraditionId[] = TRADITIONS.map((tradition) => tradition.id);
 export const DEFAULT_TRADITION: TraditionId = 'christian';
+/**
+ * What a new person sees before choosing: the spiritual-but-not-religious set. It is the most
+ * neutral option because it needs no faith and presents no tradition's scripture as the default.
+ * It is shown, never saved as their choice.
+ */
+export const NEUTRAL_TRADITION_PREFERENCE: TraditionPreference = { mode: 'one', traditions: ['reflective'] };
 const MODES: readonly TraditionMode[] = ['one', 'several', 'rotate'];
 
 export const RECOVERY_THEME_LABELS: Record<RecoveryTheme, string> = {
@@ -71,6 +77,18 @@ export function traditionInfo(id: TraditionId): TraditionInfo {
 /** The preference an existing install should start with, so nothing changes until the person chooses. */
 export function traditionPreferenceFromPreset(preset: ContentPreset | undefined): TraditionPreference {
   return { mode: 'one', traditions: [preset === 'faith-neutral' ? 'reflective' : DEFAULT_TRADITION] };
+}
+
+/** False only while a new install is still waiting for the person to choose. Migrated installs count as chosen. */
+export function hasChosenTradition(preferences: { traditionChoicePending?: boolean } | undefined | null): boolean {
+  return preferences?.traditionChoicePending !== true;
+}
+
+/** The preference readings should follow today: the person's choice, or the neutral set until they make one. */
+export function effectiveTraditionPreference(preferences: { traditionPreference?: TraditionPreference; traditionChoicePending?: boolean; contentPreset?: ContentPreset } | undefined | null): TraditionPreference {
+  if (!preferences) return NEUTRAL_TRADITION_PREFERENCE;
+  if (!hasChosenTradition(preferences)) return NEUTRAL_TRADITION_PREFERENCE;
+  return normalizeTraditionPreference(preferences.traditionPreference, preferences.contentPreset);
 }
 
 /** True only for a well-formed stored preference (used to validate backups). */

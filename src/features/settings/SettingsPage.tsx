@@ -6,7 +6,7 @@ import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText, 
 import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
 import { TraditionPicker } from '../../components/TraditionPicker';
-import { normalizeTraditionPreference } from '../../domain/traditions';
+import { hasChosenTradition, normalizeTraditionPreference } from '../../domain/traditions';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
 import type { ContentPreset, ThemeMode } from '../../domain/types';
 import { clearAllLocalSignals, readLocalSignal, requestPersistentStorage, writeLocalSignal } from '../../platform/localSignals';
@@ -153,7 +153,8 @@ export function SettingsPage() {
       </section>
 
       <section className="card" id="daily-readings" aria-labelledby="daily-readings-heading"><div className="card-header"><div><p className="eyebrow">Your path, your words</p><h2 id="daily-readings-heading">Daily readings</h2><p>Readings can come from one tradition, a few you choose, or all of them in turn. Each one shows its source, translation and license.</p></div></div>
-        <TraditionPicker value={normalizeTraditionPreference(preferences.traditionPreference, preferences.contentPreset)} onChange={(next) => void updatePreferences({ traditionPreference: next }).then(() => notify('Your reading choice is saved on this device.'))} />
+        {!hasChosenTradition(preferences) && <p className="fine-print">You haven’t chosen yet. Until you do, readings come from the spiritual-but-not-religious set, which needs no faith.</p>}
+        <TraditionPicker value={hasChosenTradition(preferences) ? normalizeTraditionPreference(preferences.traditionPreference, preferences.contentPreset) : null} onChange={(next) => void updatePreferences({ traditionPreference: next, traditionChoicePending: false }).then(() => notify('Your reading choice is saved on this device.'))} />
         <p className="fine-print">Texts are public-domain translations, or original Stillpoint reflections and paraphrases where the best-known words are still under copyright. They have not yet been reviewed by faith leaders; if something reads wrongly to you, please tell the project.</p>
       </section>
 

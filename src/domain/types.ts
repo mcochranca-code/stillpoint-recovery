@@ -88,6 +88,12 @@ export interface UserPreferences {
   schemaVersion: number;
   contentPreset: ContentPreset;
   traditionPreference: TraditionPreference;
+  /**
+   * True on a new install until the person chooses where readings come from. While true,
+   * Today shows a neutral reading and a soft "Choose your readings" card. Absent on installs
+   * migrated to v6, which keep the tradition they already had and count as chosen.
+   */
+  traditionChoicePending?: boolean;
   onboardingComplete: boolean;
   theme: ThemeMode;
   colorTheme: ColorTheme;

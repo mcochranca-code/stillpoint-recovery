@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, HeartHandshake, Leaf, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, HeartHandshake, Leaf, ShieldCheck } from 'lucide-react';
 import { CURRENT_SCHEMA_VERSION, db } from '../db/database';
 import { defaultPreferences } from '../db/repository';
 import { colorThemePresets } from '../data/themes';
 import { dateOnlyToTimestamp, localDateKey } from '../domain/time';
 import type { ColorTheme, ThemeMode, TraditionPreference } from '../domain/types';
 import { TraditionPicker } from '../components/TraditionPicker';
-import { normalizeTraditionPreference } from '../domain/traditions';
+import { hasChosenTradition, isTraditionPreference, normalizeTraditionPreference } from '../domain/traditions';
 import { clearLocalSignal, readLocalSignal, writeLocalSignal } from '../platform/localSignals';
 import { useAppContext } from './AppContext';
 
@@ -18,7 +18,7 @@ const focusOptions = [
   { id: 'custom', label: 'A focus of my choice' },
 ];
 
-const TOTAL_STEPS = 2;
+const TOTAL_STEPS = 3;
 
 /** Fields kept on this device while setup is in progress, so leaving midway never loses them. */
 export interface OnboardingDraft {
@@ -33,7 +33,8 @@ export interface OnboardingDraft {
   liveCounter: boolean;
   highContrast: boolean;
   reducedMotion: boolean;
-  traditionPreference?: TraditionPreference;
+  /** The reading choice made so far, or null when none has been made. Nothing is pre-selected. */
+  traditionChoice?: TraditionPreference | null;
 }
 
 function readDraft(): Partial<OnboardingDraft> {
@@ -60,7 +61,11 @@ export default function Onboarding() {
   const [liveCounter, setLiveCounter] = useState(draft.liveCounter ?? preferences?.liveCounter ?? true);
   const [highContrast, setHighContrast] = useState(draft.highContrast ?? preferences?.highContrast ?? false);
   const [reducedMotion, setReducedMotion] = useState(draft.reducedMotion ?? preferences?.reducedMotion ?? false);
-  const [traditionPreference, setTraditionPreference] = useState<TraditionPreference>(() => normalizeTraditionPreference(draft.traditionPreference ?? preferences?.traditionPreference, preferences?.contentPreset));
+  // A new install starts with nothing chosen. An install migrated to v6 keeps the tradition it already had.
+  const [traditionChoice, setTraditionChoice] = useState<TraditionPreference | null>(() => {
+    if (isTraditionPreference(draft.traditionChoice)) return draft.traditionChoice;
+    return preferences && hasChosenTradition(preferences) ? normalizeTraditionPreference(preferences.traditionPreference, preferences.contentPreset) : null;
+  });
   const [busy, setBusy] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
@@ -68,16 +73,16 @@ export default function Onboarding() {
   const today = localDateKey(new Date());
 
   useEffect(() => {
-    const next: OnboardingDraft = { step, startDate, startTime, focus, customFocus, intention, theme, colorTheme, liveCounter, highContrast, reducedMotion, traditionPreference };
+    const next: OnboardingDraft = { step, startDate, startTime, focus, customFocus, intention, theme, colorTheme, liveCounter, highContrast, reducedMotion, traditionChoice };
     writeLocalSignal('onboardingDraft', JSON.stringify(next));
-  }, [step, startDate, startTime, focus, customFocus, intention, theme, colorTheme, liveCounter, highContrast, reducedMotion, traditionPreference]);
+  }, [step, startDate, startTime, focus, customFocus, intention, theme, colorTheme, liveCounter, highContrast, reducedMotion, traditionChoice]);
 
   useEffect(() => {
     if (firstRender.current) { firstRender.current = false; return; }
     headingRef.current?.focus();
   }, [step]);
 
-  async function finish(configureDate: boolean) {
+  async function finish(configureDate: boolean, readingChoice: TraditionPreference | null = traditionChoice) {
     setBusy(true);
     try {
       let startAt = profile?.startAt ?? null;
@@ -98,7 +103,9 @@ export default function Onboarding() {
       const current = preferences ?? defaultPreferences();
       // Comfort choices (contrast, motion, appearance) apply even when the rest of setup is skipped.
       await db.preferences.put({
-        ...current, onboardingComplete: true, theme, colorTheme, liveCounter, highContrast, reducedMotion, traditionPreference,
+        ...current, onboardingComplete: true, theme, colorTheme, liveCounter, highContrast, reducedMotion,
+        // Only a choice the person made is saved; otherwise readings stay neutral and Today offers the picker.
+        ...(readingChoice ? { traditionPreference: readingChoice, traditionChoicePending: false } : {}),
         updatedAt: new Date().toISOString(),
       });
       if (configureDate && intention.trim()) {
@@ -156,13 +163,19 @@ export default function Onboarding() {
             <select id="recovery-focus" value={focus} onChange={(event) => setFocus(event.target.value)}>{focusOptions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select>
             {focus === 'custom' && <input aria-label="Custom recovery focus" placeholder="Your focus, if you wish" value={customFocus} onChange={(event) => setCustomFocus(event.target.value)} />}
           </details>
-          <details className="onboarding-more">
-            <summary>Daily readings <span className="optional-label">Optional</span></summary>
-            <TraditionPicker legend="Where your daily reading comes from" value={traditionPreference} onChange={setTraditionPreference} />
-          </details>
           <p className="fine-print">Reminders are offered later, only if they would help—never on first launch.</p>
-          <div className="onboarding-actions"><button className="button button-quiet" onClick={() => setStep(0)}><ArrowLeft size={16} aria-hidden="true" /> Back</button><button className="button button-primary" disabled={busy} onClick={() => void finish(true)}>{busy ? 'Saving…' : 'Open my space'} <ArrowRight size={16} aria-hidden="true" /></button></div>
+          <div className="onboarding-actions"><button className="button button-quiet" onClick={() => setStep(0)}><ArrowLeft size={16} aria-hidden="true" /> Back</button><button className="button button-primary" disabled={busy} onClick={() => setStep(2)}>Continue <ArrowRight size={16} aria-hidden="true" /></button></div>
           <button className="skip-setup" disabled={busy} onClick={() => void finish(false)}>Skip these for now</button>
+        </div>}
+        {step === 2 && <div className="onboarding-content">
+          <div className="onboarding-icon"><BookOpen size={26} aria-hidden="true" /></div>
+          <p className="eyebrow">{resumed.current && draft.step === 2 ? 'Picking up where you left off' : 'Your path, your words'}</p>
+          <h1 id="onboarding-title" ref={headingRef} tabIndex={-1}>Where would you like your daily reading to come from?</h1>
+          <p className="lead">Choose one tradition, a few that take turns, or all of them. Spiritual but not religious is here too. Nothing is chosen for you, and you can change this any time in Settings.</p>
+          <TraditionPicker legend="Your daily readings" value={traditionChoice} onChange={setTraditionChoice} />
+          <p className="fine-print" aria-live="polite">{traditionChoice ? 'Your choice will be saved on this device.' : 'Not sure yet? That’s fine. Until you choose, readings need no faith, and Today will offer this again.'}</p>
+          <div className="onboarding-actions"><button className="button button-quiet" onClick={() => setStep(1)}><ArrowLeft size={16} aria-hidden="true" /> Back</button><button className="button button-primary" disabled={busy} onClick={() => void finish(true)}>{busy ? 'Saving…' : 'Open my space'} <ArrowRight size={16} aria-hidden="true" /></button></div>
+          <button className="skip-setup" disabled={busy} onClick={() => void finish(true, null)}>Decide later</button>
         </div>}
       </section>
     </main>

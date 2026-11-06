@@ -97,16 +97,19 @@ describe('local JSON backup restore', () => {
   });
 
   it('exports and restores the daily-reading tradition choice, and repairs a legacy backup without one', async () => {
-    await db.preferences.put({ ...defaultPreferences(), traditionPreference: { mode: 'several', traditions: ['buddhist', 'muslim'] } });
+    await db.preferences.put({ ...defaultPreferences(), traditionPreference: { mode: 'several', traditions: ['buddhist', 'muslim'] }, traditionChoicePending: false });
     const text = JSON.stringify(await createBackup());
     await db.preferences.put(defaultPreferences());
     await importBackupText(text);
     expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'several', traditions: ['buddhist', 'muslim'] });
+    expect((await db.preferences.get('preferences'))?.traditionChoicePending).toBe(false);
 
     const legacy = { ...defaultPreferences(), schemaVersion: 5, contentPreset: 'faith-neutral' } as Record<string, unknown>;
     Reflect.deleteProperty(legacy, 'traditionPreference');
+    Reflect.deleteProperty(legacy, 'traditionChoicePending');
     await importBackupText(backup(5, { preferences: [legacy] }));
     expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'one', traditions: ['reflective'] });
+    expect((await db.preferences.get('preferences'))?.traditionChoicePending).toBeUndefined();
   });
 
   it('rejects a modified checksummed backup without changing local data', async () => {

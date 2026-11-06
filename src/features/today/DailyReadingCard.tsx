@@ -7,7 +7,7 @@ import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { returnedAfterActivityBreak, updateDailyActivity } from '../../db/repository';
 import { selectDailyReading } from '../../domain/daily-reading';
-import { RECOVERY_THEME_LABELS, traditionInfo } from '../../domain/traditions';
+import { RECOVERY_THEME_LABELS, hasChosenTradition, traditionInfo } from '../../domain/traditions';
 
 interface DailyReadingCardProps {
   date: Date;
@@ -19,7 +19,8 @@ const KIND_LABEL = { verbatim: 'Reading', paraphrase: 'Paraphrase', original: 'O
 /** Today's reading from the tradition(s) the person chose, with its source, translation and license shown openly. */
 export function DailyReadingCard({ date, daysInRecovery }: DailyReadingCardProps) {
   const { preferences, notify } = useAppContext();
-  const { entry, tradition, why } = selectDailyReading(date, preferences?.traditionPreference);
+  const unchosen = Boolean(preferences) && !hasChosenTradition(preferences);
+  const { entry, tradition, why } = selectDailyReading(date, preferences?.traditionPreference, { unchosen });
   const info = traditionInfo(tradition);
   const activityId = `scripture:${entry.id}`;
   const activity = useLiveQuery(() => db.scriptureActivity.get(activityId), [activityId]);
@@ -57,12 +58,12 @@ export function DailyReadingCard({ date, daysInRecovery }: DailyReadingCardProps
       {entry.furtherReading?.length ? <p className="reading-further"><span>Further reading:</span> {entry.furtherReading.map((title, index) => <span key={title}><cite>{title}</cite>{index < entry.furtherReading!.length - 1 ? ', ' : ''}</span>)}</p> : null}
       <div className="principle-callout reading-prompt"><span>TO CARRY WITH YOU</span><strong>{entry.reflectionPrompt}</strong></div>
       {entry.closing && <p className="contemplation"><em>{entry.closing}</em></p>}
-      <p className="reading-why"><span>Why this reading</span>{discreet ? 'Chosen for today from the readings you selected.' : why}</p>
+      <p className="reading-why"><span>Why this reading</span>{discreet ? (unchosen ? 'A neutral reading, shown until you choose your readings.' : 'Chosen for today from the readings you selected.') : why}</p>
       {info.note && <p className="tradition-note" role="note">{info.note}</p>}
       <details className="reading-license"><summary>Source &amp; license</summary><p>{entry.source}. {entry.licenseNote}</p></details>
       <div className="action-row">
         <button className="button button-secondary" onClick={() => void record(false)}><BookOpen size={16} aria-hidden="true" /> {activity ? 'Revisit this reading' : 'Mark as explored'}</button>
-        <Link className="button button-quiet" to="/settings#daily-readings"><Settings2 size={16} aria-hidden="true" /> Change tradition</Link>
+        <Link className="button button-quiet" to="/settings#daily-readings"><Settings2 size={16} aria-hidden="true" /> {unchosen ? 'Choose a tradition' : 'Change tradition'}</Link>
       </div>
       <p className="fine-print">Faith and reflection are a source of encouragement for some. They are not a measure of worth or a replacement for professional or peer support.</p>
     </section>

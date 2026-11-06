@@ -1,19 +1,22 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { BellRing, Download, MonitorSmartphone } from 'lucide-react';
+import { BellRing, BookOpen, Download, MonitorSmartphone } from 'lucide-react';
 import { useAppContext } from '../../app/AppContext';
 import { getTodayCheckIn } from '../../db/checkIns';
 import { createBackup, downloadJsonBackup } from '../../db/backup';
 import { db } from '../../db/database';
-import { pickTodayNudge, shouldNudgeBackup, shouldOfferInstall, shouldOfferReminder, snoozeUntil } from '../../domain/engagement';
+import { pickTodayNudge, shouldNudgeBackup, shouldOfferInstall, shouldOfferReadingChoice, shouldOfferReminder, snoozeUntil } from '../../domain/engagement';
+import { hasChosenTradition } from '../../domain/traditions';
+import { ChooseReadingsCard } from './ChooseReadingsCard';
 import { canPromptInstall, isRunningStandalone, promptInstall, subscribeInstallPrompt } from '../../platform/installPrompt';
 import { readLocalSignal, requestPersistentStorage, writeLocalSignal } from '../../platform/localSignals';
 import { getNotificationPermission, requestNotificationPermission, type NotificationPermissionStatus } from '../../platform/notificationPermissions';
 
 /**
  * At most one optional, dismissible card on Today, each shown only after a
- * meaningful moment: a reminder offer after the first check-in, a backup nudge
- * once there is something worth keeping, and an install offer on a return visit.
+ * meaningful moment: an invitation to choose readings while none is chosen (first
+ * priority), a reminder offer after the first check-in, a backup nudge once there
+ * is something worth keeping, and an install offer on a return visit.
  */
 export function TodayNudge() {
   const { preferences, updatePreferences, notify } = useAppContext();
@@ -35,13 +38,14 @@ export function TodayNudge() {
   const now = new Date();
   void signalsVersion;
   const nudge = pickTodayNudge({
+    readings: shouldOfferReadingChoice({ choicePending: Boolean(preferences) && !hasChosenTradition(preferences), snoozedUntil: readLocalSignal('readingChoiceSnoozedUntil'), now }),
     reminder: shouldOfferReminder({ reminderEnabled: Boolean(preferences?.reminderEnabled), permission, checkedInToday, snoozedUntil: readLocalSignal('reminderOfferSnoozedUntil'), now }),
     backup: shouldNudgeBackup({ savedRecords, lastBackupAt: readLocalSignal('lastBackupAt'), snoozedUntil: readLocalSignal('backupNudgeSnoozedUntil'), now }),
     install: shouldOfferInstall({ canPrompt: canInstall, isStandalone: isRunningStandalone(), activeDays, snoozedUntil: readLocalSignal('installOfferSnoozedUntil'), now }),
   });
   if (!nudge) return null;
 
-  const snooze = (key: 'reminderOfferSnoozedUntil' | 'backupNudgeSnoozedUntil' | 'installOfferSnoozedUntil') => {
+  const snooze = (key: 'readingChoiceSnoozedUntil' | 'reminderOfferSnoozedUntil' | 'backupNudgeSnoozedUntil' | 'installOfferSnoozedUntil') => {
     writeLocalSignal(key, snoozeUntil(new Date()));
     setSignalsVersion((value) => value + 1);
   };
@@ -84,6 +88,8 @@ export function TodayNudge() {
       } else snooze('installOfferSnoozedUntil');
     } finally { setBusy(false); }
   }
+
+  if (nudge === 'readings') return <ChooseReadingsCard icon={<BookOpen size={19} />} onNotNow={() => snooze('readingChoiceSnoozedUntil')} />;
 
   if (nudge === 'reminder') return (
     <section className="card today-nudge" aria-labelledby="today-nudge-title">

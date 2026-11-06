@@ -15,6 +15,14 @@ describe('daily reading selection', () => {
     expect(localDayNumber(morning)).toBe(localDayNumber(night));
   });
 
+  it('shows the neutral spiritual-but-not-religious set while no tradition is chosen, whatever is stored', () => {
+    for (let offset = 0; offset < 10; offset += 1) {
+      const selection = selectDailyReading(day(offset), one('christian'), { unchosen: true });
+      expect(selection.tradition).toBe('reflective');
+      expect(selection.why).toMatch(/haven’t chosen a tradition yet/);
+    }
+  });
+
   it('is deterministic for the same date and preference', () => {
     const preference: TraditionPreference = { mode: 'several', traditions: ['muslim', 'jain'] };
     expect(selectDailyReading(day(3), preference)).toEqual(selectDailyReading(day(3), preference));

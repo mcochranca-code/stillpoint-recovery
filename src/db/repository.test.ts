@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { db } from './database';
 import { defaultPreferences, ensureDefaults, returnedAfterActivityBreak, updateDailyActivity } from './repository';
 import { localDateKey } from '../domain/time';
+import { effectiveTraditionPreference, hasChosenTradition } from '../domain/traditions';
 
 beforeEach(async () => {
   await db.delete();
@@ -89,6 +90,7 @@ describe('local data repositories', () => {
     const now = new Date().toISOString();
     const v5 = { ...defaultPreferences(), schemaVersion: 5, contentPreset: 'faith-neutral', highContrast: true } as Record<string, unknown>;
     Reflect.deleteProperty(v5, 'traditionPreference');
+    Reflect.deleteProperty(v5, 'traditionChoicePending'); // A real v5 record predates the first-run choice.
     await legacy.table('preferences').put(v5);
     await legacy.table('journalEntries').put({ id: 'journal:keep', type: 'free-writing', title: 'Kept', body: 'Still here', createdAt: now, updatedAt: now, tags: [], gratitude: [] });
     await legacy.table('scriptureActivity').put({ id: 'scripture:romans-15-13', scriptureId: 'romans-15-13', favorite: true, favoriteKey: 1, exploredAt: now });
@@ -97,13 +99,45 @@ describe('local data repositories', () => {
     await db.open();
     const preferences = await db.preferences.get('preferences');
     expect(preferences).toMatchObject({ schemaVersion: 6, contentPreset: 'faith-neutral', highContrast: true, traditionPreference: { mode: 'one', traditions: ['reflective'] } });
+    // Existing installs keep their migrated tradition and count as chosen: no first-run prompt.
+    expect(preferences?.traditionChoicePending).toBeUndefined();
+    expect(hasChosenTradition(preferences)).toBe(true);
     expect(await db.journalEntries.get('journal:keep')).toMatchObject({ body: 'Still here' });
     expect(await db.scriptureActivity.get('scripture:romans-15-13')).toMatchObject({ favorite: true });
   });
 
+  it('migrates a faith-based version-5 install to Christian readings, counted as already chosen', async () => {
+    db.close();
+    await db.delete();
+    const legacy = new Dexie('StillpointRecovery');
+    legacy.version(5).stores({ preferences: 'id', recoveryProfiles: 'id' });
+    await legacy.open();
+    const v5 = { ...defaultPreferences(), schemaVersion: 5, contentPreset: 'faith-based', onboardingComplete: true } as Record<string, unknown>;
+    Reflect.deleteProperty(v5, 'traditionPreference');
+    Reflect.deleteProperty(v5, 'traditionChoicePending');
+    await legacy.table('preferences').put(v5);
+    legacy.close();
+
+    await db.open();
+    await ensureDefaults();
+    const preferences = await db.preferences.get('preferences');
+    expect(preferences?.traditionPreference).toEqual({ mode: 'one', traditions: ['christian'] });
+    expect(hasChosenTradition(preferences)).toBe(true);
+    expect(effectiveTraditionPreference(preferences)).toEqual({ mode: 'one', traditions: ['christian'] });
+  });
+
+  it('starts a new install with no tradition chosen and a neutral reading, never Christian by default', async () => {
+    await ensureDefaults();
+    const preferences = await db.preferences.get('preferences');
+    expect(preferences?.traditionChoicePending).toBe(true);
+    expect(hasChosenTradition(preferences)).toBe(false);
+    expect(effectiveTraditionPreference(preferences)).toEqual({ mode: 'one', traditions: ['reflective'] });
+    expect(preferences?.traditionPreference.traditions).not.toContain('christian');
+  });
+
   it('persists a tradition choice and repairs a malformed one on startup', async () => {
     await ensureDefaults();
-    expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'one', traditions: ['christian'] });
+    expect((await db.preferences.get('preferences'))?.traditionPreference).toEqual({ mode: 'one', traditions: ['reflective'] });
     const existing = (await db.preferences.get('preferences'))!;
     await db.preferences.put({ ...existing, traditionPreference: { mode: 'several', traditions: ['jain', 'red-road'] } });
     await ensureDefaults();

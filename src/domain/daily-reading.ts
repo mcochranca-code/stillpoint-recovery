@@ -1,5 +1,5 @@
 import { readingsByTradition } from '../data/readings';
-import { DEFAULT_TRADITION, RECOVERY_THEME_LABELS, TRADITION_IDS, normalizeTraditionPreference, traditionInfo } from './traditions';
+import { DEFAULT_TRADITION, NEUTRAL_TRADITION_PREFERENCE, RECOVERY_THEME_LABELS, TRADITION_IDS, normalizeTraditionPreference, traditionInfo } from './traditions';
 import type { ReadingEntry, TraditionId, TraditionPreference } from './types';
 
 export interface DailyReadingSelection {
@@ -31,18 +31,20 @@ export function activeTraditions(preference: TraditionPreference | undefined): T
  * reading. With several traditions, each day moves to the next tradition, and each tradition moves
  * through its own readings in order, so no tradition skips entries.
  */
-export function selectDailyReading(date: Date, preference: TraditionPreference | undefined): DailyReadingSelection {
+export function selectDailyReading(date: Date, preference: TraditionPreference | undefined, options: { unchosen?: boolean } = {}): DailyReadingSelection {
   const day = localDayNumber(date);
-  const traditions = activeTraditions(preference);
+  const effective = options.unchosen ? NEUTRAL_TRADITION_PREFERENCE : preference;
+  const traditions = activeTraditions(effective);
   const tradition = traditions[mod(day, traditions.length)]!;
   const pool = readingsByTradition[tradition];
   const entry = pool[mod(Math.floor(day / traditions.length), pool.length)]!;
-  return { entry, tradition, why: explainSelection(entry, tradition, preference, traditions) };
+  return { entry, tradition, why: explainSelection(entry, tradition, effective, traditions, Boolean(options.unchosen)) };
 }
 
-function explainSelection(entry: ReadingEntry, tradition: TraditionId, preference: TraditionPreference | undefined, traditions: TraditionId[]): string {
+function explainSelection(entry: ReadingEntry, tradition: TraditionId, preference: TraditionPreference | undefined, traditions: TraditionId[], unchosen: boolean): string {
   const label = traditionInfo(tradition).label;
   const theme = RECOVERY_THEME_LABELS[entry.recoveryTheme].toLowerCase();
+  if (unchosen) return `You haven’t chosen a tradition yet, so today’s reading comes from ${label}, which needs no faith. Its theme is ${theme}. Choose your readings whenever you like.`;
   const normalized = normalizeTraditionPreference(preference);
   const requested = normalized.mode === 'rotate' ? TRADITION_IDS : normalized.traditions;
   const fellBack = !requested.includes(tradition);

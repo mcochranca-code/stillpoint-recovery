@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  BACKUP_NUDGE_MIN_RECORDS, calendarDaysBetween, describeDateChange, isSnoozed, pickTodayNudge, previousStretchDays,
+  BACKUP_NUDGE_MIN_RECORDS, calendarDaysBetween, describeDateChange, isSnoozed, pickTodayNudge, previousStretchDays, shouldOfferReadingChoice,
   shouldNudgeBackup, shouldOfferInstall, shouldOfferReminder, snoozeUntil, welcomeBackGap,
 } from './engagement';
 
@@ -70,6 +70,14 @@ describe('gentle re-engagement rules', () => {
     expect(pickTodayNudge({ reminder: false, install: true, backup: true })).toBe('backup');
     expect(pickTodayNudge({ reminder: false, install: true, backup: false })).toBe('install');
     expect(pickTodayNudge({ reminder: false, install: false, backup: false })).toBeNull();
+    expect(pickTodayNudge({ readings: true, reminder: true, install: true, backup: true })).toBe('readings');
+  });
+
+  it('offers the reading choice only while it is pending and not resting', () => {
+    const now = new Date(2026, 10, 6, 12);
+    expect(shouldOfferReadingChoice({ choicePending: true, now })).toBe(true);
+    expect(shouldOfferReadingChoice({ choicePending: false, now })).toBe(false);
+    expect(shouldOfferReadingChoice({ choicePending: true, snoozedUntil: new Date(2026, 10, 8).toISOString(), now })).toBe(false);
   });
 
   it('names a fresh start kindly in the timeline and keeps plain date corrections neutral', () => {

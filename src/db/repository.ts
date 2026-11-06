@@ -2,13 +2,16 @@ import { CURRENT_SCHEMA_VERSION, db } from './database';
 import type { DailyActivity, RecoveryProfile, UserPreferences } from '../domain/types';
 import { DEFAULT_CONTENT_PRESET, isContentPreset } from '../domain/content-preset';
 import { localDateKey } from '../domain/time';
-import { isTraditionPreference, normalizeTraditionPreference, traditionPreferenceFromPreset } from '../domain/traditions';
+import { NEUTRAL_TRADITION_PREFERENCE, isTraditionPreference, normalizeTraditionPreference } from '../domain/traditions';
 
-/** Create the initial preferences record with privacy-conscious and accessible defaults. */
+/**
+ * Create the initial preferences record with privacy-conscious and accessible defaults.
+ * A new install has not chosen a tradition: readings stay neutral until the person picks one.
+ */
 export const defaultPreferences = (): UserPreferences => {
   const now = new Date().toISOString();
   return {
-    id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: DEFAULT_CONTENT_PRESET, traditionPreference: traditionPreferenceFromPreset(DEFAULT_CONTENT_PRESET), onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
+    id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: DEFAULT_CONTENT_PRESET, traditionPreference: { ...NEUTRAL_TRADITION_PREFERENCE, traditions: [...NEUTRAL_TRADITION_PREFERENCE.traditions] }, traditionChoicePending: true, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
     highContrast: false, reducedMotion: false, hideMeditationVisual: false, textScale: 1,
     timeFormat: '12h', counterStyle: 'full', liveCounter: true, reminderEnabled: false,
     reminderTime: '19:00', meetingReminderLeadMinutes: 30, meetingReminders: [], trustedContacts: [], supportResources: [], discreetMode: false, gardenStyle: 'woodland',

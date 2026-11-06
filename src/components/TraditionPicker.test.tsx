@@ -11,12 +11,51 @@ const mocks = vi.hoisted(() => ({ context: {} as never }));
 vi.mock('../app/AppContext', () => ({ useAppContext: () => mocks.context }));
 import { DailyReadingCard } from '../features/today/DailyReadingCard';
 
-function Harness({ initial, onChange }: { initial: TraditionPreference; onChange?: (value: TraditionPreference) => void }) {
-  const [value, setValue] = useState(initial);
+function Harness({ initial, onChange }: { initial: TraditionPreference | null; onChange?: (value: TraditionPreference) => void }) {
+  const [value, setValue] = useState<TraditionPreference | null>(initial);
   return <TraditionPicker value={value} onChange={(next) => { setValue(next); onChange?.(next); }} />;
 }
 
 describe('TraditionPicker', () => {
+  it('pre-selects nothing before a first choice, and passes axe in that state', async () => {
+    const { container } = render(<Harness initial={null} />);
+    const radios = screen.getAllByRole('radio');
+    expect(radios.filter((radio) => (radio as HTMLInputElement).checked)).toHaveLength(0);
+    expect(screen.getByRole('radio', { name: /^Christian/ })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: /Spiritual but not religious/ })).toBeInTheDocument();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('from nothing chosen: a tradition card chooses One tradition; A few I choose waits for the first pick', async () => {
+    const changes: TraditionPreference[] = [];
+    const first = render(<Harness initial={null} onChange={(value) => changes.push(value)} />);
+    fireEvent.click(screen.getByRole('radio', { name: /^Hindu/ }));
+    expect(changes.at(-1)).toEqual({ mode: 'one', traditions: ['hindu'] });
+    expect(screen.getByRole('radio', { name: /One tradition/ })).toBeChecked();
+    first.unmount();
+
+    changes.length = 0;
+    const { container } = render(<Harness initial={null} onChange={(value) => changes.push(value)} />);
+    fireEvent.click(screen.getByRole('radio', { name: /A few I choose/ }));
+    expect(changes).toHaveLength(0);
+    expect(screen.getByRole('radio', { name: /A few I choose/ })).toBeChecked();
+    expect(screen.getAllByRole('checkbox').filter((box) => (box as HTMLInputElement).checked)).toHaveLength(0);
+    fireEvent.click(screen.getByRole('checkbox', { name: /^Jain/ }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /^Buddhist/ }));
+    expect(changes.at(-1)).toEqual({ mode: 'several', traditions: ['jain', 'buddhist'] });
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('leaving Rotate through all does not quietly pick a tradition', () => {
+    const changes: TraditionPreference[] = [];
+    render(<Harness initial={{ mode: 'rotate', traditions: ['christian', 'buddhist', 'hindu', 'muslim', 'jain', 'red-road', 'reflective'] }} onChange={(value) => changes.push(value)} />);
+    fireEvent.click(screen.getByRole('radio', { name: /One tradition/ }));
+    expect(changes).toHaveLength(0);
+    expect(screen.getAllByRole('radio').filter((radio) => radio.getAttribute('name')?.endsWith('-tradition') && (radio as HTMLInputElement).checked)).toHaveLength(0);
+    fireEvent.click(screen.getByRole('radio', { name: /^Muslim/ }));
+    expect(changes.at(-1)).toEqual({ mode: 'one', traditions: ['muslim'] });
+  });
+
   it('is a labelled group of native radios with no detectable axe violations', async () => {
     const { container } = render(<Harness initial={{ mode: 'one', traditions: ['christian'] }} />);
     expect(screen.getByRole('group', { name: 'Daily reading tradition' })).toBeInTheDocument();
@@ -58,7 +97,7 @@ describe('DailyReadingCard', () => {
   });
 
   it('shows the text, citation, translation credit, prompt and why-this-reading line', async () => {
-    mocks.context = { ...(mocks.context as object), preferences: { ...defaultPreferences(), traditionPreference: { mode: 'one', traditions: ['muslim'] } } } as never;
+    mocks.context = { ...(mocks.context as object), preferences: { ...defaultPreferences(), traditionChoicePending: false, traditionPreference: { mode: 'one', traditions: ['muslim'] } } } as never;
     const { container } = render(<MemoryRouter><DailyReadingCard date={new Date(2026, 10, 6)} daysInRecovery={3} /></MemoryRouter>);
     const card = screen.getByRole('region', { name: 'A READING FOR THE JOURNEY' });
     expect(within(card).getByText(/Pickthall|Original paraphrase by Stillpoint/)).toBeInTheDocument();
@@ -70,12 +109,12 @@ describe('DailyReadingCard', () => {
   });
 
   it('shows the Red Road note and the inspired-by label where they apply', () => {
-    mocks.context = { ...(mocks.context as object), preferences: { ...defaultPreferences(), traditionPreference: { mode: 'one', traditions: ['red-road'] } } } as never;
+    mocks.context = { ...(mocks.context as object), preferences: { ...defaultPreferences(), traditionChoicePending: false, traditionPreference: { mode: 'one', traditions: ['red-road'] } } } as never;
     const { unmount } = render(<MemoryRouter><DailyReadingCard date={new Date(2026, 10, 6)} daysInRecovery={0} /></MemoryRouter>);
     expect(screen.getByRole('note')).toHaveTextContent(/Teachings differ from nation to nation.*White Bison and the Wellbriety Movement/);
     unmount();
 
-    mocks.context = { ...(mocks.context as object), preferences: { ...defaultPreferences(), traditionPreference: { mode: 'one', traditions: ['buddhist'] } } } as never;
+    mocks.context = { ...(mocks.context as object), preferences: { ...defaultPreferences(), traditionChoicePending: false, traditionPreference: { mode: 'one', traditions: ['buddhist'] } } } as never;
     // Walk forward until an "inspired by" entry comes up; the Buddhist set has seven.
     for (let offset = 0; offset < 17; offset += 1) {
       const view = render(<MemoryRouter><DailyReadingCard date={new Date(2026, 10, 6 + offset)} daysInRecovery={0} /></MemoryRouter>);
@@ -88,5 +127,15 @@ describe('DailyReadingCard', () => {
       view.unmount();
     }
     throw new Error('No inspired-by reading was shown within the Buddhist rotation.');
+  });
+
+  it('shows a neutral reading, not Christian, until a tradition is chosen', async () => {
+    mocks.context = { ...(mocks.context as object), preferences: defaultPreferences() } as never;
+    const { container } = render(<MemoryRouter><DailyReadingCard date={new Date(2026, 10, 6)} daysInRecovery={0} /></MemoryRouter>);
+    const card = screen.getByRole('region', { name: 'A READING FOR THE JOURNEY' });
+    expect(within(card).getByText(/^Spiritual but not religious ·/)).toBeInTheDocument();
+    expect(within(card).getByText(/haven’t chosen a tradition yet/)).toBeInTheDocument();
+    expect(within(card).getByRole('link', { name: /Choose a tradition/ })).toHaveAttribute('href', '/settings#daily-readings');
+    expect(await axeViolations(container)).toEqual([]);
   });
 });
