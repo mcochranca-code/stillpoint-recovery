@@ -4,6 +4,7 @@ import { db } from '../db/database';
 import { ensureDefaults } from '../db/repository';
 import { getNextDailyReminderAt, getNextMeetingReminder, isDailyReminderDue } from '../domain/reminders';
 import { localDateKey } from '../domain/time';
+import { daypartFor } from '../domain/daypart';
 import type { MeetingReminder, RecoveryProfile, UserPreferences } from '../domain/types';
 
 interface AppContextValue {
@@ -90,6 +91,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (preferences.theme === 'system') media.addEventListener('change', applyAppearance);
     return () => media.removeEventListener('change', applyAppearance);
   }, [preferences]);
+
+  // Tint the atmospheric background to the local time of day; re-checked every ten minutes.
+  useEffect(() => {
+    const root = document.documentElement;
+    const apply = () => { root.dataset.daypart = daypartFor(new Date()); };
+    apply();
+    const timer = window.setInterval(apply, 10 * 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const dailyEnabled = Boolean(preferences?.reminderEnabled);
