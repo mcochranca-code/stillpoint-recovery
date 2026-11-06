@@ -7,9 +7,9 @@
     <code>LOCAL-FIRST</code> &nbsp; <code>INSTALLABLE PWA</code> &nbsp; <code>NO ACCOUNT</code> &nbsp; <code>MIT LICENSE · SOURCE</code> &nbsp; <code>BUILT FOR GENTLENESS</code>
   </p>
   <p>
-    <a href="https://stillpoint-recovery-demo.netlify.app/"><strong>Open the live demo</strong></a>
+    <a href="https://stillpointco-lq5mbm5o.manus.space/"><strong>Open the public PWA</strong></a>
     &nbsp; · &nbsp;
-    <a href="https://manus.im/app/7k3Csc5jVMN5imwHWfCUcR?collab=1"><strong>Open the Manus PWA workspace</strong></a>
+    <a href="https://stillpoint-recovery-demo.netlify.app/"><strong>Open the Netlify demo</strong></a>
     &nbsp; · &nbsp;
     <a href="https://github.com/mcochranca-code/stillpoint-recovery/archive/refs/heads/main.zip"><strong>Download the source ZIP</strong></a>
     &nbsp; · &nbsp;
