@@ -1121,3 +1121,10 @@ textarea { resize: vertical; line-height: 1.65; }
   :root[data-color-theme] .today-page .sobriety-hero .progress-ring,
   .today-page .sobriety-hero .progress-ring { width: 76px; height: 76px; }
 }
+
+/* Onboarding: optional disclosure groups and focusable step headings. */
+.onboarding-more { margin: var(--space-4) 0 var(--space-2); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-2) var(--space-4); }
+.onboarding-more summary { cursor: pointer; min-height: 40px; display: flex; align-items: center; gap: var(--space-2); font-weight: 600; font-size: 0.875rem; }
+.onboarding-content h1:focus { outline: none; }
+.onboarding-content h1:focus-visible { outline: 3px solid var(--focus-ring, #245444); outline-offset: 4px; }
+
