@@ -78,7 +78,7 @@ export default function Onboarding() {
     <main className="onboarding-wrap">
       <section className="onboarding-card" aria-labelledby="onboarding-title">
         <div className="onboarding-brand"><img src="/assets/branding/stillpoint-logo.svg" alt="Stillpoint Recovery" /></div>
-        <div className="step-indicator" aria-label={`Setup step ${step + 1} of 3`}><span className={step >= 0 ? 'complete' : ''}></span><span className={step >= 1 ? 'complete' : ''}></span><span className={step >= 2 ? 'complete' : ''}></span></div>
+        <div className="step-indicator" role="group" aria-label={`Setup step ${step + 1} of 3`}><span className={step >= 0 ? 'complete' : ''}></span><span className={step >= 1 ? 'complete' : ''}></span><span className={step >= 2 ? 'complete' : ''}></span></div>
         {step === 0 && <div className="onboarding-content">
           <div className="onboarding-icon"><Leaf size={27} /></div>
           <p className="eyebrow">A quiet place to begin again</p>
