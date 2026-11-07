@@ -20,6 +20,7 @@ const CommunityPage = lazy(() => import('../features/community/CommunityPage').t
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage').then((page) => ({ default: page.SettingsPage })));
 const ResetPage = lazy(() => import('../features/reset/ResetPage').then((page) => ({ default: page.ResetPage })));
 const GardenPage = lazy(() => import('../features/garden/GardenPage').then((page) => ({ default: page.GardenPage })));
+const NaStepGuidesPage = lazy(() => import('../features/na-step-guides/NaStepGuidesPage').then((page) => ({ default: page.NaStepGuidesPage })));
 const FieldGuidePage = lazy(() => import('../features/field-guide/FieldGuidePage').then((page) => ({ default: page.FieldGuidePage })));
 
 function AppRoutes() {
@@ -48,6 +49,8 @@ function AppRoutes() {
           <Route path="/journal" element={<JournalPage />} />
           <Route path="/meditation" element={<MeditationPage />} />
           <Route path="/library" element={<LibraryPage />} />
+          <Route path="/library/na-step-guides" element={<NaStepGuidesPage />} />
+          <Route path="/library/na-step-guides/:chapterId" element={<NaStepGuidesPage />} />
           <Route path="/meetings" element={<MeetingsPage />} />
           <Route path="/community" element={<CommunityPage />} />
           <Route path="/settings" element={<SettingsPage />} />

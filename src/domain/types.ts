@@ -323,3 +323,27 @@ export interface BackupPayload {
   checksum?: string;
   tables: Record<string, unknown[]>;
 }
+
+/** One private answer to an NA Step Working Guide question. Stored only in this browser. */
+export interface StepWorkAnswer {
+  /** The question ID from the guide content, e.g. `s4-q012`. */
+  id: string;
+  questionId: string;
+  stepNumber: number;
+  text: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ReaderTextSize = 'small' | 'default' | 'large' | 'larger';
+
+/** Where the person left off in a long-form reader, plus their reader-only text size. */
+export interface ReaderProgress {
+  /** The reader, e.g. `na-step-guides`. */
+  id: string;
+  /** `preface` or `step-1` … `step-12`. */
+  chapterId: string;
+  sectionId?: string;
+  textSize: ReaderTextSize;
+  updatedAt: string;
+}

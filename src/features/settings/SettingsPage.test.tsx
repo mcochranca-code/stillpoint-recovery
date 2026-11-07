@@ -28,6 +28,16 @@ describe('SettingsPage content preferences', () => {
     } as never;
   });
 
+  it('credits the NA Step Working Guides in About, with the permission notice and non-affiliation', () => {
+    render(<MemoryRouter><SettingsPage /></MemoryRouter>);
+    const about = screen.getByRole('region', { name: 'About Stillpoint' });
+    expect(about).toHaveTextContent('This is NA Fellowship-approved literature.');
+    expect(about).toHaveTextContent('Copyright © 1998, World Service Office, Inc. Reprinted by permission. All rights reserved.');
+    expect(about).toHaveTextContent(/not affiliated with, and is not endorsed by, Narcotics Anonymous/);
+    expect(about).toHaveTextContent(/excluded from Stillpoint’s MIT license/);
+    expect(screen.getByRole('link', { name: 'Open NA Step Working Guides' })).toHaveAttribute('href', '/library/na-step-guides');
+  });
+
   it('keeps Christian extras out of view for a new install that has not chosen Christian', () => {
     render(<MemoryRouter><SettingsPage /></MemoryRouter>);
 

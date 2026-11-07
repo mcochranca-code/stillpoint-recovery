@@ -13,14 +13,16 @@ import type {
   PersonalGoal,
   PersonalMilestone,
   RecoveryDateHistory,
+  ReaderProgress,
   RecoveryProfile,
   ResetRecord,
   ScriptureActivity,
+  StepWorkAnswer,
   UserPreferences,
 } from '../domain/types';
 import { normalizeTraditionPreference } from '../domain/traditions';
 
-export const CURRENT_SCHEMA_VERSION = 6;
+export const CURRENT_SCHEMA_VERSION = 7;
 
 export interface MilestoneRecord {
   id: string;
@@ -50,6 +52,8 @@ const databaseSchema = {
 };
 const reminderDatabaseSchema = { ...databaseSchema, meetingReminders: 'id, meetingId' };
 const communityDatabaseSchema = { ...reminderDatabaseSchema, communityCredentials: 'id, readingKey, createdAt' };
+// v7: private NA Step Working Guide answers and the reader's resume position (both local-only).
+const stepWorkDatabaseSchema = { ...communityDatabaseSchema, stepWorkAnswers: 'id, stepNumber, updatedAt', readerProgress: 'id' };
 
 export class StillpointDatabase extends Dexie {
   preferences!: Table<UserPreferences, string>;
@@ -70,6 +74,8 @@ export class StillpointDatabase extends Dexie {
   resetRecords!: Table<ResetRecord, string>;
   meetingReminders!: Table<MeetingReminder, string>;
   communityCredentials!: Table<CommunityCommentCredential, string>;
+  stepWorkAnswers!: Table<StepWorkAnswer, string>;
+  readerProgress!: Table<ReaderProgress, string>;
 
   constructor(name = 'StillpointRecovery') {
     super(name);
@@ -116,6 +122,18 @@ export class StillpointDatabase extends Dexie {
       await Promise.all([
         transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
           preferences.traditionPreference = normalizeTraditionPreference(preferences.traditionPreference, preferences.contentPreset);
+          preferences.schemaVersion = 6;
+        }),
+        transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
+          profile.schemaVersion = 6;
+        }),
+      ]);
+    });
+    // v7: adds two empty local tables (step-work answers, reader position). Existing records are untouched
+    // apart from the schema stamp on the two singleton records.
+    this.version(7).stores(stepWorkDatabaseSchema).upgrade(async (transaction) => {
+      await Promise.all([
+        transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
           preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
         }),
         transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {

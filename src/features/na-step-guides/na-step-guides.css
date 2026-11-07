@@ -1,0 +1,67 @@
+/*
+ * NA Step Working Guides reader. Sizes come from the shared type tokens (rem-based, so the
+ * Settings text scale still applies); the reader's own size choice picks which token the
+ * reading text uses. No animation beyond the shared token durations, which collapse to 0ms
+ * under reduced motion.
+ */
+.na-reader { --na-reading-size: var(--text-reading); }
+.na-reader[data-text-size="small"] { --na-reading-size: var(--text-md); }
+.na-reader[data-text-size="large"] { --na-reading-size: var(--text-xl); }
+.na-reader[data-text-size="larger"] { --na-reading-size: var(--text-2xl); }
+
+.na-crumb { display: inline-flex; align-items: center; gap: var(--space-1); color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.na-credit { display: grid; gap: var(--space-2); }
+.na-credit h2, .na-credit h3 { font-size: var(--text-lg); margin: 0; }
+.na-credit p { margin: 0; }
+.na-start { display: grid; gap: var(--space-4); }
+.na-start h2 { font-size: var(--text-lg); margin: 0; }
+
+.na-text-size { border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--space-3) var(--space-4); margin: 0; }
+.na-text-size legend { font-weight: 650; font-size: var(--text-sm); padding: 0 var(--space-1); }
+.na-text-size-options { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+.na-text-size-option { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target-min); padding: 0 var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-pill); cursor: pointer; font-size: var(--text-sm); }
+.na-text-size-option.selected { border-color: var(--primary, #245444); background: var(--primary-soft, rgba(127,165,138,.14)); font-weight: 650; }
+.na-text-size-option:focus-within { outline: var(--focus-ring-width) solid var(--focus-ring, #245444); outline-offset: var(--focus-ring-offset); }
+
+.na-privacy-note { display: flex; gap: var(--space-2); align-items: flex-start; margin: 0; color: var(--muted); font-size: var(--text-sm); line-height: var(--leading-normal); }
+.na-privacy-note svg { flex: none; margin-top: 2px; }
+
+.na-toc h2 { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-lg); margin: 0 0 var(--space-3); }
+.na-toc-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-2); }
+.na-toc-item { display: grid; gap: var(--space-1); padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.na-toc-link { display: grid; gap: 2px; color: var(--ink); text-decoration: none; min-height: var(--target-min); align-content: center; }
+.na-toc-link strong { font-size: var(--text-lg); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.na-toc-subtitle { color: var(--muted); font-size: var(--text-sm); line-height: var(--leading-normal); }
+.na-toc-here { justify-self: start; }
+
+.na-progress { display: grid; gap: var(--space-1); max-width: 360px; }
+.na-progress-text { color: var(--muted); font-size: var(--text-sm); }
+.na-progress-track { display: block; height: 6px; border-radius: var(--radius-pill); background: var(--border); overflow: hidden; }
+.na-progress-fill { display: block; height: 100%; background: var(--primary, #245444); border-radius: inherit; }
+
+.na-chapter { display: grid; gap: var(--space-5); }
+.na-chapter-header > div { display: grid; gap: var(--space-2); }
+.na-step-text { font-family: var(--font-display); font-size: var(--text-xl); line-height: var(--leading-tight); margin: 0; max-width: 46ch; }
+.na-options summary { cursor: pointer; font-weight: 650; min-height: var(--target-min); display: flex; align-items: center; }
+.na-options[open] { display: grid; gap: var(--space-3); }
+.na-section-nav-heading { font-size: var(--text-md); margin: 0 0 var(--space-2); }
+.na-section-nav ol { margin: 0; padding-left: var(--space-5); display: grid; gap: var(--space-1); }
+.na-section-nav a { color: var(--ink); text-underline-offset: 3px; display: inline-block; min-height: 32px; padding: var(--space-1) 0; }
+
+.na-text { font-size: var(--na-reading-size); line-height: var(--leading-relaxed); }
+.na-text p { margin: 0 0 1em; max-width: 68ch; }
+.na-section { scroll-margin-top: var(--space-6); }
+.na-section + .na-section { margin-top: var(--space-6); }
+.na-section h2 { font-family: var(--font-display); font-size: 1.25em; line-height: var(--leading-tight); margin: 0 0 .6em; scroll-margin-top: var(--space-6); }
+.na-signature { font-style: italic; text-align: right; }
+
+.na-questions { margin: 0 0 1.2em; padding-left: 1.6em; display: grid; gap: 1em; max-width: 68ch; }
+.na-question::marker { font-weight: 700; color: var(--muted); }
+.na-question { display: grid; gap: .35em; scroll-margin-top: var(--space-6); }
+.na-question-text { font-weight: 600; cursor: text; }
+.na-answer { width: 100%; font: inherit; font-size: max(1rem, .85em); line-height: var(--leading-normal); padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--ink); resize: vertical; min-height: 3.2em; }
+.na-answer:focus-visible { outline: var(--focus-ring-width) solid var(--focus-ring, #245444); outline-offset: 2px; }
+.na-answer-hint { color: var(--muted); font-size: var(--text-sm); }
+
+.na-pager { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-3); }
+.na-footer-credit { margin: 0; }

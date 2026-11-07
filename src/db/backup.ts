@@ -7,7 +7,7 @@ const STORE_NAMES = [
   'preferences', 'recoveryProfiles', 'recoveryDateHistory', 'dailyReflections', 'scriptureActivity',
   'journalEntries', 'journalDrafts', 'meditationSessions', 'activeSessions', 'earnedCharms',
   'dailyActivity', 'personalGoals', 'personalMilestones', 'milestoneRecords', 'fieldGuideNotes', 'resetRecords',
-  'meetingReminders',
+  'meetingReminders', 'stepWorkAnswers', 'readerProgress',
 ] as const;
 const CLEARABLE_STORE_NAMES = [...STORE_NAMES, 'communityCredentials'] as const;
 const SINGLETON_STORES = new Set<string>(['preferences', 'recoveryProfiles']);
@@ -22,6 +22,9 @@ const JOURNAL_TYPES = new Set<JournalType>([
 ]);
 const MOODS = new Set(['peaceful', 'hopeful', 'steady', 'anxious', 'sad', 'angry', 'tired', 'grateful']);
 const GUIDE_KINDS = new Set(['strategy', 'trigger', 'reflection', 'prayer', 'note']);
+const STEP_QUESTION_ID = /^s([1-9]|1[0-2])-q\d{3}$/;
+const READER_CHAPTER_ID = /^(preface|step-([1-9]|1[0-2]))$/;
+const READER_TEXT_SIZES = new Set(['small', 'default', 'large', 'larger']);
 
 /** Export every supported local table as a versioned JSON-ready payload. */
 export async function createBackup(): Promise<BackupPayload> {
@@ -197,6 +200,15 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
       return isNonEmptyString(row.meetingId, 240) && [15, 30, 60].includes(Number(row.leadMinutes))
         && isDate(row.createdAt) && isOptionalDate(row.lastNotifiedOccurrenceAt)
         && isOptionalDate(row.lastAttemptedOccurrenceAt);
+    case 'stepWorkAnswers': {
+      const match = typeof row.questionId === 'string' ? STEP_QUESTION_ID.exec(row.questionId) : null;
+      return Boolean(match) && row.id === row.questionId && row.stepNumber === Number(match?.[1])
+        && isString(row.text, 20000) && isDate(row.createdAt) && isDate(row.updatedAt);
+    }
+    case 'readerProgress':
+      return row.id === 'na-step-guides' && typeof row.chapterId === 'string' && READER_CHAPTER_ID.test(row.chapterId)
+        && (row.sectionId === undefined || isNonEmptyString(row.sectionId, 200))
+        && typeof row.textSize === 'string' && READER_TEXT_SIZES.has(row.textSize) && isDate(row.updatedAt);
     default:
       return false;
   }

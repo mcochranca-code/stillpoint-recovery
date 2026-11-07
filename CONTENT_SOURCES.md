@@ -76,3 +76,25 @@ Jain hands or other sacred symbols are used as decoration.
 - The Christian readings reuse the KJV entries in `src/data/scripture.ts` (IDs unchanged, so saved
   favorites carry over); five KJV passages were added (Lamentations 3:22–23, Matthew 11:28,
   2 Corinthians 12:9, Galatians 6:2, James 5:16).
+
+## NA Step Working Guides (used by permission)
+
+Library → *NA Step Working Guides* (`src/data/na-step-guides/guide.json`, read by
+`src/features/na-step-guides/`).
+
+| | |
+| --- | --- |
+| Work | *The Narcotics Anonymous Step Working Guides* (Preface and Steps One–Twelve: 458 questions) |
+| Copyright | Copyright © 1998, World Service Office, Inc. Reprinted by permission. All rights reserved. |
+| Status | This is NA Fellowship-approved literature. |
+| License basis | **Not MIT-licensed and not public domain.** Used by permission of NA World Services (NAWS). Permission was given verbally to the project owner on 2026-11-07, per the owner; **written confirmation is pending**. Record the written permission here (date, scope, contact) when it arrives. |
+| Affiliation | Stillpoint is not affiliated with, and is not endorsed by, Narcotics Anonymous or NA World Services. |
+| Source file | A 96-page PDF supplied by the project owner. The PDF is **not** committed. |
+| Wording | Verbatim. Only extraction artefacts were cleaned (glyph errors, OCR letter swaps, em dashes rendered as hyphens, three layout glitches); every change is listed in [`docs/copyright/na-step-working-guides.md`](docs/copyright/na-step-working-guides.md). `src/data/na-step-guides/content.test.ts` checks the structure and question counts. |
+
+The required credit is shown on the reader's title screen, in every chapter, on the Library card,
+and in Settings → About. Answers people write stay in their own browser and are never sent anywhere.
+
+If the written permission is not granted, or its scope differs (for example, no in-app answer
+boxes, or no offline copy), remove or change this feature before release.
+

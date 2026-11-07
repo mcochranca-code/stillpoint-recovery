@@ -77,7 +77,7 @@ describe('local JSON backup restore', () => {
     const result = await importBackupText(payload);
     expect(result).toEqual({ imported: 2, skippedDuplicates: 2, skippedInvalid: 1 });
     expect(await db.journalEntries.count()).toBe(2);
-    expect(await db.preferences.get('preferences')).toMatchObject({ onboardingComplete: false, schemaVersion: 6 });
+    expect(await db.preferences.get('preferences')).toMatchObject({ onboardingComplete: false, schemaVersion: CURRENT_SCHEMA_VERSION });
   });
 
   it('normalizes a legacy preference record to the default palette and current schema', async () => {
@@ -89,7 +89,7 @@ describe('local JSON backup restore', () => {
     };
     const result = await importBackupText(backup(1, { preferences: [legacy] }));
     expect(result.imported).toBe(1);
-    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'stillpoint', contentPreset: 'faith-based', supportResources: [], meetingReminders: [], schemaVersion: 6 });
+    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'stillpoint', contentPreset: 'faith-based', supportResources: [], meetingReminders: [], schemaVersion: CURRENT_SCHEMA_VERSION });
   });
 
   it('exports and restores the selected Faith-neutral preset', async () => {
@@ -231,7 +231,7 @@ describe('local JSON backup restore', () => {
     legacy.close();
 
     await db.open();
-    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'obsidian', supportResources: [], schemaVersion: 6, meetingReminders: [] });
+    expect(await db.preferences.get('preferences')).toMatchObject({ colorTheme: 'obsidian', supportResources: [], schemaVersion: CURRENT_SCHEMA_VERSION, meetingReminders: [] });
     expect(await db.personalMilestones.count()).toBe(0);
     expect(await db.dailyReflections.where('favoriteKey').equals(1).count()).toBe(1);
     expect(await db.scriptureActivity.where('favoriteKey').equals(1).count()).toBe(1);
