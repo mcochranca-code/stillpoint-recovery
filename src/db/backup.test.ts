@@ -24,6 +24,15 @@ const legacyV2Stores = {
   milestoneRecords: 'id, milestoneId, startAt, reachedAt', fieldGuideNotes: 'id, kind, createdAt, updatedAt',
   resetRecords: 'id, feeling, practice, createdAt',
 };
+const legacyV3Stores = {
+  ...legacyV2Stores,
+  personalMilestones: 'id, daysAfterStart, createdAt, achievedAt',
+};
+const legacyV4Stores = {
+  ...legacyV3Stores,
+  dailyReflections: 'id, localDate, reflectionId, favoriteKey, [localDate+reflectionId]',
+  scriptureActivity: 'id, scriptureId, favoriteKey',
+};
 
 beforeEach(async () => {
   await db.delete();
@@ -96,6 +105,28 @@ describe('local JSON backup restore', () => {
     expect((await db.preferences.get('preferences'))?.contentPreset).toBe('faith-neutral');
   });
 
+  it('backs up meeting reminders but never exports community deletion credentials', async () => {
+    const reminder = {
+      id: 'reminder:one', meetingId: 'meeting:one', leadMinutes: 30 as const, createdAt: exportDate,
+      lastAttemptedOccurrenceAt: exportDate,
+    };
+    await db.meetingReminders.add(reminder);
+    await db.communityCredentials.add({
+      id: 'community:one', readingKey: 'reading-key', text: 'Public note', createdAt: exportDate,
+      deletionToken: 'delete-key',
+    });
+
+    const exported = await createBackup();
+    expect(exported.tables.meetingReminders).toEqual([reminder]);
+    expect(exported.tables).not.toHaveProperty('communityCredentials');
+
+    await db.meetingReminders.clear();
+    const result = await importBackupText(JSON.stringify(exported));
+    expect(result.imported).toBe(1);
+    expect(await db.meetingReminders.get('reminder:one')).toMatchObject(reminder);
+    expect(await db.communityCredentials.get('community:one')).toBeDefined();
+  });
+
   it('rejects a modified checksummed backup without changing local data', async () => {
     await db.journalEntries.add(validJournalEntry('journal:local'));
     const exported = await createBackup();
@@ -106,6 +137,16 @@ describe('local JSON backup restore', () => {
 
     await expect(importBackupText(tampered)).rejects.toThrow('checksum does not match');
     expect(await db.journalEntries.toArray()).toMatchObject([{ id: 'journal:local' }]);
+  });
+
+  it('rejects backups without a valid export timestamp before writing', async () => {
+    const invalidTimestamp = JSON.stringify({
+      application: 'stillpoint-recovery', schemaVersion: 5, exportedAt: 'not-a-date',
+      tables: { journalEntries: [validJournalEntry('journal:must-not-import')] },
+    });
+
+    await expect(importBackupText(invalidTimestamp)).rejects.toThrow('not supported');
+    expect(await db.journalEntries.count()).toBe(0);
   });
 
   it('replaces singleton preferences and profile while merging records from a backup', async () => {
@@ -139,12 +180,17 @@ describe('local JSON backup restore', () => {
     await db.preferences.add(defaultPreferences());
     await db.recoveryProfiles.add(defaultRecoveryProfile());
     await db.journalEntries.add(validJournalEntry('journal:private'));
+    await db.communityCredentials.add({
+      id: 'community:private', readingKey: 'reading-key', text: 'Public note', createdAt: exportDate,
+      deletionToken: 'delete-key',
+    });
 
     await clearAllLocalData();
 
     expect(await db.preferences.count()).toBe(0);
     expect(await db.recoveryProfiles.count()).toBe(0);
     expect(await db.journalEntries.count()).toBe(0);
+    expect(await db.communityCredentials.count()).toBe(0);
   });
 
   it('migrates a real IndexedDB v2 installation and creates the custom-milestone table', async () => {
@@ -173,6 +219,40 @@ describe('local JSON backup restore', () => {
     expect(await db.personalMilestones.count()).toBe(0);
     expect(await db.dailyReflections.where('favoriteKey').equals(1).count()).toBe(1);
     expect(await db.scriptureActivity.where('favoriteKey').equals(1).count()).toBe(1);
+  });
+
+  it.each([
+    { version: 1, stores: legacyV2Stores },
+    { version: 3, stores: legacyV3Stores },
+    { version: 4, stores: legacyV4Stores },
+  ])('migrates a real IndexedDB v$version installation through each remaining version', async ({ version, stores }) => {
+    db.close();
+    await db.delete();
+    const legacy = new Dexie('StillpointRecovery');
+    legacy.version(version).stores(stores);
+    await legacy.open();
+    await legacy.table('preferences').add({
+      id: 'preferences', schemaVersion: version, onboardingComplete: true, theme: 'dark', colorTheme: 'obsidian',
+      highContrast: false, reducedMotion: false, hideMeditationVisual: false, textScale: 1, timeFormat: '12h',
+      counterStyle: 'full', liveCounter: true, reminderEnabled: false, reminderTime: '19:00', trustedContacts: [],
+      supportResources: [], discreetMode: false, gardenStyle: 'woodland', allowBreathHolds: false,
+      createdAt: exportDate, updatedAt: exportDate,
+    });
+    await legacy.table('recoveryProfiles').add({
+      id: 'recovery-profile', schemaVersion: version, startAt: null, localStartDate: null, localStartTime: null,
+      startTimeZone: null, focus: '', intention: '', updatedAt: exportDate,
+    });
+    legacy.close();
+
+    await db.open();
+
+    expect(await db.preferences.get('preferences')).toMatchObject({
+      schemaVersion: 5, meetingReminders: [], supportResources: [],
+    });
+    expect(await db.recoveryProfiles.get('recovery-profile')).toMatchObject({ schemaVersion: 5 });
+    expect(await db.personalMilestones.count()).toBe(0);
+    expect(await db.meetingReminders.count()).toBe(0);
+    expect(await db.communityCredentials.count()).toBe(0);
   });
 
   it('restores indexed favorite keys from legacy backup records', async () => {

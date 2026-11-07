@@ -70,8 +70,8 @@ export class StillpointDatabase extends Dexie {
   meetingReminders!: Table<MeetingReminder, string>;
   communityCredentials!: Table<CommunityCommentCredential, string>;
 
-  constructor() {
-    super('StillpointRecovery');
+  constructor(name = 'StillpointRecovery') {
+    super(name);
     this.version(1).stores(databaseSchema);
     this.version(2).stores(databaseSchema).upgrade(async (transaction) => {
       await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
@@ -82,10 +82,10 @@ export class StillpointDatabase extends Dexie {
     this.version(3).stores(databaseSchema).upgrade(async (transaction) => {
       await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
         preferences.supportResources ??= [];
-        preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
+        preferences.schemaVersion = 3;
       });
       await transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
-        profile.schemaVersion = CURRENT_SCHEMA_VERSION;
+        profile.schemaVersion = 3;
       });
     });
     this.version(4).stores(databaseSchema).upgrade(async (transaction) => {
@@ -99,10 +99,15 @@ export class StillpointDatabase extends Dexie {
       ]);
     });
     this.version(5).stores(communityDatabaseSchema).upgrade(async (transaction) => {
-      await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
-        preferences.meetingReminders ??= [];
-        preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
-      });
+      await Promise.all([
+        transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
+          preferences.meetingReminders ??= [];
+          preferences.schemaVersion = 5;
+        }),
+        transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
+          profile.schemaVersion = 5;
+        }),
+      ]);
     });
   }
 }

@@ -38,6 +38,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary', 'html'],
+      thresholds: {
+        statements: 80,
+        branches: 70,
+        functions: 55,
+        lines: 80,
+      },
     },
   },
 });
