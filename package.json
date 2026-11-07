@@ -10,6 +10,7 @@
     "typecheck": "tsc -b --pretty",
     "lint": "eslint .",
     "test": "vitest run",
+    "check:coverage": "node scripts/check-coverage-summary.mjs",
     "preview": "vite preview",
     "start": "node server/index.mjs",
     "check:server": "node --check server/index.mjs && node --check server/community-router.mjs && node --check server/community-policy.mjs && node --check server/database.mjs",

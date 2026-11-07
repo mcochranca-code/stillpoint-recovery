@@ -6,7 +6,9 @@ const STORE_NAMES = [
   'preferences', 'recoveryProfiles', 'recoveryDateHistory', 'dailyReflections', 'scriptureActivity',
   'journalEntries', 'journalDrafts', 'meditationSessions', 'activeSessions', 'earnedCharms',
   'dailyActivity', 'personalGoals', 'personalMilestones', 'milestoneRecords', 'fieldGuideNotes', 'resetRecords',
+  'meetingReminders',
 ] as const;
+const CLEARABLE_STORE_NAMES = [...STORE_NAMES, 'communityCredentials'] as const;
 const SINGLETON_STORES = new Set<string>(['preferences', 'recoveryProfiles']);
 export const MAX_BACKUP_FILE_BYTES = 15_000_000;
 const SHA256_HEX = /^[a-f0-9]{64}$/;
@@ -187,6 +189,10 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
     case 'resetRecords':
       return isString(row.feeling, 120) && isNonEmptyString(row.practice, 200)
         && isString(row.nextStep, 1000) && isDate(row.createdAt) && typeof row.completed === 'boolean';
+    case 'meetingReminders':
+      return isNonEmptyString(row.meetingId, 240) && [15, 30, 60].includes(Number(row.leadMinutes))
+        && isDate(row.createdAt) && isOptionalDate(row.lastNotifiedOccurrenceAt)
+        && isOptionalDate(row.lastAttemptedOccurrenceAt);
     default:
       return false;
   }
@@ -220,7 +226,7 @@ async function parseBackupText(text: string): Promise<ParsedBackup> {
   const candidate = payload as Partial<BackupPayload>;
   if (candidate.application !== 'stillpoint-recovery' || typeof candidate.schemaVersion !== 'number'
     || !Number.isInteger(candidate.schemaVersion) || candidate.schemaVersion < 1
-    || candidate.schemaVersion > CURRENT_SCHEMA_VERSION || !candidate.tables
+    || candidate.schemaVersion > CURRENT_SCHEMA_VERSION || !isDate(candidate.exportedAt) || !candidate.tables
     || typeof candidate.tables !== 'object' || Array.isArray(candidate.tables)) {
     throw new Error('The backup format is not supported by this version of Stillpoint.');
   }
@@ -340,7 +346,7 @@ export async function importBackupText(text: string): Promise<ImportResult> {
 
 /** Permanently remove every Stillpoint table from the current browser profile. */
 export async function clearAllLocalData(): Promise<void> {
-  await db.transaction('rw', STORE_NAMES.map((name) => db.table(name)), async () => {
-    for (const name of STORE_NAMES) await db.table(name).clear();
+  await db.transaction('rw', CLEARABLE_STORE_NAMES.map((name) => db.table(name)), async () => {
+    for (const name of CLEARABLE_STORE_NAMES) await db.table(name).clear();
   });
 }
