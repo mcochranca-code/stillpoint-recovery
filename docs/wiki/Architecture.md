@@ -24,6 +24,16 @@ flowchart TD
 - `src/data/` contains local reflections, scripture entries, exercises, themes, charm definitions, and dated AA/NA/FA/SMART/Faith-Based meeting snapshots, with county coverage and source notes for Fresno, Merced, Mariposa, and the user-supplied Faith-Based dataset.
 - `public/` contains static brand assets, soundscapes, the PWA manifest, service worker, and declared routes.
 
+## Ownership boundaries
+
+- **Feature UI (`src/features/`, `src/components/`)** owns presentation, interaction state, and accessible user feedback. It may call domain functions and typed repository APIs; it should not define persistence schema or duplicate domain policy.
+- **Domain (`src/domain/`)** owns deterministic rules, validation policy shared across views, time calculations, and privacy-limited payload shaping. It stays independent of React and browser rendering.
+- **Persistence (`src/db/`)** owns Dexie schema versions, IndexedDB migrations, record repositories, backup validation, and transactional restore. Schema changes require a new version, an additive migration, migration tests from supported predecessors, and a rollback/recovery note.
+- **Bundled data (`src/data/`)** owns local content and source/provenance notes. External fetches and user-specific filters do not belong in static datasets.
+- **Platform/app shell (`src/platform/`, `src/app/`, `public/`)** owns browser capabilities, routing, initialization, and PWA caching. Optional platform behavior must have a supported fallback.
+
+Cross-feature behavior should be expressed through domain rules or a narrow shared repository contract. Avoid feature-to-feature imports and avoid placing personal data in global browser storage, URLs, telemetry, or external requests. See [ADRs](../adr/README.md) for accepted architectural decisions and [Data and Privacy](Data-and-Privacy.md) for storage risks.
+
 ## Routes
 
 The app shell lazy-loads these routes:

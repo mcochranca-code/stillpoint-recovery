@@ -64,7 +64,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (alive) setInitialized(true);
     }).catch(() => {
       if (alive) {
-        setStorageError('Local storage could not be opened. Your browser may be out of space or have storage disabled.');
+        setStorageError('Local storage could not be initialized. The browser may be out of space, storage may be disabled, or local data may be unreadable. Stillpoint has not cleared or replaced your records.');
         setInitialized(true);
       }
     });

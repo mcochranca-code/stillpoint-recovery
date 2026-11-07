@@ -24,15 +24,30 @@ if (!Array.isArray(routes.routes) || routes.routes.length === 0) {
 if (routes.routes.some(({ path }) => typeof path !== 'string' || !path.startsWith('/'))) {
   throw new Error('Every route manifest entry must have an absolute app path');
 }
+if (!routes.routes.some(({ path }) => path === '/')) {
+  throw new Error('Route manifest must include the offline app-shell route');
+}
 
 const precache = JSON.parse(await readFile(resolve(dist, 'precache-manifest.json'), 'utf8'));
 if (!Array.isArray(precache.assets) || precache.assets.length === 0) {
   throw new Error('Precache manifest must contain at least one asset');
 }
+if (!precache.assets.includes('/')) {
+  throw new Error('Precache manifest must include the app shell for offline navigation fallback');
+}
+if (precache.assets.some((asset) => typeof asset !== 'string' || !asset.startsWith('/'))) {
+  throw new Error('Every precached asset must use an absolute same-origin path');
+}
+if (precache.assets.some((asset) => asset.startsWith('/assets/reference/'))) {
+  throw new Error('Reference-only assets must not be included in the offline precache');
+}
 
 const serviceWorker = await readFile(resolve(dist, 'sw.js'), 'utf8');
 if (!serviceWorker.includes('precache-manifest.json')) {
   throw new Error('Service worker does not reference the generated precache manifest');
+}
+if (!serviceWorker.includes("request.mode === 'navigate'") || !serviceWorker.includes("caches.match('/')")) {
+  throw new Error('Service worker must fall back to the cached app shell when navigation is offline');
 }
 
 console.log(`Verified PWA artifact: ${requiredFiles.length} required files, ${routes.routes.length} routes, ${precache.assets.length} precached assets`);

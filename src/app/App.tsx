@@ -16,6 +16,7 @@ const JournalPage = lazy(() => import('../features/journal/JournalPage').then((p
 const MeditationPage = lazy(() => import('../features/meditation/MeditationPage').then((page) => ({ default: page.MeditationPage })));
 const LibraryPage = lazy(() => import('../features/library/LibraryPage').then((page) => ({ default: page.LibraryPage })));
 const MeetingsPage = lazy(() => import('../features/meetings/MeetingsPage').then((page) => ({ default: page.MeetingsPage })));
+const CommunityPage = lazy(() => import('../features/community/CommunityPage').then((page) => ({ default: page.CommunityPage })));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage').then((page) => ({ default: page.SettingsPage })));
 const ResetPage = lazy(() => import('../features/reset/ResetPage').then((page) => ({ default: page.ResetPage })));
 const GardenPage = lazy(() => import('../features/garden/GardenPage').then((page) => ({ default: page.GardenPage })));
@@ -25,7 +26,7 @@ function AppRoutes() {
   const { ready, preferences, storageError } = useAppContext();
   const { pathname } = useLocation();
   if (storageError) {
-    return <main className="storage-error"><Leaf size={34} aria-hidden="true" /><h1>Your local space is unavailable</h1><p>{storageError}</p><p>Try freeing browser storage or using a browser that allows local site data. Stillpoint does not send recovery data to a server.</p></main>;
+    return <main className="storage-error"><Leaf size={34} aria-hidden="true" /><h1>Your local space is unavailable</h1><p>{storageError}</p><p>Do not clear site data or reinstall while trying to recover. Close other Stillpoint tabs, reload once, and check available browser storage. If you have a backup, keep it unchanged and restore it from a working browser profile. Stillpoint cannot retrieve local records from a server; do not send journal text or backup files to support.</p><p>See the Data and Privacy guide in the Stillpoint source repository for general recovery steps.</p></main>;
   }
   if (!ready) {
     return <LoadingScreen />;
@@ -48,6 +49,7 @@ function AppRoutes() {
           <Route path="/meditation" element={<MeditationPage />} />
           <Route path="/library" element={<LibraryPage />} />
           <Route path="/meetings" element={<MeetingsPage />} />
+          <Route path="/community" element={<CommunityPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/reset" element={<ResetPage />} />
           <Route path="/garden" element={<GardenPage />} />
