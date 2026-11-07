@@ -58,7 +58,7 @@
 
 .box-breathing-caption {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 0.625rem;
   letter-spacing: .03em;
   text-align: center;
 }

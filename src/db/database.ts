@@ -1,12 +1,14 @@
 import Dexie, { type Table } from 'dexie';
 import type {
   ActiveMeditationSession,
+  CommunityCommentCredential,
   DailyActivity,
   DailyReflection,
   EarnedCharm,
   FieldGuideNote,
   JournalDraft,
   JournalEntry,
+  MeetingReminder,
   MeditationSession,
   PersonalGoal,
   PersonalMilestone,
@@ -45,6 +47,8 @@ const databaseSchema = {
   fieldGuideNotes: 'id, kind, createdAt, updatedAt',
   resetRecords: 'id, feeling, practice, createdAt',
 };
+const reminderDatabaseSchema = { ...databaseSchema, meetingReminders: 'id, meetingId' };
+const communityDatabaseSchema = { ...reminderDatabaseSchema, communityCredentials: 'id, readingKey, createdAt' };
 
 export class StillpointDatabase extends Dexie {
   preferences!: Table<UserPreferences, string>;
@@ -63,6 +67,8 @@ export class StillpointDatabase extends Dexie {
   milestoneRecords!: Table<MilestoneRecord, string>;
   fieldGuideNotes!: Table<FieldGuideNote, string>;
   resetRecords!: Table<ResetRecord, string>;
+  meetingReminders!: Table<MeetingReminder, string>;
+  communityCredentials!: Table<CommunityCommentCredential, string>;
 
   constructor() {
     super('StillpointRecovery');
@@ -92,7 +98,7 @@ export class StillpointDatabase extends Dexie {
         }),
       ]);
     });
-    this.version(5).stores(databaseSchema).upgrade(async (transaction) => {
+    this.version(5).stores(communityDatabaseSchema).upgrade(async (transaction) => {
       await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
         preferences.meetingReminders ??= [];
         preferences.schemaVersion = CURRENT_SCHEMA_VERSION;

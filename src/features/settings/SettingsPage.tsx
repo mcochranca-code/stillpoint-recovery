@@ -44,7 +44,7 @@ export function SettingsPage() {
   }, []);
   useEffect(() => {
     let active = true;
-    void getNotificationPermission().then((permission) => { if (active) setNotificationPermission(permission); });
+    void Promise.resolve(getNotificationPermission()).then((permission) => { if (active) setNotificationPermission(permission); });
     return () => { active = false; };
   }, []);
 
@@ -102,7 +102,7 @@ export function SettingsPage() {
         storeSummary || 'No records are present in supported Stillpoint tables.',
         '',
         'Preferences and the recovery profile will replace their current values. Other records merge by ID; matching local records are kept, and no table is cleared.',
-        'This preview has not changed local data. The JSON backup is unencrypted and may contain sensitive recovery information. Restore it now?',
+        'This preview has not changed local data. The JSON backup is unencrypted and may contain sensitive recovery information. New Stillpoint backups include a checksum; modified or incomplete files are rejected. Restore it now?',
       ].join('\n');
       if (!window.confirm(confirmation)) return;
       const result = await importBackupText(text);
@@ -136,7 +136,7 @@ export function SettingsPage() {
           <label className="field-label range-field" htmlFor="text-scale">Text size <span>{Math.round(preferences.textScale * 100)}%</span><input id="text-scale" type="range" min="0.85" max="1.3" step="0.05" value={preferences.textScale} onChange={(event) => void updatePreferences({ textScale: Number(event.target.value) })} /></label>
           <label className="field-label" htmlFor="time-format">Preferred time format<select id="time-format" value={preferences.timeFormat} onChange={(event) => void updatePreferences({ timeFormat: event.target.value as '12h' | '24h' })}><option value="12h">12-hour clock</option><option value="24h">24-hour clock</option></select></label>
         </div>
-        <fieldset className="palette-switcher"><legend>Color palette</legend><p className="fine-print">Choose colors independently of light, dark, or system appearance.</p><div className="palette-options">{colorThemePresets.map((preset) => <label key={preset.id} className={`palette-option${preferences.colorTheme === preset.id ? ' selected' : ''}`}><input type="radio" name="color-theme" value={preset.id} checked={(preferences.colorTheme ?? 'stillpoint') === preset.id} onChange={() => void updatePreferences({ colorTheme: preset.id })} /><span className="palette-swatches" aria-hidden="true">{preset.swatches.map((color) => <span key={color} style={{ backgroundColor: color }} />)}</span><strong>{preset.label}</strong><small>{preset.description}</small></label>)}</div></fieldset>
+        <fieldset className="palette-switcher"><legend>Color palette</legend><p className="fine-print">Palette previews; colors adapt to light or dark appearance.</p><div className="palette-options">{colorThemePresets.map((preset) => <label key={preset.id} className={`palette-option${preferences.colorTheme === preset.id ? ' selected' : ''}`}><input type="radio" name="color-theme" value={preset.id} checked={(preferences.colorTheme ?? 'stillpoint') === preset.id} onChange={() => void updatePreferences({ colorTheme: preset.id })} /><span className="palette-swatches" aria-hidden="true">{preset.swatches.map((color) => <span key={color} style={{ backgroundColor: color }} />)}</span><strong>{preset.label}</strong><small>{preset.description}</small><span className="palette-current-state">{(preferences.colorTheme ?? 'stillpoint') === preset.id ? 'Selected' : 'Select palette'}</span></label>)}</div></fieldset>
         <label className="toggle-row"><span><strong>High contrast</strong><small>Strengthen text and borders for legibility.</small></span><input type="checkbox" checked={preferences.highContrast} onChange={(event) => void updatePreferences({ highContrast: event.target.checked })} /></label>
         <label className="toggle-row"><span><strong>Reduce motion</strong><small>Minimize nonessential transitions and animated visuals.</small></span><input type="checkbox" checked={preferences.reducedMotion} onChange={(event) => void updatePreferences({ reducedMotion: event.target.checked })} /></label>
         <label className="toggle-row"><span><strong>Hide meditation visuals</strong><small>Use written cues and session timing without the animation.</small></span><input type="checkbox" checked={preferences.hideMeditationVisual} onChange={(event) => void updatePreferences({ hideMeditationVisual: event.target.checked })} /></label>
@@ -165,7 +165,7 @@ export function SettingsPage() {
       <section className="card"><div className="card-header"><div><p className="eyebrow">Your information belongs to you</p><h2>Backup & restore</h2><p>To move between devices, download a backup here, transfer the JSON file using a private method you trust, then choose Restore from JSON on the other device. Stillpoint does not upload or sync the file.</p></div></div>
         <div className="backup-actions"><button className="button button-primary" disabled={busy} onClick={() => void exportBackup()}><Download size={16} /> Download JSON backup</button><button className="button button-secondary" disabled={busy} onClick={() => inputRef.current?.click()}><FileUp size={16} /> Restore from JSON</button><input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" aria-label="Select Stillpoint JSON backup" onChange={(event) => void restoreBackup(event.target.files?.[0])} /></div>
         <p className="fine-print">Restore previews record counts before confirmation. Preferences and the recovery profile replace their local values; other records merge by ID, duplicates are kept as-is, and existing records are not cleared.</p>
-        <p className="fine-print">Backup files are ordinary, unencrypted JSON and may contain journals, recovery dates and other sensitive details. Keep them private and use a transfer method you trust.</p>
+        <p className="fine-print">Backup files are ordinary, unencrypted JSON and may contain journals, recovery dates and other sensitive details. New backups include a SHA-256 checksum to detect accidental changes, but checksums do not encrypt the file or prove who created it. Keep backups private and use a transfer method you trust.</p>
         <p className="fine-print">Date-only recovery dates are interpreted as local midnight on the date selected. Travel and time-zone changes may affect the local clock display; the saved start instant remains the source for elapsed time.</p>
         <p className="storage-note"><ShieldCheck size={16} /> Stored in this browser profile on this device · {storageUse} · not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it.</p>
       </section>

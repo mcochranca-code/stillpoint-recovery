@@ -10,7 +10,7 @@ export const defaultPreferences = (): UserPreferences => {
     id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: DEFAULT_CONTENT_PRESET, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
     highContrast: false, reducedMotion: false, hideMeditationVisual: false, textScale: 1,
     timeFormat: '12h', counterStyle: 'full', liveCounter: true, reminderEnabled: false,
-    reminderTime: '19:00', meetingReminders: [], trustedContacts: [], supportResources: [], discreetMode: false, gardenStyle: 'woodland',
+    reminderTime: '19:00', meetingReminderLeadMinutes: 30, meetingReminders: [], trustedContacts: [], supportResources: [], discreetMode: false, gardenStyle: 'woodland',
     allowBreathHolds: false, createdAt: now, updatedAt: now,
   };
 };
