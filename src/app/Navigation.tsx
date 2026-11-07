@@ -62,7 +62,7 @@ export default function Navigation() {
           {desktopCollapsed ? <ChevronRight size={17} aria-hidden="true" /> : <ChevronLeft size={17} aria-hidden="true" />}
           <span>{desktopCollapsed ? 'Expand' : 'Collapse'}</span>
         </button>
-        <nav id="desktop-primary-navigation" className="side-links">
+        <nav id="desktop-primary-navigation" className="side-links" aria-label="Primary navigation">
           {items.map(({ to, label, accessibleLabel, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
               <Icon size={19} aria-hidden="true" /><span>{label}</span>

@@ -181,7 +181,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider value={value}>
       {children}
-      <div className="toast-region" aria-live="polite" aria-atomic="true">{notice && <div className="toast">{notice}</div>}</div>
+      <div className="toast-region" role="status" aria-live="polite" aria-atomic="true">{notice && <div className="toast">{notice}</div>}</div>
     </AppContext.Provider>
   );
 }
