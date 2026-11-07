@@ -46,6 +46,8 @@ describe('SettingsPage content preset', () => {
     fireEvent.click(reducedMotion);
 
     expect(mocks.updatePreferences).toHaveBeenCalledWith({ reducedMotion: true });
+  });
+
   it('exposes and saves the text-size preference', () => {
     render(<MemoryRouter><SettingsPage /></MemoryRouter>);
     const slider = screen.getByLabelText(/Text size/);
