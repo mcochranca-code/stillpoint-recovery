@@ -157,10 +157,10 @@ export function TodayPage() {
   function openNextSupport(path: string) { setComebackOpen(false); navigate(path); }
 
   return (
-    <div className="page-stack">
+    <div className="page-stack today-page">
       <header className="page-header">
         <div><p className="eyebrow">{discreet ? 'A private space' : new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p><h1>A little space for today.</h1><p>There’s no perfect way through—only the next kind step.</p></div>
-        <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} /> Show private details</button>}<Link to="/reset" className="button button-secondary"><Wind size={16} /> I need a moment</Link><Link to="/settings" className="icon-button" aria-label="Open settings"><Settings2 size={18} /></Link></div>
+        <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} /> Show private details</button>}<Link to="/reset" className="button button-secondary"><Wind size={16} /> I need a moment</Link><Link to="/settings" className="icon-button" aria-label="Open settings" title="Settings and privacy"><Settings2 size={18} /></Link></div>
       </header>
 
       <section className="card sobriety-card sobriety-hero" aria-labelledby="sobriety-heading">

@@ -7,7 +7,9 @@
     <code>LOCAL-FIRST</code> &nbsp; <code>INSTALLABLE PWA</code> &nbsp; <code>NO ACCOUNT</code> &nbsp; <code>MIT LICENSE · SOURCE</code> &nbsp; <code>BUILT FOR GENTLENESS</code>
   </p>
   <p>
-    <a href="https://stillpoint-recovery-demo.netlify.app/"><strong>Open the live demo</strong></a>
+    <a href="https://stillpointco-lq5mbm5o.manus.space/"><strong>Open the public PWA</strong></a>
+    &nbsp; · &nbsp;
+    <a href="https://stillpoint-recovery-demo.netlify.app/"><strong>Open the Netlify demo</strong></a>
     &nbsp; · &nbsp;
     <a href="https://github.com/mcochranca-code/stillpoint-recovery/archive/refs/heads/main.zip"><strong>Download the source ZIP</strong></a>
     &nbsp; · &nbsp;
@@ -330,4 +332,4 @@ The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational doc
 
 ### Navigation controls
 
-On desktop widths, use the sidebar control to collapse the navigation to an icon rail or expand it back to full labels. On mobile widths, use the bottom navigation chevron to expand or collapse the labeled navigation tray. Both preferences are stored locally in the browser and do not leave the device.
+On desktop widths, use the sidebar control to collapse the navigation to an icon rail or expand it back to full labels. On mobile widths, use the eye control to hide or show the bottom navigation and the chevron to expand or collapse its labels. The Home button opens Today, and all navigation preferences are stored locally in the browser and do not leave the device.

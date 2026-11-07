@@ -46,5 +46,20 @@ describe('SettingsPage content preset', () => {
     fireEvent.click(reducedMotion);
 
     expect(mocks.updatePreferences).toHaveBeenCalledWith({ reducedMotion: true });
+  it('exposes and saves the text-size preference', () => {
+    render(<MemoryRouter><SettingsPage /></MemoryRouter>);
+    const slider = screen.getByLabelText(/Text size/);
+
+    expect(slider).toHaveValue('1');
+    fireEvent.change(slider, { target: { value: '1.15' } });
+
+    expect(mocks.updatePreferences).toHaveBeenCalledWith({ textScale: 1.15 });
+  });
+
+  it('shows a readable selected state for palette previews', () => {
+    render(<MemoryRouter><SettingsPage /></MemoryRouter>);
+
+    expect(screen.getByText('Palette previews; colors adapt to light or dark appearance.')).toBeInTheDocument();
+    expect(screen.getByText('Selected')).toBeInTheDocument();
   });
 });

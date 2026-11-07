@@ -37,6 +37,8 @@ if (!precache.assets.includes('/')) {
 }
 if (precache.assets.some((asset) => typeof asset !== 'string' || !asset.startsWith('/'))) {
   throw new Error('Every precached asset must use an absolute same-origin path');
+if (precache.assets.some((asset) => asset.startsWith('/assets/reference/'))) {
+  throw new Error('Reference-only assets must not be included in the offline precache');
 }
 
 const serviceWorker = await readFile(resolve(dist, 'sw.js'), 'utf8');
