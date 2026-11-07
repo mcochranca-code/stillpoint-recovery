@@ -9,7 +9,7 @@ import { reflections } from '../../data/reflections';
 import { scriptureEntries } from '../../data/scripture';
 import { findReading } from '../../data/readings';
 import { traditionInfo } from '../../domain/traditions';
-import { shouldShowFaithContent } from '../../domain/content-preset';
+import { shouldShowChristianExtras } from '../../domain/content-preset';
 import { formatLocalDate } from '../../domain/time';
 import type { DailyReflection, FieldGuideNote, ScriptureActivity } from '../../domain/types';
 import { handleTabListKeyDown, tabId, tabPanelId, tabProps } from '../../app/tabs';
@@ -27,7 +27,7 @@ type GuideTab = 'notes' | 'what-helped' | 'difficult-moments' | 'favorites' | 'c
 /** Render the user's private collection of coping strategies and field-guide notes. */
 export function FieldGuidePage() {
   const { preferences, notify } = useAppContext();
-  const showFaithContent = shouldShowFaithContent(preferences?.contentPreset);
+  const showFaithContent = shouldShowChristianExtras(preferences);
   const [tab, setTab] = useState<GuideTab>('notes');
   const [editor, setEditor] = useState<FieldGuideNote | 'new' | null>(null);
   const notes = useLiveQuery(() => db.fieldGuideNotes.orderBy('updatedAt').reverse().toArray(), []) ?? [];

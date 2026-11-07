@@ -94,6 +94,13 @@ export interface UserPreferences {
    * migrated to v6, which keep the tradition they already had and count as chosen.
    */
   traditionChoicePending?: boolean;
+  /**
+   * Opt-in for Christian-only extras (Our Daily Bread links, Library Scripture tab). New installs
+   * save false. Absent on installs from before this switch, which keep their earlier behaviour
+   * (shown with the Faith-based preset and the Christian tradition) until they change it.
+   * Only takes effect while Christian is among the chosen traditions.
+   */
+  christianExtras?: boolean;
   onboardingComplete: boolean;
   theme: ThemeMode;
   colorTheme: ColorTheme;

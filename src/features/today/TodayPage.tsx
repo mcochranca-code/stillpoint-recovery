@@ -11,6 +11,7 @@ import { useDialogFocus } from '../../app/useDialogFocus';
 import { AmbientAudioPlayer } from '../../components/AmbientAudioPlayer';
 import { NaDailyReadingCard } from './NaDailyReadingCard';
 import { OdbResourcesCard } from './OdbResourcesCard';
+import { shouldShowChristianExtras } from '../../domain/content-preset';
 import { CommunityDiscussion } from './CommunityDiscussion';
 import { DailyCheckIn } from './DailyCheckIn';
 import { TodayNudge } from './TodayNudge';
@@ -211,7 +212,7 @@ export function TodayPage() {
       {activityDays === 0 && <TodayQuickStart />}
 
       <NaDailyReadingCard />
-      <OdbResourcesCard />
+      {shouldShowChristianExtras(preferences) && <OdbResourcesCard />}
 
       <div className="today-grid">
         <section className="card reflection-card" aria-labelledby="reflection-heading">

@@ -12,7 +12,7 @@ import { scriptureEntries } from '../../data/scripture';
 import { reflections } from '../../data/reflections';
 import { meditationExercises } from '../../data/exercises';
 import { createReflectionJournalEntry } from '../../domain/journal';
-import { shouldShowFaithContent } from '../../domain/content-preset';
+import { shouldShowChristianExtras } from '../../domain/content-preset';
 import { localDateKey, elapsedParts } from '../../domain/time';
 import type { DailyReflection, ScriptureActivity } from '../../domain/types';
 import { handleTabListKeyDown, tabId, tabPanelId, tabProps } from '../../app/tabs';
@@ -40,7 +40,7 @@ export function LibraryPage() {
   const [need, setNeed] = useState('All needs');
   const selectTab = (next: LibraryTab) => { setTab(next); setQuery(''); setNeed('All needs'); };
   const { profile, preferences, notify } = useAppContext();
-  const showFaithContent = shouldShowFaithContent(preferences?.contentPreset);
+  const showFaithContent = shouldShowChristianExtras(preferences);
   const visibleTabs = showFaithContent ? tabs : tabs.filter((item) => item.id !== 'scripture');
   const today = localDateKey(new Date());
   const reflectionActivity = useLiveQuery(() => db.dailyReflections.where('localDate').equals(today).toArray(), [today]) ?? EMPTY_REFLECTION_ACTIVITY;

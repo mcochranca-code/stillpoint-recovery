@@ -7,8 +7,9 @@ import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
 import { TraditionPicker } from '../../components/TraditionPicker';
 import { hasChosenTradition, normalizeTraditionPreference } from '../../domain/traditions';
+import { hasChosenChristianTradition, shouldShowChristianExtras } from '../../domain/content-preset';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
-import type { ContentPreset, ThemeMode } from '../../domain/types';
+import type { ThemeMode } from '../../domain/types';
 import { clearAllLocalSignals, readLocalSignal, requestPersistentStorage, writeLocalSignal } from '../../platform/localSignals';
 import { formatLocalDate } from '../../domain/time';
 import { getNotificationPermission, requestNotificationPermission, type NotificationPermissionStatus } from '../../platform/notificationPermissions';
@@ -158,9 +159,11 @@ export function SettingsPage() {
         <p className="fine-print">Texts are public-domain translations, or original Stillpoint reflections and paraphrases where the best-known words are still under copyright. They have not yet been reviewed by faith leaders; if something reads wrongly to you, please tell the project.</p>
       </section>
 
-      <section className="card"><div className="card-header"><div><p className="eyebrow">Choose what appears</p><h2>Content preferences</h2></div></div>
-        <label className="field-label" htmlFor="content-preset">Content preset<select id="content-preset" value={preferences.contentPreset ?? 'faith-based'} onChange={(event) => void updatePreferences({ contentPreset: event.target.value as ContentPreset })}><option value="faith-based">Faith-based content included</option><option value="faith-neutral">Faith-neutral · hide faith-based sections</option></select></label>
-        <p className="fine-print">Faith-neutral hides the Christian extras: Our Daily Bread and Scripture for the Journey resources, the Scripture tab in Library, and Scripture-specific saved-reading and progress labels. Today’s daily reading follows your choice under Daily readings. This choice stays on this device; switching presets hides or restores these views without deleting your saved data.</p>
+      <section className="card" aria-labelledby="christian-extras-heading"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2 id="christian-extras-heading">Christian extras</h2></div></div>
+        {hasChosenChristianTradition(preferences)
+          ? <label className="toggle-row"><span><strong>Show Christian extras</strong><small>Adds links to Our Daily Bread reading plans and podcasts on Today, the Scripture tab in Library, and Scripture labels in saved readings and progress. Off unless you turn it on.</small></span><input type="checkbox" checked={shouldShowChristianExtras(preferences)} onChange={(event) => { const on = event.target.checked; void updatePreferences({ christianExtras: on }).then(() => notify(on ? 'Christian extras are on for this device.' : 'Christian extras are hidden on this device.')); }} /></label>
+          : <p className="fine-print">Optional Christian resources, such as Our Daily Bread reading plans and a Scripture library, can be added if you choose Christian under Daily readings. They stay off until you turn them on.</p>}
+        <p className="fine-print">This choice stays on this device. Turning extras off hides these views without deleting anything you saved.</p>
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Gentle reminders</h2><p>Neutral wording. No guilt or recovery details in notifications.</p></div></div>

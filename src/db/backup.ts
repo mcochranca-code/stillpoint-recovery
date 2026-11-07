@@ -127,6 +127,7 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
         && (row.contentPreset === undefined || isContentPreset(row.contentPreset))
         && (row.traditionPreference === undefined || isTraditionPreference(row.traditionPreference))
         && (row.traditionChoicePending === undefined || typeof row.traditionChoicePending === 'boolean')
+        && (row.christianExtras === undefined || typeof row.christianExtras === 'boolean')
         && typeof row.discreetMode === 'boolean' && typeof row.gardenStyle === 'string' && GARDEN_STYLES.has(row.gardenStyle)
         && typeof row.allowBreathHolds === 'boolean' && isDate(row.createdAt) && isDate(row.updatedAt);
     case 'recoveryProfiles':

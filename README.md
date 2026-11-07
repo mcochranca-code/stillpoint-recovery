@@ -253,6 +253,8 @@ The local-first boundary is intentional, but it is not a security promise. Brows
 
 ## Our Daily Bread resources
 
+These links are opt-in. They appear only after a person chooses Christian under **Settings → Daily readings** and turns on **Show Christian extras** (which also adds the Library Scripture tab). New installs start with them off. Installs from before this switch keep what they saw before until they change it.
+
 The Today card opens the publisher’s official Reading Plans and podcast catalogue for Discover the Word. Source links were checked on October 22, 2026. Stillpoint does not reproduce, cache, proxy, or automatically fetch ODB readings, plan descriptions, episode descriptions, transcripts, or artwork. The links open in a new tab with no referrer; Stillpoint does not attach a recovery profile, sobriety date, or journal text. A normal visit may still expose connection details to the publisher, whose privacy, cookie, analytics, and terms practices apply.
 
 ## Respect for NA literature
