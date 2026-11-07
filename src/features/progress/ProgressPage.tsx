@@ -7,6 +7,7 @@ import { CharmGallery } from '../../components/CharmGallery';
 import { MilestoneShareDialog, type MilestoneShareTarget } from '../../components/MilestoneShareDialog';
 import { db } from '../../db/database';
 import { shouldShowFaithContent } from '../../domain/content-preset';
+import { describeDateChange } from '../../domain/engagement';
 import { elapsedParts, formatLocalDate, localDateKey, nextMilestone, periodStart } from '../../domain/time';
 import type { DailyActivity, PersonalGoal, PersonalMilestone } from '../../domain/types';
 
@@ -135,7 +136,7 @@ export function ProgressPage() {
 
   const timeline = [
     ...milestones.map((item) => ({ id: item.id, at: item.reachedAt, title: `${item.label} milestone`, description: 'A moment along the recovery-date timeline.', share: { id: item.id, label: item.label, dateLabel: formatLocalDate(item.reachedAt) } })),
-    ...changes.map((item) => ({ id: item.id, at: item.recordedAt, title: 'Recovery date updated', description: 'A date-change record you chose to keep locally.', share: undefined })),
+    ...changes.map((item) => ({ id: item.id, at: item.recordedAt, ...describeDateChange(item), share: undefined })),
     ...awards.map((item) => ({ id: item.id, at: item.earnedAt, title: `${item.charmId.replaceAll('-', ' ')} charm collected`, description: 'A recovery-supportive action or milestone.', share: undefined })),
     ...personalMilestones.filter((item) => item.achievedAt).map((item) => ({ id: item.id, at: item.achievedAt!, title: `${item.label} · personal milestone`, description: `A milestone you set for ${item.daysAfterStart} days.`, share: { id: item.id, label: item.label, dateLabel: formatLocalDate(item.achievedAt!) } })),
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 12);

@@ -7,6 +7,8 @@ import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
 import type { ContentPreset, ThemeMode } from '../../domain/types';
+import { clearAllLocalSignals, readLocalSignal, requestPersistentStorage, writeLocalSignal } from '../../platform/localSignals';
+import { formatLocalDate } from '../../domain/time';
 import { getNotificationPermission, requestNotificationPermission, type NotificationPermissionStatus } from '../../platform/notificationPermissions';
 
 function formatBytes(value: number): string {
@@ -27,6 +29,7 @@ export function SettingsPage() {
   const [storageUse, setStorageUse] = useState('Checking…');
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermissionStatus>('unsupported');
   const [busy, setBusy] = useState(false);
+  const [lastBackupAt, setLastBackupAt] = useState(() => readLocalSignal('lastBackupAt'));
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -80,7 +83,7 @@ export function SettingsPage() {
 
   async function exportBackup() {
     setBusy(true);
-    try { downloadJsonBackup(await createBackup()); notify('Your local JSON backup has been downloaded. Keep it somewhere private.'); }
+    try { downloadJsonBackup(await createBackup()); const at = new Date().toISOString(); writeLocalSignal('lastBackupAt', at); setLastBackupAt(at); void requestPersistentStorage(); notify('Your local JSON backup has been downloaded. Keep it somewhere private.'); }
     catch { notify('The backup could not be created. Check browser storage and try again.'); }
     finally { setBusy(false); }
   }
@@ -118,6 +121,8 @@ export function SettingsPage() {
     setBusy(true);
     try {
       await clearAllLocalData();
+      clearAllLocalSignals();
+      setLastBackupAt(null);
       await db.preferences.put(defaultPreferences());
       await db.recoveryProfiles.put(defaultRecoveryProfile());
       notify('All local recovery records have been removed. Setup will begin again.');
@@ -151,8 +156,8 @@ export function SettingsPage() {
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Gentle reminders</h2><p>Neutral wording. No guilt or recovery details in notifications.</p></div></div>
-        <label className="toggle-row"><span><strong>Daily meditation reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available on this browser or mobile host.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
-        <label className="field-label" htmlFor="reminder-time">Daily meditation reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
+        <label className="toggle-row"><span><strong>Daily reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available on this browser or mobile host.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
+        <label className="field-label" htmlFor="reminder-time">Daily reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">People you choose</p><h2>Trusted contacts</h2><p>Keep a private contact list or outreach reminder. Stillpoint will never message or call anyone.</p></div><HeartHandshake size={20} aria-hidden="true" /></div>
@@ -164,6 +169,7 @@ export function SettingsPage() {
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Your information belongs to you</p><h2>Backup & restore</h2><p>To move between devices, download a backup here, transfer the JSON file using a private method you trust, then choose Restore from JSON on the other device. Stillpoint does not upload or sync the file.</p></div></div>
         <div className="backup-actions"><button className="button button-primary" disabled={busy} onClick={() => void exportBackup()}><Download size={16} aria-hidden="true" /> Download JSON backup</button><button className="button button-secondary" disabled={busy} onClick={() => inputRef.current?.click()}><FileUp size={16} aria-hidden="true" /> Restore from JSON</button><input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" aria-label="Select Stillpoint JSON backup" onChange={(event) => void restoreBackup(event.target.files?.[0])} /></div>
+        <p className="fine-print backup-last">{lastBackupAt ? `Last backup downloaded from this device: ${formatLocalDate(lastBackupAt)}.` : 'No backup downloaded from this device yet.'}</p>
         <p className="fine-print">Restore previews record counts before confirmation. Preferences and the recovery profile replace their local values; other records merge by ID, duplicates are kept as-is, and existing records are not cleared.</p>
         <p className="fine-print">Backup files are ordinary, unencrypted JSON and may contain journals, recovery dates and other sensitive details. New backups include a SHA-256 checksum to detect accidental changes, but checksums do not encrypt the file or prove who created it. Keep backups private and use a transfer method you trust.</p>
         <p className="fine-print">Date-only recovery dates are interpreted as local midnight on the date selected. Travel and time-zone changes may affect the local clock display; the saved start instant remains the source for elapsed time.</p>
