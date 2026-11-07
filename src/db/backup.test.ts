@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { db } from './database';
+import { CURRENT_SCHEMA_VERSION, db } from './database';
 import { clearAllLocalData, createBackup, importBackupText, inspectBackupText } from './backup';
 import { defaultPreferences, defaultRecoveryProfile } from './repository';
 import type { JournalEntry } from '../domain/types';
@@ -263,9 +263,9 @@ describe('local JSON backup restore', () => {
     await db.open();
 
     expect(await db.preferences.get('preferences')).toMatchObject({
-      schemaVersion: 5, meetingReminders: [], supportResources: [],
+      schemaVersion: CURRENT_SCHEMA_VERSION, meetingReminders: [], supportResources: [],
     });
-    expect(await db.recoveryProfiles.get('recovery-profile')).toMatchObject({ schemaVersion: 5 });
+    expect(await db.recoveryProfiles.get('recovery-profile')).toMatchObject({ schemaVersion: CURRENT_SCHEMA_VERSION });
     expect(await db.personalMilestones.count()).toBe(0);
     expect(await db.meetingReminders.count()).toBe(0);
     expect(await db.communityCredentials.count()).toBe(0);
