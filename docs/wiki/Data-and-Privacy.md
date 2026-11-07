@@ -2,7 +2,7 @@
 
 ## Local storage model
 
-Recovery dates, preferences, journals and drafts, reflections, scripture activity, meditation sessions, earned charms, goals, milestones, garden-related progress, field-guide notes, reset records, and related metadata are stored in the `StillpointRecovery` IndexedDB database for the Stillpoint site in the current browser profile on the current device. The database is managed by the browser through Dexie; it is not a file that Stillpoint can access outside that browser profile.
+Recovery dates, preferences, journals and drafts, reflections, scripture activity, meditation sessions, earned charms, goals, milestones, garden-related progress, field-guide notes, reset records, meeting reminders, and related metadata are stored in the `StillpointRecovery` IndexedDB database for the Stillpoint site in the current browser profile on the current device. The database is managed by the browser through Dexie; it is not a file that Stillpoint can access outside that browser profile.
 
 The app does not require an account, cloud sync, analytics tracker, advertising service, or recovery-data API. The service worker caches app assets, not a remote recovery profile.
 
@@ -20,7 +20,7 @@ Stillpoint does not claim device encryption, an app lock, secure messaging, or g
 
 ## Backup and restore
 
-A backup is a versioned JSON object containing the local tables and an export timestamp. Imports:
+A backup is a versioned JSON object containing supported personal-data tables and an export timestamp. It intentionally excludes optional community deletion credentials; they are browser-local capabilities, not portable user records. Imports:
 
 1. Parse JSON and reject malformed files.
 2. Check the application identifier and supported schema version.
@@ -30,7 +30,11 @@ A backup is a versioned JSON object containing the local tables and an export ti
 
 Restoring is explicit and local. It does not upload the file. Before confirmation, the app shows a read-only count preview of records in the file, records eligible to restore/add, duplicates, and invalid records by table.
 
-Import validates supported backups before writing and merges records in a transaction. Records with duplicate IDs are skipped; the recovery profile and preferences from the backup replace their local singleton records, while other tables merge by ID and are not cleared. A successful import does not verify the backup's integrity beyond its structural and record validation. Import is not a substitute for keeping a separate copy of the backup file.
+New backups include a SHA-256 checksum over the exported application identifier, schema version, timestamp, and tables. A checksum mismatch is rejected before any write. Checksums detect accidental modification; they do not encrypt the JSON or prove who created it. Older supported backups without checksums remain importable for compatibility, after structural and record validation.
+
+Import validates supported backups before writing and merges records in one IndexedDB transaction. Records with duplicate IDs are skipped; the recovery profile and preferences from the backup replace their local singleton records, while other supported tables merge by ID and are not cleared. If a transaction fails, its writes roll back. A failed or interrupted migration is handled by IndexedDB as an atomic version-change transaction; Stillpoint does not attempt a destructive downgrade or automatic database deletion.
+
+If local storage cannot be opened, do not clear site data, reinstall, or repeatedly retry destructive recovery steps. Close other Stillpoint tabs, reload once, and check browser storage availability. Keep any existing backup unchanged and try restoring it in a working browser profile. Stillpoint has no server copy and cannot retrieve erased or unreadable records. Support can provide general troubleshooting, but should not receive journal text, backup files, or other sensitive records.
 
 ## External resources
 

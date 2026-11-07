@@ -39,6 +39,15 @@ describe('SettingsPage content preset', () => {
     expect(mocks.updatePreferences).toHaveBeenCalledWith({ contentPreset: 'faith-neutral' });
   });
 
+  it('exposes reduced-motion control and persists the selected preference', () => {
+    render(<MemoryRouter><SettingsPage /></MemoryRouter>);
+    const reducedMotion = screen.getByRole('checkbox', { name: /Reduce motion/ });
+
+    fireEvent.click(reducedMotion);
+
+    expect(mocks.updatePreferences).toHaveBeenCalledWith({ reducedMotion: true });
+  });
+
   it('exposes and saves the text-size preference', () => {
     render(<MemoryRouter><SettingsPage /></MemoryRouter>);
     const slider = screen.getByLabelText(/Text size/);

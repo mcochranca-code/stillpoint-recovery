@@ -622,7 +622,7 @@ textarea { resize: vertical; line-height: 1.65; }
   --primary: #245444; --primary-ink: #ffffff; --primary-hover: #153d35;
   --primary-soft: rgba(127,165,138,.14); --primary-soft-strong: rgba(127,165,138,.23);
   --selected-bg: #e7efe6; --selected-ink: #245444; --focus-ring: #4b91c5;
-  --eyebrow-color: #63836d; --sage: #7fa58a; --feature-glow: rgba(222,235,222,.48);
+  --eyebrow-color: #4e7059; --sage: #7fa58a; --feature-glow: rgba(222,235,222,.48);
 }
 :root.dark {
   --primary: #7fa58a; --primary-ink: #10221c; --primary-hover: #a8c5ae;
