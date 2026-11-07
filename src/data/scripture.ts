@@ -154,4 +154,77 @@ export const scriptureEntries: ScriptureContent[] = [
     contemplation:
       'God, create in me a clean heart and renew a steady spirit within me.',
   },
+  {
+    id: 'lamentations-3-22-23',
+    reference: 'Lamentations 3:22–23',
+    translation: 'King James Version (KJV, public domain)',
+    verse:
+      'It is of the LORD’s mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.',
+    explanation:
+      'These lines sit in the middle of a long lament over a ruined city. The writer does not deny the grief around him; he finds, inside it, a reason to keep going: mercy that is renewed each day rather than earned once and lost.',
+    principle:
+      'Each morning can be received as a fresh start, without pretending yesterday did not happen.',
+    application:
+      'Before the day gets busy, name one thing you are starting fresh today and one person you could tell about it.',
+    contemplation:
+      'Lord, thank you that your compassion is new this morning. Help me receive it.',
+  },
+  {
+    id: 'matthew-11-28',
+    reference: 'Matthew 11:28',
+    translation: 'King James Version (KJV, public domain)',
+    verse: 'Come unto me, all ye that labour and are heavy laden, and I will give you rest.',
+    explanation:
+      'Jesus speaks this invitation to ordinary, tired people, not to those who already have their lives in order. In context, the rest offered is relief from crushing burdens, given through relationship rather than through more striving.',
+    principle:
+      'Rest is offered to the weary first, not to those who have earned it.',
+    application:
+      'Name the heaviest thing you are carrying today. Set aside a few quiet minutes to hand it over in prayer, and tell one trusted person about it.',
+    contemplation:
+      'Jesus, I am tired. I come as I am and ask for your rest.',
+  },
+  {
+    id: '2-corinthians-12-9',
+    reference: '2 Corinthians 12:9',
+    translation: 'King James Version (KJV, public domain)',
+    verse:
+      'And he said unto me, My grace is sufficient for thee: for my strength is made perfect in weakness.',
+    explanation:
+      'Paul had asked repeatedly to be freed from an affliction he calls a thorn in the flesh. The answer he records is not removal but sufficiency: grace that is enough for the day, showing itself most clearly where he is weakest.',
+    principle:
+      'Admitting weakness can be the doorway to strength rather than the end of it.',
+    application:
+      'Write down one place where you feel weak today. Next to it, write one kind of help you could ask for.',
+    contemplation:
+      'Lord, your grace is enough for today. Be strong where I am not.',
+  },
+  {
+    id: 'galatians-6-2',
+    reference: 'Galatians 6:2',
+    translation: 'King James Version (KJV, public domain)',
+    verse: 'Bear ye one another’s burdens, and so fulfil the law of Christ.',
+    explanation:
+      'Paul writes this to a community learning how to restore people who have stumbled, gently and without superiority. Carrying each other’s loads is presented as the heart of following Christ, not an optional extra.',
+    principle:
+      'Recovery is shared work: we carry and are carried.',
+    application:
+      'Reach out to one person today, either to ask for help with something you are carrying or to offer help with theirs.',
+    contemplation:
+      'Christ, make me someone who carries others and lets others carry me.',
+  },
+  {
+    id: 'james-5-16',
+    reference: 'James 5:16',
+    translation: 'King James Version (KJV, public domain)',
+    verse:
+      'Confess your faults one to another, and pray one for another, that ye may be healed.',
+    explanation:
+      'James links honesty with others to healing. The setting is a caring community where people pray for the sick and speak openly, not one where faults are exposed to shame anyone.',
+    principle:
+      'Secrets lose some of their power when they are spoken in a safe place.',
+    application:
+      'Consider whether there is something you have been carrying alone that a sponsor, pastor, counselor or trusted friend could hear.',
+    contemplation:
+      'God, give me one safe person to be honest with, and heal what is hidden.',
+  },
 ];

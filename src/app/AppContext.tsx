@@ -4,6 +4,7 @@ import { db } from '../db/database';
 import { ensureDefaults } from '../db/repository';
 import { getNextDailyReminderAt, getNextMeetingReminder, isDailyReminderDue } from '../domain/reminders';
 import { localDateKey } from '../domain/time';
+import { daypartFor } from '../domain/daypart';
 import type { MeetingReminder, RecoveryProfile, UserPreferences } from '../domain/types';
 
 interface AppContextValue {
@@ -18,7 +19,7 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | null>(null);
 const DAILY_REMINDER_STORAGE_KEY = 'stillpoint-daily-reminder-last-attempt-v1';
-type ReminderPath = '/meditation' | '/meetings';
+type ReminderPath = '/' | '/meditation' | '/meetings';
 
 function readLastDailyReminderDate(): string | undefined {
   try { return window.localStorage.getItem(DAILY_REMINDER_STORAGE_KEY) ?? undefined; }
@@ -91,6 +92,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => media.removeEventListener('change', applyAppearance);
   }, [preferences]);
 
+  // Tint the atmospheric background to the local time of day; re-checked every ten minutes.
+  useEffect(() => {
+    const root = document.documentElement;
+    const apply = () => { root.dataset.daypart = daypartFor(new Date()); };
+    apply();
+    const timer = window.setInterval(apply, 10 * 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
   useEffect(() => {
     const dailyEnabled = Boolean(preferences?.reminderEnabled);
     const selectedMeetings = (meetingReminders ?? []) as MeetingReminder[];
@@ -117,7 +127,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           const date = localDateKey(nextDailyAt);
           lastDailyDate = date;
           try { window.localStorage.setItem(DAILY_REMINDER_STORAGE_KEY, date); } catch { /* Attempt is still de-duplicated in this session. */ }
-          await showLocalReminder('A few quiet minutes for meditation, if it helps.', `stillpoint-meditation-${date}`, '/meditation');
+          await showLocalReminder('A quiet moment for today, if it helps.', `stillpoint-daily-${date}`, '/');
           nextDailyAt = getNextDailyReminderAt(new Date(), preferences?.reminderTime ?? '');
           armDailyTimer();
         } else if (dailyEnabled && nextDailyAt && nextDailyAt.getTime() <= now.getTime()) {
@@ -181,7 +191,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider value={value}>
       {children}
-      <div className="toast-region" aria-live="polite" aria-atomic="true">{notice && <div className="toast">{notice}</div>}</div>
+      <div className="toast-region" role="status" aria-live="polite" aria-atomic="true">{notice && <div className="toast">{notice}</div>}</div>
     </AppContext.Provider>
   );
 }
