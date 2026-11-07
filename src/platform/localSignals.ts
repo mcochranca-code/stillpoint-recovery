@@ -15,6 +15,7 @@ export const LOCAL_SIGNAL_KEYS = {
   installOfferSnoozedUntil: 'stillpoint-install-offer-snoozed-v1',
   backupNudgeSnoozedUntil: 'stillpoint-backup-nudge-snoozed-v1',
   onboardingDraft: 'stillpoint-onboarding-draft-v1',
+  readingChoiceSnoozedUntil: 'stillpoint-reading-choice-snoozed-v1',
 } as const;
 
 export type LocalSignalKey = keyof typeof LOCAL_SIGNAL_KEYS;

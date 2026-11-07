@@ -36,10 +36,71 @@ export type MeetingReminder = MeetingReminderRecord & { lastAttemptedOccurrenceA
 
 export type ContentPreset = 'faith-based' | 'faith-neutral';
 
+/** Traditions that daily readings can be drawn from. */
+export type TraditionId = 'christian' | 'buddhist' | 'hindu' | 'muslim' | 'jain' | 'red-road' | 'reflective';
+/** One tradition, a few chosen traditions in turn, or every tradition in turn. */
+export type TraditionMode = 'one' | 'several' | 'rotate';
+
+/** Which tradition(s) the daily reading comes from. Stored only in this browser. */
+export interface TraditionPreference {
+  mode: TraditionMode;
+  traditions: TraditionId[];
+}
+
+export type RecoveryTheme = 'craving' | 'shame' | 'surrender' | 'service' | 'gratitude' | 'patience' | 'community';
+
+/**
+ * verbatim: public-domain text quoted exactly from the named translation.
+ * paraphrase: original Stillpoint wording that summarizes a cited passage.
+ * original: an original Stillpoint reflection (for example, inspired by a teacher whose own words are copyrighted).
+ */
+export type ReadingKind = 'verbatim' | 'paraphrase' | 'original';
+export type ReadingLicense = 'public-domain' | 'original-mit';
+
+export interface ReadingEntry {
+  id: string;
+  tradition: TraditionId;
+  kind: ReadingKind;
+  /** The work the reading comes from, or "Stillpoint original reflection". */
+  source: string;
+  /** Chapter/verse, collection and number, or the teaching the reflection draws on. */
+  citation: string;
+  /** Translator and edition for verbatim text; authorship statement otherwise. */
+  translation: string;
+  license: ReadingLicense;
+  /** Why the text can be shipped, e.g. publication year and public-domain basis. */
+  licenseNote: string;
+  text: string;
+  reflectionPrompt: string;
+  recoveryTheme: RecoveryTheme;
+  /** Optional background on the passage (original Stillpoint text). */
+  context?: string;
+  /** Optional short closing prayer or contemplation (original Stillpoint text). */
+  closing?: string;
+  /** For original reflections on a living or recent teacher's themes. Never contains their words. */
+  inspiredBy?: string;
+  /** Book titles only. */
+  furtherReading?: string[];
+}
+
 export interface UserPreferences {
   id: 'preferences';
   schemaVersion: number;
   contentPreset: ContentPreset;
+  traditionPreference: TraditionPreference;
+  /**
+   * True on a new install until the person chooses where readings come from. While true,
+   * Today shows a neutral reading and a soft "Choose your readings" card. Absent on installs
+   * migrated to v6, which keep the tradition they already had and count as chosen.
+   */
+  traditionChoicePending?: boolean;
+  /**
+   * Opt-in for Christian-only extras (Our Daily Bread links, Library Scripture tab). New installs
+   * save false. Absent on installs from before this switch, which keep their earlier behaviour
+   * (shown with the Faith-based preset and the Christian tradition) until they change it.
+   * Only takes effect while Christian is among the chosen traditions.
+   */
+  christianExtras?: boolean;
   onboardingComplete: boolean;
   theme: ThemeMode;
   colorTheme: ColorTheme;

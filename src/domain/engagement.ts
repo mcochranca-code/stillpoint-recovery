@@ -110,10 +110,24 @@ export function previousStretchDays(previousStartAt: string | null | undefined, 
   return Math.floor((end - start) / DAY_MS);
 }
 
-export type TodayNudge = 'reminder' | 'install' | 'backup';
+export interface ReadingChoiceOfferInput {
+  /** True while a new install has not chosen where its readings come from. */
+  choicePending: boolean;
+  snoozedUntil?: string | null;
+  now: Date;
+}
+
+/** Invite a choice of readings until one is made; "Not now" rests it for a while like the other cards. */
+export function shouldOfferReadingChoice({ choicePending, snoozedUntil, now }: ReadingChoiceOfferInput): boolean {
+  return choicePending && !isSnoozed(snoozedUntil, now);
+}
+
+export type TodayNudge = 'readings' | 'reminder' | 'install' | 'backup';
 
 /** Show at most one optional card at a time so Today never feels like a to-do list. */
-export function pickTodayNudge(flags: Record<TodayNudge, boolean>): TodayNudge | null {
+export function pickTodayNudge(flags: Partial<Record<TodayNudge, boolean>>): TodayNudge | null {
+  // Choosing readings comes first: until it is made, the person sees a neutral reading they did not pick.
+  if (flags.readings) return 'readings';
   if (flags.reminder) return 'reminder';
   if (flags.backup) return 'backup';
   if (flags.install) return 'install';

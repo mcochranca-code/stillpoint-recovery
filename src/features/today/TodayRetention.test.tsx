@@ -35,8 +35,11 @@ beforeEach(async () => {
   mocks.updatePreferences.mockReset().mockResolvedValue(undefined);
   mocks.request.mockReset().mockResolvedValue('granted');
   mocks.permission = 'default';
-  mocks.context = { preferences: defaultPreferences(), notify: mocks.notify, updatePreferences: mocks.updatePreferences } as never;
+  // Most tests here are about the other cards, so the reading choice is already made.
+  mocks.context = { preferences: { ...defaultPreferences(), traditionChoicePending: false }, notify: mocks.notify, updatePreferences: mocks.updatePreferences } as never;
 });
+
+const withUnchosenReadings = () => { mocks.context = { ...(mocks.context as object), preferences: defaultPreferences() } as never; };
 
 afterEach(() => { db.close(); });
 
@@ -123,5 +126,46 @@ describe('today nudge', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Not now' }));
     expect(screen.queryByRole('heading', { name: 'Keep a private copy of what you’ve saved.' })).not.toBeInTheDocument();
     expect(window.localStorage.getItem(LOCAL_SIGNAL_KEYS.backupNudgeSnoozedUntil)).not.toBeNull();
+  });
+
+  it('invites a new person to choose readings first, ahead of every other optional card', async () => {
+    withUnchosenReadings();
+    await saveDailyCheckIn('steady'); // Would otherwise earn the reminder offer.
+    const { container } = render(<MemoryRouter><TodayNudge /></MemoryRouter>);
+    await screen.findByRole('heading', { name: 'Choose your readings' });
+    expect(screen.queryByRole('heading', { name: 'Would a gentle daily reminder help?' })).not.toBeInTheDocument();
+    expect(container.querySelectorAll('.today-nudge')).toHaveLength(1);
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('opens the picker in one tap with nothing pre-selected and saves the choice', async () => {
+    withUnchosenReadings();
+    const { container } = render(<MemoryRouter><TodayNudge /></MemoryRouter>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Choose your readings' }));
+    const group = screen.getByRole('group', { name: 'Your daily readings' });
+    expect(group).toBeInTheDocument();
+    expect(screen.getAllByRole('radio').filter((radio) => (radio as HTMLInputElement).checked)).toHaveLength(0);
+    expect(screen.getByRole('button', { name: 'Save my choice' })).toBeDisabled();
+    expect(await axeViolations(container)).toEqual([]);
+    fireEvent.click(screen.getByRole('radio', { name: /Spiritual but not religious/ }));
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Save my choice' })); });
+    expect(mocks.updatePreferences).toHaveBeenCalledWith({ traditionPreference: { mode: 'one', traditions: ['reflective'] }, traditionChoicePending: false });
+  });
+
+  it('rests the readings card on Not now, letting the next card take its turn', async () => {
+    withUnchosenReadings();
+    render(<MemoryRouter><TodayNudge /></MemoryRouter>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Not now' }));
+    expect(screen.queryByRole('heading', { name: 'Choose your readings' })).not.toBeInTheDocument();
+    expect(window.localStorage.getItem(LOCAL_SIGNAL_KEYS.readingChoiceSnoozedUntil)).not.toBeNull();
+  });
+
+  it('never shows the readings card to someone who has already chosen (including migrated installs)', async () => {
+    const migrated = { ...defaultPreferences() } as Record<string, unknown>;
+    Reflect.deleteProperty(migrated, 'traditionChoicePending');
+    mocks.context = { ...(mocks.context as object), preferences: migrated } as never;
+    const { container } = render(<MemoryRouter><TodayNudge /></MemoryRouter>);
+    await act(async () => { await Promise.resolve(); });
+    expect(container).toBeEmptyDOMElement();
   });
 });

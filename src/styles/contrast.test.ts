@@ -110,3 +110,77 @@ describe('motion tokens', () => {
     for (const block of reducedBlocks) for (const name of unique) expect(block).toMatch(new RegExp(`${name}:\\s*0ms`));
   });
 });
+
+/** Parse `selector { --x: value }` blocks from a stylesheet into a selector → declarations map. */
+function cssBlocks(file: string) {
+  const text = readFileSync(resolve(__dirname, file), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const found: Array<{ selectors: string[]; declarations: Record<string, string> }> = [];
+  for (const match of text.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const declarations: Record<string, string> = {};
+    for (const [, name, value] of match[2]!.matchAll(/(--[\w-]+)\s*:\s*([^;]+)/g)) declarations[name!.trim()] = value!.trim();
+    if (Object.keys(declarations).length) found.push({ selectors: match[1]!.split(',').map((selector) => selector.trim()), declarations });
+  }
+  return found;
+}
+const ratioOf = (foreground: Rgba, background: Rgba) => contrast(foreground[3] < 1 ? over(foreground, background) : foreground, background);
+
+describe('time-of-day atmosphere keeps canvas text at WCAG AA', () => {
+  const atmosphere = cssBlocks('./atmosphere.css');
+  const tintsFor = (daypart: string, dark: boolean) => {
+    const wanted = dark ? [`:root.dark[data-daypart='${daypart}']`, ...(daypart === 'day' ? [':root.dark'] : [])] : [`:root[data-daypart='${daypart}']`, ...(daypart === 'day' ? [':root'] : [])];
+    const block = atmosphere.find((item) => item.selectors.some((selector) => wanted.includes(selector)));
+    if (!block) throw new Error(`No atmosphere tints for ${daypart} (${dark ? 'dark' : 'light'})`);
+    return ['--atmos-a', '--atmos-b', '--atmos-c'].map((name) => parseColor(block.declarations[name]!));
+  };
+  for (const { id } of colorThemePresets) {
+    for (const dark of [false, true]) {
+      for (const daypart of ['dawn', 'day', 'dusk', 'night']) {
+        it(`${id} · ${dark ? 'dark' : 'light'} · ${daypart}`, () => {
+          const palette = paletteFor(id, dark);
+          const canvas = parseColor(palette['--canvas']!);
+          const failures: string[] = [];
+          // Worst case: every gradient layer at full strength stacked over the canvas.
+          const stacked = tintsFor(daypart, dark).reduce((background, tint) => over(tint, background), canvas);
+          for (const background of [canvas, stacked, ...tintsFor(daypart, dark).map((tint) => over(tint, canvas))]) {
+            for (const name of ['--ink', '--muted', '--eyebrow-color']) {
+              const ratio = ratioOf(parseColor(palette[name]!), background);
+              if (ratio < 4.5) failures.push(`${name}: ${ratio.toFixed(2)}`);
+            }
+          }
+          expect(failures).toEqual([]);
+        });
+      }
+    }
+  }
+});
+
+describe('tradition accents meet WCAG AA on every palette', () => {
+  const readings = cssBlocks('./readings.css');
+  const traditions = ['christian', 'buddhist', 'hindu', 'muslim', 'jain', 'red-road', 'reflective'];
+  for (const tradition of traditions) {
+    for (const dark of [false, true]) {
+      it(`${tradition} · ${dark ? 'dark' : 'light'}`, () => {
+        const selector = `${dark ? '.dark ' : ''}.tradition-${tradition}`;
+        const accents = readings.find((block) => block.selectors.includes(selector))?.declarations;
+        expect(accents, `missing ${selector}`).toBeDefined();
+        const failures: string[] = [];
+        for (const { id } of colorThemePresets) {
+          const palette = paletteFor(id, dark);
+          const surface = parseColor(palette['--surface']!);
+          const wash = over(parseColor(accents!['--tradition-wash']!), surface);
+          const ink = parseColor(accents!['--tradition-ink']!);
+          for (const [label, background] of [['surface', surface], ['wash', wash]] as const) {
+            const tradRatio = ratioOf(ink, background);
+            if (tradRatio < 4.5) failures.push(`${id}: --tradition-ink on ${label} ${tradRatio.toFixed(2)}`);
+            const inkRatio = ratioOf(parseColor(palette['--ink']!), background);
+            if (inkRatio < 4.5) failures.push(`${id}: --ink on ${label} ${inkRatio.toFixed(2)}`);
+          }
+          // The accent marks borders and motifs: non-text contrast needs 3:1.
+          const accentRatio = ratioOf(parseColor(accents!['--tradition-accent']!), surface);
+          if (accentRatio < 3) failures.push(`${id}: --tradition-accent on surface ${accentRatio.toFixed(2)}`);
+        }
+        expect(failures).toEqual([]);
+      });
+    }
+  }
+});

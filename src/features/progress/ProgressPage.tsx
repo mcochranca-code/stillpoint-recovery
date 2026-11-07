@@ -6,7 +6,7 @@ import { useAppContext } from '../../app/AppContext';
 import { CharmGallery } from '../../components/CharmGallery';
 import { MilestoneShareDialog, type MilestoneShareTarget } from '../../components/MilestoneShareDialog';
 import { db } from '../../db/database';
-import { shouldShowFaithContent } from '../../domain/content-preset';
+import { shouldShowChristianExtras } from '../../domain/content-preset';
 import { describeDateChange } from '../../domain/engagement';
 import { elapsedParts, formatLocalDate, localDateKey, nextMilestone, periodStart } from '../../domain/time';
 import type { DailyActivity, PersonalGoal, PersonalMilestone } from '../../domain/types';
@@ -41,7 +41,7 @@ export function ProgressPage() {
   const personalMilestones = useLiveQuery(() => db.personalMilestones.orderBy('daysAfterStart').toArray(), []) ?? EMPTY_PERSONAL_MILESTONES;
   const duration = elapsedParts(profile?.startAt, now);
   const durationDays = duration?.days;
-  const showFaithContent = shouldShowFaithContent(preferences?.contentPreset);
+  const showFaithContent = shouldShowChristianExtras(preferences);
   const next = nextMilestone(profile?.startAt ?? null, now);
   const meditationMinutes = sessions.reduce((sum, session) => sum + session.plannedMinutes, 0);
   const completedSessions = sessions.length;

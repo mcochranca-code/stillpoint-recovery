@@ -1,6 +1,7 @@
 import { CURRENT_SCHEMA_VERSION, db } from './database';
 import type { BackupPayload, JournalType } from '../domain/types';
 import { DEFAULT_CONTENT_PRESET, isContentPreset } from '../domain/content-preset';
+import { isTraditionPreference, normalizeTraditionPreference } from '../domain/traditions';
 
 const STORE_NAMES = [
   'preferences', 'recoveryProfiles', 'recoveryDateHistory', 'dailyReflections', 'scriptureActivity',
@@ -116,7 +117,7 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
 
   switch (name) {
     case 'preferences':
-      return row.id === 'preferences' && isCount(row.schemaVersion, 1, 5) && typeof row.onboardingComplete === 'boolean'
+      return row.id === 'preferences' && isCount(row.schemaVersion, 1, CURRENT_SCHEMA_VERSION) && typeof row.onboardingComplete === 'boolean'
         && typeof row.theme === 'string' && THEME_MODES.has(row.theme)
         && (row.colorTheme === undefined || (typeof row.colorTheme === 'string' && COLOR_THEMES.has(row.colorTheme)))
         && typeof row.highContrast === 'boolean' && typeof row.reducedMotion === 'boolean'
@@ -126,10 +127,13 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
         && (row.meetingReminders === undefined || isMeetingReminderArray(row.meetingReminders))
         && isStringArray(row.trustedContacts) && (row.supportResources === undefined || isStringArray(row.supportResources))
         && (row.contentPreset === undefined || isContentPreset(row.contentPreset))
+        && (row.traditionPreference === undefined || isTraditionPreference(row.traditionPreference))
+        && (row.traditionChoicePending === undefined || typeof row.traditionChoicePending === 'boolean')
+        && (row.christianExtras === undefined || typeof row.christianExtras === 'boolean')
         && typeof row.discreetMode === 'boolean' && typeof row.gardenStyle === 'string' && GARDEN_STYLES.has(row.gardenStyle)
         && typeof row.allowBreathHolds === 'boolean' && isDate(row.createdAt) && isDate(row.updatedAt);
     case 'recoveryProfiles':
-      return row.id === 'recovery-profile' && isCount(row.schemaVersion, 1, 5)
+      return row.id === 'recovery-profile' && isCount(row.schemaVersion, 1, CURRENT_SCHEMA_VERSION)
         && (row.startAt === null || isDate(row.startAt))
         && (row.localStartDate === null || isLocalDate(row.localStartDate))
         && (row.localStartTime === null || isTime(row.localStartTime))
@@ -319,6 +323,7 @@ export async function importBackupText(text: string): Promise<ImportResult> {
             ...raw,
             schemaVersion: CURRENT_SCHEMA_VERSION,
             contentPreset: isContentPreset(raw.contentPreset) ? raw.contentPreset : DEFAULT_CONTENT_PRESET,
+            traditionPreference: normalizeTraditionPreference(raw.traditionPreference, isContentPreset(raw.contentPreset) ? raw.contentPreset : DEFAULT_CONTENT_PRESET),
             colorTheme: typeof raw.colorTheme === 'string' && COLOR_THEMES.has(raw.colorTheme) ? raw.colorTheme : 'stillpoint',
             supportResources: isStringArray(raw.supportResources) ? raw.supportResources : [],
             meetingReminders: isMeetingReminderArray(raw.meetingReminders) ? raw.meetingReminders : [],
