@@ -1,29 +1,24 @@
 <div align="center">
   <img src="public/assets/branding/app-icon.svg" alt="Stillpoint Recovery mark" width="76" height="76">
   <h1>Stillpoint Recovery</h1>
-  <p><strong>A quieter place to keep choosing what matters.</strong></p>
-  <p>One day at a time. On your device. At your pace.</p>
+  <p><strong>A local-first, privacy-focused, faith-centered sobriety and recovery PWA.</strong></p>
+  <p>Daily reflection, gentle meditation, private journaling, and local meeting samples, kept in your own browser. No account. No streak pressure. One day at a time.</p>
   <p>
-    <code>LOCAL-FIRST</code> &nbsp; <code>INSTALLABLE PWA</code> &nbsp; <code>NO ACCOUNT</code> &nbsp; <code>MIT LICENSE · SOURCE</code> &nbsp; <code>BUILT FOR GENTLENESS</code>
-  </p>
-  <p>
-    <a href="https://stillpointco-lq5mbm5o.manus.space/"><strong>Open the public PWA</strong></a>
+    <a href="https://stillpointco-lq5mbm5o.manus.space/"><strong>▶ Try the live demo</strong></a>
     &nbsp; · &nbsp;
-    <a href="https://stillpoint-recovery-demo.netlify.app/"><strong>Open the Netlify demo</strong></a>
+    <a href="https://stillpoint-recovery-demo.netlify.app/">Netlify demo</a>
     &nbsp; · &nbsp;
-    <a href="https://github.com/mcochranca-code/stillpoint-recovery/archive/refs/heads/main.zip"><strong>Download the source ZIP</strong></a>
+    <a href="#screenshots">Screenshots</a>
     &nbsp; · &nbsp;
-    <a href="#take-a-look-around">See the screenshots</a>
-    &nbsp; · &nbsp;
-    <a href="#run-it-on-your-device">Run it on your device</a>
+    <a href="#quick-start">Run it locally</a>
   </p>
 </div>
 
 <p align="center">
   <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
-  <a href="https://app.netlify.com/sites/stillpoint-recovery-demo/deploys"><img src="https://api.netlify.com/api/v1/badges/2d9e377b-c6c6-424c-a374-30a4ab900295/deploy-status" alt="Netlify production deploy status"></a>
   <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/coverage.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/coverage.yml/badge.svg" alt="Test coverage workflow status"></a>
-  <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/mcochranca-code/stillpoint-recovery/ci.yml?branch=main&amp;label=code%20quality%20%26%20linting&amp;logo=github" alt="Code quality and linting status"></a>
+  <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/accessibility.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/accessibility.yml/badge.svg" alt="Accessibility workflow status"></a>
+  <a href="https://app.netlify.com/sites/stillpoint-recovery-demo/deploys"><img src="https://api.netlify.com/api/v1/badges/2d9e377b-c6c6-424c-a374-30a4ab900295/deploy-status" alt="Netlify deploy status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License"></a>
   <a href="docs/wiki/Home.md"><img src="https://img.shields.io/badge/project-wiki-blue.svg" alt="Project wiki"></a>
 </p>
@@ -31,112 +26,92 @@
 <p align="center">
   <img src="docs/media/hero-still.png" alt="Stillpoint app preview with a calm recovery dashboard, progress ring, daily reflection and quiet-practice card" width="100%">
 </p>
-
-<p align="center"><sub>The screen artwork uses illustrative sample values. Your own recovery information is not included in these images.</sub></p>
-
-<details>
-<summary><strong>Play the optional motion previews</strong> — slow, soft, and non-flashing</summary>
-
-<p><img src="docs/media/hero.gif" alt="A gentle motion preview of the Stillpoint dashboard and progress ring" width="100%"></p>
-<p align="center"><sub>Dashboard motion: a quiet floating card, a softly moving progress ring, and a warm horizon.</sub></p>
-
-<p><img src="docs/media/breathing.gif" alt="A softly expanding meditation orb with the words at your pace" width="720"></p>
-<p align="center"><sub>Meditation motion is optional. Silence and natural breathing are always welcome.</sub></p>
-
-<p><a href="docs/media/hero-still.png">View the still hero instead</a>. The motion files are small, locally included, and created from source-controlled HTML and CSS—no hosted animation service.</p>
-</details>
+<p align="center"><sub>Screens use illustrative sample values. No personal recovery information is shown.</sub></p>
 
 ---
 
-## A recovery companion without the pressure
+## Why Stillpoint
 
-Recovery is personal. Stillpoint is designed to make room for reflection and supportive routines without turning your life into a score. There is no leaderboard, guilt loop, forced streak, or requirement to share your story.
+Recovery is personal. Most tracking apps turn it into a score; Stillpoint makes room for reflection and supportive routines instead. There is no leaderboard, guilt loop, forced streak, or requirement to share your story, and the core app works without an account or a recovery date.
 
-### What happens when you use it
+- **Private by default.** Your journal, dates, and history live in your browser's IndexedDB, not on a server.
+- **Works offline.** Install it as a PWA; the app shell and bundled content are cached on your device.
+- **Gentle by design.** Reduced-motion aware, keyboard accessible, with text scaling, high contrast, and a discreet display.
+- **Faith-friendly, never required.** Scripture and Christian extras are opt-in, alongside original reflections and recovery principles.
 
-The main path stays deliberately small: open the app, decide what you need today, and return to a private place that works even when you do not configure a recovery date.
+## Key features
 
-```mermaid
-flowchart LR
-    Open[Open Stillpoint] --> Setup{Optional setup}
-    Setup -->|Skip| Today[Today dashboard]
-    Setup -->|Save preferences| Today
-    Today --> Choice{What would help now?}
-    Choice --> Reflect[Reflection or scripture]
-    Choice --> Write[Journal or field guide]
-    Choice --> Reset[90-second Reset]
-    Choice --> Practice[Meditation]
-    Choice --> Review[Progress or Garden]
-    Choice --> Meet[Local AA/NA/FA meeting samples]
-    Meet --> Snapshot[Offline, source-linked meeting snapshot]
-    Reflect --> Local[Saved locally on this device]
-    Write --> Local
-    Reset --> Local
-    Practice --> Local
-    Review --> Local
-```
+- **Today** — a live, adjustable (or hideable) day counter, an original daily reflection, optional scripture, and a link to the official NA *Just for Today* reading, plus quick shortcuts to a quiet practice, meetings, and the journal.
+- **90 original daily reflections** — each with a principle, a small practice, and a question to carry. Written for Stillpoint; not presented as fellowship literature.
+- **Private journal** — gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing, with editing, search, and recoverable drafts.
+- **Meditation Studio** — ten gentle practices in 2, 5, 10, or 20 minute sessions, pause and resume, and three bundled soundscapes (rain, woodland, shoreline). Box Breathing follows a highlighted sphere in phase with the cues.
+- **90-second Reset, Living Garden, and Field Guide** — a brief grounding flow, non-punitive visual growth, and user-built coping notes.
+- **Progress and Journey Collection** — calendar milestones, activity, meditation time, personal goals, and two-sided 3D milestone charms. Editing your recovery date never erases journals, sessions, or earned charms.
+- **Meetings** — an offline, source-linked sample of public AA/NA schedules for Stanislaus, Fresno, Mariposa, and Merced counties, plus one Fresno Food Addicts (FA) listing, with on-device filters and an optional map. Coverage is partial; see [meeting sources](docs/meeting-sources.md) and confirm with official directories.
+- **Make it yours** — five palettes (Stillpoint, Catppuccin, Monokai, Obsidian, Lucide) and accessibility controls.
+- **Backups you control** — export and restore versioned JSON backups on-device, and opt-in milestone sharing that you preview first.
+- **Optional community notes** — short, public, date-scoped notes on the day's original reading, only if you choose to post (see [Data and privacy](#data-and-privacy)).
 
-The choices are invitations rather than requirements. No route depends on a streak, and changing a recovery date does not delete journals, meditation history, or earned charms.
-
-### Take a look around
+## Screenshots
 
 <table>
   <tr>
     <td width="50%" valign="top">
-      <a href="docs/media/today.webp"><img src="docs/media/today.webp" alt="Today screen showing a visual recovery counter, NA Just for Today link, original daily reflection and scripture" width="100%"></a>
-      <h3>Today — one moment at a time</h3>
-      <p>A visual, live day counter sits alongside an original daily reflection, optional scripture, and the official NA Just for Today reader link. Adjust or hide the counter whenever you want.</p>
+      <a href="docs/media/today.webp"><img src="docs/media/today.webp" alt="Today screen with a visual recovery counter, NA Just for Today link, original daily reflection and scripture" width="100%"></a>
+      <p><strong>Today</strong> — one moment at a time.</p>
     </td>
     <td width="50%" valign="top">
       <a href="docs/media/progress.webp"><img src="docs/media/progress.webp" alt="Progress screen with activity over time, recovery milestones and a personal goal area" width="100%"></a>
-      <h3>Progress — your own measure</h3>
-      <p>See calendar milestones, recorded activities, meditation time, journal entries, and personal goals. Activity is presented as context, not a prediction or a judgment.</p>
+      <p><strong>Progress</strong> — your own measure, not a judgment.</p>
     </td>
   </tr>
   <tr>
     <td width="50%" valign="top">
-      <a href="docs/media/meditation.webp"><img src="docs/media/meditation.webp" alt="Meditation studio with selectable 2, 5, 10 and 20 minute sessions and gentle practices" width="100%"></a>
-      <h3>Meditation — gentle by design</h3>
-      <p>Choose a 2, 5, 10, or 20 minute practice. Box Breathing follows a highlighted sphere around the square in phase with the text cues; optional local soundscapes stay silent until you choose them.</p>
+      <a href="docs/media/meditation.webp"><img src="docs/media/meditation.webp" alt="Meditation studio with selectable 2, 5, 10 and 20 minute sessions" width="100%"></a>
+      <p><strong>Meditation</strong> — gentle by design.</p>
     </td>
     <td width="50%" valign="top">
-      <a href="docs/media/library.webp"><img src="docs/media/library.webp" alt="Library screen with the official NA link, original reflections, scripture, principles, meditation and collection tabs" width="100%"></a>
-      <h3>Library — return to what helps</h3>
-      <p>Browse original reflections, public-domain scripture, recovery principles, meditation practices, and the Journey Collection of supportive milestones.</p>
+      <a href="docs/media/library.webp"><img src="docs/media/library.webp" alt="Library with the official NA link, original reflections, scripture, principles, meditation and collection tabs" width="100%"></a>
+      <p><strong>Library</strong> — return to what helps.</p>
     </td>
   </tr>
 </table>
 
-<h3>Local peer support — when you want it</h3>
-<p>The Meetings tab keeps source-linked AA/NA samples for Stanislaus, Fresno, Mariposa, and Merced counties, plus one verified Fresno Food Addicts (FA) listing, bundled for offline browsing. This is not a complete county inventory: no Mariposa NA or Mariposa/Merced FA entry was verified in the checked sources. Fellowship, county, weekday, city, text, format, and precise local start-time filters run on-device. Zoom is shown only when the source explicitly names it. The optional map retains approximate Census address-range pins for the checked Stanislaus snapshot; new regional listings are not coordinate-matched or pinned. OpenStreetMap tile requests reveal the viewed area but not the app’s filters, search text, recovery information, or device location. Stanislaus source snapshot checked October 23, 2026; regional examples checked October 26, 2026. See <a href="docs/meeting-sources.md">source, coverage and privacy notes</a>, and confirm schedules with the <a href="https://cviaa.org/aa/meetings/">official Central Valley Intergroup AA directory</a>, <a href="https://www.fresnoaa.org/meetings/">Greater Fresno Area Intergroup</a>, <a href="https://www.aamariposafellowship.org/page3.html">Mariposa AA Fellowship</a>, <a href="https://svgna.org/svgna-meeting-schedule">SVGNA</a>, <a href="http://www.centralcalna.org/na-meetings.html">Central California NA</a>, or official <a href="https://www.foodaddicts.org/find-a-meeting">FA finder</a> before traveling.</p>
+<p align="center"><a href="docs/media/settings.webp"><img src="docs/media/settings.webp" alt="Settings screen with five color palettes and accessibility controls" width="720"></a></p>
 
-<p align="center"><sub>Product screenshots use a local demo profile with sample activity. No private journal content or personal contacts are shown.</sub></p>
+<details>
+<summary><strong>Optional motion previews</strong> (slow, soft, non-flashing)</summary>
+<p><img src="docs/media/hero.gif" alt="A gentle motion preview of the Stillpoint dashboard and progress ring" width="100%"></p>
+<p><img src="docs/media/breathing.gif" alt="A softly expanding meditation orb with the words at your pace" width="720"></p>
+<p>Both are rendered from source-controlled HTML and CSS in <a href=".github/readme-media/">.github/readme-media/</a>.</p>
+</details>
 
-<h3 align="center">Make the space your own</h3>
-<p align="center"><a href="docs/media/settings.webp"><img src="docs/media/settings.webp" alt="Settings screen displaying the five Stillpoint color palettes and accessibility controls" width="720"></a></p>
-<p align="center"><sub>Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—plus text size, contrast, reduced motion, and discreet display.</sub></p>
+## Who it's for
 
-## Small practices. Useful details.
+- **People in recovery** who want a quiet daily companion that keeps their reflections private and works without signing up.
+- **People of faith**, especially Christians, who want optional scripture and devotional links alongside recovery practice.
+- **Members of 12-step and peer fellowships** looking for a link to the daily NA reading and local AA/NA/FA meeting samples in California's Central Valley.
+- **Peer supporters and contributors** who value privacy-respecting, accessible, open-source recovery tools.
 
-- **90 original daily reflections** offer a principle, a small practice, and a question to carry. They are written for Stillpoint and are not presented as fellowship literature.
-- **NA Just for Today** opens the daily reading on the official [Narcotics Anonymous World Services site](https://na.org/daily-meditations/). The app remains an official-link-only integration and does not copy or cache the reading. An authorized archival copy of the book is separately documented under [`docs/copyright/`](docs/copyright/).
-- **Our Daily Bread resources** link to the publisher’s official [Reading Plans](https://odb.org/page/reading-plans) and [podcast catalogue](https://odb.org/podcasts/) for Discover the Word. Stillpoint adds an original companion prompt, not publisher text.
-- **Private journaling** supports gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing—with editable entries, search, and recoverable drafts.
-- **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline. In active Box Breathing, a highlighted sphere moves around the square in time with the inhale/hold/exhale/rest cues.
-- **Meetings** bundles a partial source-linked sample of public AA/NA schedules from Stanislaus, Fresno, Mariposa and Merced counties, plus one Fresno FA listing, for offline browsing. Coverage is not exhaustive; blank results do not mean no meeting exists. County, fellowship, weekday, city, format and start-time filters run locally. New regional records are not pinned on the approximate map; its existing Stanislaus pins use on-demand OpenStreetMap tiles. See [source, coverage and privacy notes](docs/meeting-sources.md), and confirm details with official directories before traveling.
-- **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
-- **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
-- **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
-- **Milestones you can turn over.** Open the Journey Collection directly from Today or Progress, then tap or keyboard-activate a two-sided 3D charm to spin its medallion; the interaction is local, keyboard accessible, and reduced-motion aware.
-- **A clearer first step.** Today offers optional shortcuts to a quiet practice, peer meetings, and the private journal near the top of the page; all existing Today content and actions remain available below.
+Stillpoint is a personal reflection companion, **not** medical care, treatment, diagnosis, or an emergency service. Spiritual content and meditation are optional encouragement, never a replacement for professional or peer support.
 
-## Help shape future improvements
+---
 
-Taking part is optional: [share experience and usability feedback](https://form.jotform.com/262961231783057). The form asks you not to include names, recovery dates, journal text, diagnoses, or other sensitive details. Responses are submitted to Jotform and are subject to its privacy and data practices—not stored only on this device. A few fields are currently required despite the introductory skip-any-question wording; the survey design is being reviewed.
+## Tech stack
 
-## How the pieces fit together
+| Layer | Tools |
+| --- | --- |
+| UI | React 18, TypeScript, React Router, Tailwind CSS, Framer Motion, Lucide icons |
+| Local data | Dexie on IndexedDB (database `StillpointRecovery`) |
+| Maps | Leaflet with OpenStreetMap tiles (opt-in) |
+| Build | Vite 6, custom precache manifest and service worker |
+| Optional API | Node.js + Express 5, MySQL-compatible database via `mysql2` |
+| Quality | Vitest, Testing Library, fake-indexeddb, axe-core, ESLint, Lighthouse CI, CodeQL |
+| Tooling | Node.js 22, pnpm 11.25.0 |
 
-Stillpoint is a client-only React application. Features read and write through typed repositories backed by Dexie and IndexedDB; the browser is the system of record. Static content such as reflections, exercises, scripture references, themes, charm definitions, and the dated meeting snapshot is bundled with the app.
+## Architecture
+
+The core app is a client-side React PWA. Features read and write through typed repositories backed by Dexie/IndexedDB, so **the browser is the system of record**. Static content (reflections, exercises, scripture references, themes, charms, and the dated meeting snapshot) is bundled with the app.
 
 ```mermaid
 flowchart TD
@@ -144,136 +119,15 @@ flowchart TD
     Features --> Domain[Typed domain rules\ndates · timers · milestones · sharing]
     Features --> Repositories[Database repositories]
     Repositories --> IndexedDB[(IndexedDB\nStillpointRecovery)]
-    Static[Bundled local content\nreflections · exercises · scripture · charms · meeting snapshot · approximate meeting coordinates] --> Features
+    Static[Bundled local content] --> Features
     IndexedDB --> Backup[Versioned JSON backup]
     Backup -->|User chooses a file| Restore[Validated import and merge]
     Restore --> IndexedDB
-    External[Official NAWS, ODB, AA/NA/FA directories and external maps] -. explicit click only .-> Browser[New browser tab]
-    Browser -. no recovery payload .-> External
-    MapTiles[OpenStreetMap tile images] -. only after in-app map opt-in .-> Features
+    Features -. only when a person posts .-> API[Optional community API\nserver/index.mjs]
+    API --> DB[(MySQL-compatible DB)]
 ```
 
-There is no application API, account system, analytics pipeline, or cloud database in the core local-first experience. The optional `/community` route is a deliberate exception: it can connect to the separately deployed hosted community service only when a person opens the notes thread and chooses to post. It accepts only a short date-scoped note and never sends recovery profile, sobriety date, journal, meeting, location, or meditation data. Notes are public, retained for up to 90 days, and deletion keys remain only in the posting browser. If the service is not configured, the tab stays visible and reports that hosted notes are unavailable. AA/NA meeting filters run locally over the bundled snapshot; the FA option opens its official live finder only after the user chooses that link, with no search criteria transferred from Stillpoint. The in-app map is also user-initiated; OpenStreetMap receives tile requests and the viewed map area, which may correlate with locally filtered results, but not the filter values, search text, recovery data or device location. No device location or attendance is collected. The app does not fetch or rehost publisher content.
-
-## Motion is part of the design—not decoration
-
-The app uses small CSS transitions for feedback and gentle meditation visuals. In an active Box Breathing session, the highlighted sphere follows the inhale, optional hold, exhale, and rest phases around a square, using the same elapsed-time clock as the phase label. Pause freezes its position; reduced motion keeps it still. The README motion previews are source-controlled HTML/CSS compositions and open only when you choose them. Motion is quiet and non-flashing.
-
-Other meditation-orb artwork uses a slow eight-second ease-in/ease-out cycle. The interface disables nonessential animation when reduced motion is requested:
-
-```css
-@keyframes stillpoint-breathe {
-  0%, 100% { transform: scale(.88); opacity: .82; }
-  50% { transform: scale(1.06); opacity: 1; }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .breathing-orb {
-    animation: stillpoint-breathe 8s ease-in-out infinite;
-    transform-origin: center;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    scroll-behavior: auto !important;
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-  }
-}
-```
-
-The compact [hero HTML/CSS](.github/readme-media/source/hero.html), [meditation vignette](.github/readme-media/source/breathing.html), [app motion stylesheet](public/assets/meditation/meditation-motion.css), [phase-position helper](src/features/meditation/breathingVisual.ts), [box-orb styling](src/features/meditation/box-breathing.css), and [render script](.github/readme-media/render.sh) are available in the repository. The motion examples were informed by [Prismic’s CSS animation examples](https://prismic.io/blog/css-animation-examples); they are adapted to Stillpoint’s palette, product, and reduced-motion behavior.
-
-## Run it on your device
-
-Stillpoint is a web app, not an App Store or Play Store download. You can download the repository as a ZIP using the button at the top, or clone it and run it locally. Once the local app opens in your browser, use the browser’s **Install app** or **Add to Home Screen** option if available.
-
-Requirements: Node.js and the pnpm version pinned in `package.json`.
-
-```sh
-git clone https://github.com/mcochranca-code/stillpoint-recovery.git
-cd stillpoint-recovery
-pnpm install --frozen-lockfile
-pnpm dev
-```
-
-Open `http://localhost:3000`. The app can be used without entering a recovery date; optional setup can be skipped. For a production build and local preview:
-
-```sh
-pnpm typecheck
-pnpm lint
-pnpm test
-pnpm test:coverage
-pnpm build
-pnpm preview
-```
-
-The production build creates `dist/`, a web app manifest, a service worker, and a precache manifest for local app assets. Offline availability depends on the app shell and assets being successfully cached by your browser. The PWA check verifies install metadata, route metadata, same-origin precache entries, and the offline navigation fallback.
-
-The Vitest suite covers domain rules, onboarding, journal entry creation/editing/deletion and draft recovery, meditation session state, backup validation and transactional restore, historical IndexedDB migrations, keyboard focus behavior, and IndexedDB activity, milestone, and charm persistence. `pnpm test:coverage` writes V8 coverage reports to `coverage/` and enforces minimum repository-wide thresholds. Lighthouse also checks the production app shell's accessibility score in CI.
-
-### Install and offline behavior
-
-The manifest uses standalone display mode and provides shortcuts for **Today**, **I need a moment**, and **Living Garden**. The service worker precaches the app shell and generated asset manifest, serves cached assets locally, and falls back to the cached root for navigation when a network request fails. Official NAWS, Our Daily Bread, AA/NA directory, and map links remain normal external web visits and therefore need a connection when opened.
-
-```mermaid
-sequenceDiagram
-    participant Browser
-    participant App as Stillpoint app
-    participant Cache as Service worker cache
-    participant IDB as IndexedDB
-    participant Web as External resource
-
-    Browser->>App: Load shell
-    App->>Cache: Read precached assets
-    App->>IDB: Open local database
-    IDB-->>App: Preferences and recovery records
-    App-->>Browser: Render route
-    Browser->>Web: Only after an explicit external-link click
-    Web-->>Browser: Publisher page
-```
-
-## Your information stays in your browser
-
-Stillpoint stores recovery dates, preferences, journals, reflections, scripture activity, meditation sessions, earned charms, and related notes in this browser’s IndexedDB. The app does not require an account or cloud sync. It does not upload journal content to an app backend.
-
-**Local does not mean encrypted or guaranteed to last.** Stillpoint does not encrypt browser storage or exported backups. Clearing site data, removing the browser profile, or uninstalling the PWA may erase saved information; browser storage can also be affected by browser or device maintenance and storage limits. Export a backup regularly and keep it somewhere private, preferably separate from this device. Backups are ordinary JSON files and contain personal data.
-
-To move records to another device, download the JSON backup here, transfer it with a private method you trust, then choose Restore from JSON on the other device. Restore previews counts and merges records locally; the recovery profile and preferences replace their saved values, duplicate IDs are skipped, and no data is uploaded or automatically synced between devices.
-
-Stillpoint has no account or server copy, so maintainers cannot retrieve erased or corrupted records. Recovery is possible only from a valid backup you still have. Support can offer troubleshooting guidance, but should not be sent journal text or backup files. See the [Data and Privacy guide](docs/wiki/Data-and-Privacy.md) for storage details, restore behavior, and limitations.
-
-Date-only recovery dates are interpreted as local midnight. If you add a start time, the chosen local time is converted to a saved timestamp. Editing the date preserves past journal entries, sessions, and earned charms.
-
-Stillpoint is a personal reflection companion—not medical care, treatment, diagnosis, or an emergency service. Spiritual content and meditation are optional encouragement, never a measure of faith or worth and never a replacement for professional or peer support.
-
-### What is and is not private
-
-The local-first boundary is intentional, but it is not a security promise. Browser storage can be inspected by someone with access to the device or browser profile, and it can disappear when site data is cleared. Backups are ordinary JSON files, so protect them like personal notes. The app also never sends a message to a trusted contact; contact actions are user-initiated.
-
-## Our Daily Bread resources
-
-These links are opt-in. They appear only after a person chooses Christian under **Settings → Daily readings** and turns on **Show Christian extras** (which also adds the Library Scripture tab). New installs start with them off. Installs from before this switch keep what they saw before until they change it.
-
-The Today card opens the publisher’s official Reading Plans and podcast catalogue for Discover the Word. Source links were checked on October 22, 2026. Stillpoint does not reproduce, cache, proxy, or automatically fetch ODB readings, plan descriptions, episode descriptions, transcripts, or artwork. The links open in a new tab with no referrer; Stillpoint does not attach a recovery profile, sobriety date, or journal text. A normal visit may still expose connection details to the publisher, whose privacy, cookie, analytics, and terms practices apply.
-
-## Respect for NA literature
-
-The Just for Today card links to the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS controls the reading and its publication date, which may differ from the device’s local date near timezone boundaries. The app does not rehost or embed the text. With redistribution authorization provided to the repository maintainer, an unchanged archival copy of *Just for Today: Daily Meditations for Recovering Addicts* is available in [`docs/copyright/Just-for-Today-NA.pdf`](docs/copyright/Just-for-Today-NA.pdf). The [daily reflection index](docs/copyright/Just-for-Today-index.md) lists dates, titles, and PDF page links only; it does not reproduce the meditation passages. Full attribution, permission scope, checksum, and non-affiliation language are recorded in [`docs/copyright/README.md`](docs/copyright/README.md).
-
-Library → **NA Step Working Guides** is an in-app reader for *The Narcotics Anonymous Step Working Guides*, shown by permission of NA World Services (see [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md#na-step-working-guides-used-by-permission)). It has a table of contents, resume-where-you-left-off, a reader text size, and an optional private answer box for every question. Answers are stored only in this browser's IndexedDB, are included in the JSON backup and in delete-all, and are never sent anywhere. The reader is reached from Library only; it is not part of the Today card rotation or any nudge. Stillpoint is not affiliated with or endorsed by NA. See NAWS’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) and [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/).
-
-## License
-
-The repository root contains the standard [MIT License](LICENSE), and GitHub recognizes the project as MIT-licensed. It covers the original application source code and documentation contributed to this repository. Its scope does not grant rights to bundled or user-supplied media, brand assets, third-party marks, Our Daily Bread or NAWS content, or dependency packages governed by their own licenses. Check the relevant rights before redistributing those materials.
-
-**Excluded from the MIT License: the NA Step Working Guides text.** The guide content in [`src/data/na-step-guides/guide.json`](src/data/na-step-guides/guide.json) (and anything derived from it) is *The Narcotics Anonymous Step Working Guides*, Copyright © 1998, World Service Office, Inc. Reprinted by permission. All rights reserved. It is NA Fellowship-approved literature, used in Stillpoint by permission of NA World Services and **not** licensed to you under MIT. Do not copy, adapt, or redistribute it outside this app without your own permission from NAWS. Permission status and sources are recorded in [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md#na-step-working-guides-used-by-permission).
-
-## Built with
-
-React · TypeScript · Vite · Tailwind CSS · Framer Motion · Dexie/IndexedDB · Vitest
+The one networked exception is the optional `/community` route, served by a small Express API in [`server/`](server/) under `/api/community` (plus `/healthz`). It needs a `DATABASE_URL`; without one, local runs keep working and the Community tab reports that hosted notes are unavailable.
 
 <details>
 <summary><strong>Project map</strong></summary>
@@ -283,59 +137,121 @@ React · TypeScript · Vite · Tailwind CSS · Framer Motion · Dexie/IndexedDB 
 - `src/components/` — reusable interface components and dialogs.
 - `src/db/` — IndexedDB schema, migrations, repositories, milestones, and JSON backups.
 - `src/domain/` — typed data, date math, sharing, achievement criteria, and domain calculations.
-- `src/data/` — local reflections, scripture, exercises, charms, palettes, and the dated Stanislaus/regional meeting and coordinate snapshots.
-- `public/` — supplied brand assets, local soundscapes, PWA manifest, and service worker.
-- `docs/media/` — still and motion visuals used by this README.
-- `docs/meeting-sources.md` — source dates, directory links, and privacy boundaries for the bundled county schedule.
-- `server/community/` — optional account-free hosted community API, migration, moderation policy, and deployment notes.
-- `docs/copyright/` — authorized third-party literature, attribution notices, and a non-reproducing navigation index.
-- `.github/readme-media/` — editable HTML/CSS motion sources and their renderer.
+- `src/data/` — reflections, scripture, exercises, charms, palettes, and the dated meeting and coordinate snapshots.
+- `server/` — optional account-free community API, database migration, and moderation policy.
+- `public/` — brand assets, soundscapes, PWA manifest, and service worker.
+- `scripts/` — precache manifest, PWA artifact, coverage, and documentation-link checks.
+- `docs/` — [wiki](docs/wiki/Home.md), [architecture decision records](docs/adr/README.md), media, meeting sources, and copyright records.
 
 </details>
 
-### Route map
+## Quick start
 
-```mermaid
-flowchart LR
-    Shell[App shell and navigation] --> Today[/ Today\nreflection · scripture · quick actions /]
-    Shell --> Progress[/progress\nactivity · milestones · goals /]
-    Shell --> Journal[/journal\nprivate entries · drafts · search /]
-    Shell --> Meditation[/meditation\nexercises · timer · sessions /]
-    Shell --> Meetings[/meetings\nAA · NA · FA · regional map /]
-    Shell --> Community[/community\noptional public notes on today’s original reading /]
-    Shell --> Library[/library\nreadings · practices · collection /]
-    Shell --> Reset[/reset\nbrief grounding flow /]
-    Shell --> Garden[/garden\nnon-punitive visual growth /]
-    Shell --> FieldGuide[/field-guide\nuser-built coping notes /]
-    Shell --> Settings[/settings\npreferences · backup · deletion /]
-```
-
-### Development and contribution
-
-The repository keeps the development loop intentionally conventional:
+Requirements: **Node.js 22** and **pnpm 11.25.0** (pinned in `package.json`).
 
 ```sh
-pnpm dev          # Vite development server on port 3000
-pnpm typecheck    # strict TypeScript diagnostics
-pnpm lint         # ESLint checks
-pnpm test         # Vitest and Testing Library suite
-pnpm test:coverage # tests plus V8 HTML/JSON coverage reports
-pnpm build        # production bundle plus precache manifest
-pnpm verify:pwa   # manifest, routes, service worker, and precache checks
-pnpm preview      # serve the production build locally
-node scripts/check-documentation-links.mjs  # links, PDF anchors, and rights references
+git clone https://github.com/mcochranca-code/stillpoint-recovery.git
+cd stillpoint-recovery
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-When changing a feature, keep recovery data local by default, preserve keyboard and reduced-motion behavior, and avoid claiming encryption or clinical outcomes. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`, and the documentation checker before opening a pull request. The automated tests cover date and timer rules, backup validation and read-only restore previews, sharing previews, content, focus behavior, ambient audio, external-resource cards, meeting filters and exact-coordinate county map coverage, and Box Breathing phase positions.
+Open `http://localhost:3000`. `pnpm dev` runs Vite on port 3000 and the community API on port 3001 (proxied at `/api`). Optional setup can be skipped, and no recovery date is required. To install the app, use your browser's **Install app** or **Add to Home Screen** option.
 
-The documentation checker runs on documentation changes, pull requests, manual dispatch, and every Monday at 08:17 UTC through [`documentation-links.yml`](.github/workflows/documentation-links.yml). It validates local Markdown links, Wiki-style `.md` links, PDF `#page=` targets, external URLs with retries, the 366-entry NA index, and required copyright/disclaimer references. It reports access-restricted external sites as warnings while failing on missing local files, invalid PDF targets, missing required notices, and confirmed broken external URLs.
+## Scripts
 
-## Project wiki
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | Vite dev server (port 3000) plus the community API (port 3001) |
+| `pnpm typecheck` | Strict TypeScript diagnostics |
+| `pnpm lint` | ESLint |
+| `pnpm test` | Vitest and Testing Library suite |
+| `pnpm test:coverage` | Tests plus V8 coverage reports in `coverage/` |
+| `pnpm check:coverage` | Per-file thresholds for critical modules |
+| `pnpm build` | Typecheck, production bundle, and precache manifest |
+| `pnpm verify:pwa` | Manifest, routes, service worker, and precache checks |
+| `pnpm preview` | Serve the production build on port 3000 |
+| `pnpm start` | Run the community API (`server/index.mjs`) |
+| `pnpm check:server` | Syntax-check the server modules |
+| `node scripts/check-documentation-links.mjs` | Validate doc links, PDF anchors, and rights references |
 
-The [versioned project wiki](docs/wiki/Home.md) keeps the deeper operational documentation close to the implementation. It covers getting started, architecture, data and privacy, PWA/offline behavior, testing and CI, content boundaries, and contribution troubleshooting. See also the [project handoff](docs/project-handoff.md), [presentation script](docs/presentation-script.md), and [reminder and survey review](docs/reminder-and-survey-review.md). The [static release and contributor preview](docs/release-contributor-preview.html) presents the npm release path and contributor quality rhythm visually, while the [interactive GitHub dashboard](docs/release-contributor-dashboard.html) reads current public workflow, issue, commit, pull-request, and comment data without a backend or token. Keeping these pages in the repository makes changes reviewable alongside code; they can also seed a GitHub Wiki if that separate space is initialized later.
+## Testing and coverage
 
-<p align="center"><sub>Made for the day you are in. Not affiliated with Narcotics Anonymous World Services.</sub></p>
+Tests cover domain rules (dates, timers, milestones), onboarding, journal create/edit/delete and draft recovery, meditation session state, backup validation and transactional restore, IndexedDB migrations and persistence, keyboard focus, meeting filters, Box Breathing phase positions, and the community API's router and policy.
 
-### Navigation controls
+`pnpm test:coverage` enforces repository-wide minimums set in [`vite.config.ts`](vite.config.ts):
 
-On desktop widths, use the sidebar control to collapse the navigation to an icon rail or expand it back to full labels. On mobile widths, use the eye control to hide or show the bottom navigation and the chevron to expand or collapse its labels. The Home button opens Today, and all navigation preferences are stored locally in the browser and do not leave the device.
+| Statements | Branches | Functions | Lines |
+| --- | --- | --- | --- |
+| 80% | 70% | 55% | 80% |
+
+`pnpm check:coverage` then applies stricter per-file thresholds to critical modules such as `src/db/backup.ts`, `src/db/repository.ts`, and `src/domain/journal.ts` (see [`scripts/check-coverage-summary.mjs`](scripts/check-coverage-summary.mjs)).
+
+### Continuous integration
+
+| Workflow | Runs |
+| --- | --- |
+| [CI](.github/workflows/ci.yml) | Typecheck, lint, test, build, and PWA verification |
+| [Test coverage](.github/workflows/coverage.yml) | Coverage thresholds and critical-module checks; also weekly |
+| [Accessibility](.github/workflows/accessibility.yml) | Lighthouse accessibility check of the production build |
+| [Documentation links](.github/workflows/documentation-links.yml) | Link, PDF-anchor, and notice checks; also weekly |
+| [Workflow failure notifications](.github/workflows/notify-failures.yml) | Opens or resolves an issue when a workflow fails |
+| [Release npm package](.github/workflows/release-npm.yml) | Validates and publishes on a `v*.*.*` tag matching `package.json` |
+
+CodeQL analysis and Dependabot also run on the repository.
+
+## Deployment
+
+- **Netlify (static PWA).** [`netlify.toml`](netlify.toml) builds with `pnpm install --frozen-lockfile && pnpm build`, publishes `dist/`, adds an SPA fallback, and sets security headers (CSP, `X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies) plus no-cache rules for `index.html`, the manifest, and `sw.js`.
+- **Docker (community API).** The [`Dockerfile`](Dockerfile) builds on `node:22-alpine` and runs `server/index.mjs` on port 3000.
+- **Database.** Set `DATABASE_URL` to a `mysql://` URL that includes an `ssl` query parameter with its TLS settings; it is required when `NODE_ENV=production`. On start, the server applies its schema migration and removes expired notes daily.
+
+The Just for Today card links to the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS controls the reading and its publication date, which may differ from the device’s local date near timezone boundaries. The app does not rehost or embed the text. With redistribution authorization provided to the repository maintainer, an unchanged archival copy of *Just for Today: Daily Meditations for Recovering Addicts* is available in [`docs/copyright/Just-for-Today-NA.pdf`](docs/copyright/Just-for-Today-NA.pdf). The [daily reflection index](docs/copyright/Just-for-Today-index.md) lists dates, titles, and PDF page links only; it does not reproduce the meditation passages. Full attribution, permission scope, checksum, and non-affiliation language are recorded in [`docs/copyright/README.md`](docs/copyright/README.md).
+
+Library → **NA Step Working Guides** is an in-app reader for *The Narcotics Anonymous Step Working Guides*, shown by permission of NA World Services (see [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md#na-step-working-guides-used-by-permission)). It has a table of contents, resume-where-you-left-off, a reader text size, and an optional private answer box for every question. Answers are stored only in this browser's IndexedDB, are included in the JSON backup and in delete-all, and are never sent anywhere. The reader is reached from Library only; it is not part of the Today card rotation or any nudge. Stillpoint is not affiliated with or endorsed by NA. See NAWS’ [Intellectual Property Bulletin #1](https://na.org/wp-content/uploads/2024/06/IPBUL1-Oct2023.pdf) and [FIPT FAQ](https://na.org/service-material/fipt/fipt-faq/).
+The production build creates `dist/`, a web app manifest, a service worker, and a precache manifest. The manifest uses standalone display with shortcuts for **Today**, **I need a moment**, and **Living Garden**. See [PWA and offline](docs/wiki/PWA-and-Offline.md).
+
+## Data and privacy
+
+**Local-first.** Recovery dates, preferences, journals, reflections, scripture activity, meditation sessions, charms, and notes are stored in this browser's IndexedDB. There is no account, cloud sync, or analytics pipeline in the core app, and journal content is never uploaded.
+
+**Excluded from the MIT License: the NA Step Working Guides text.** The guide content in [`src/data/na-step-guides/guide.json`](src/data/na-step-guides/guide.json) (and anything derived from it) is *The Narcotics Anonymous Step Working Guides*, Copyright © 1998, World Service Office, Inc. Reprinted by permission. All rights reserved. It is NA Fellowship-approved literature, used in Stillpoint by permission of NA World Services and **not** licensed to you under MIT. Do not copy, adapt, or redistribute it outside this app without your own permission from NAWS. Permission status and sources are recorded in [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md#na-step-working-guides-used-by-permission).
+
+## Built with
+**Local is not encrypted or permanent.** Stillpoint does not encrypt browser storage or exported backups. Clearing site data, removing the browser profile, or uninstalling the PWA may erase saved information. Export a backup regularly and keep it somewhere private. Maintainers cannot recover lost records; only a valid backup can.
+
+**Backups and restore.** Backups are versioned JSON files. Restore previews counts and merges records locally; the profile and preferences replace saved values, duplicate IDs are skipped, and nothing syncs automatically between devices.
+
+**Community notes (opt-in).** Posting sends only a short note (120 characters or fewer) scoped to the day. It never sends your recovery profile, sobriety date, journal, meeting, location, or meditation data. Notes are public, retained for up to 90 days, and deletion keys stay in the posting browser.
+
+**External links and maps.** NA, Our Daily Bread, and meeting-directory links open only when you click them, in a new tab, with no recovery data attached. The meeting map loads OpenStreetMap tiles only after you open it; tile requests reveal the viewed area, not your filters, search text, recovery data, or device location.
+
+**Feedback survey.** Optional feedback goes to a [Jotform survey](https://form.jotform.com/262961231783057), which is subject to Jotform's own privacy practices.
+
+More detail: [Data and Privacy guide](docs/wiki/Data-and-Privacy.md) · [ADR 0001: local-first storage](docs/adr/0001-local-first-storage.md).
+
+## Content and attribution
+
+- **NA *Just for Today*** opens on the official [NA World Services page](https://na.org/daily-meditations/); the app does not copy, cache, or embed the reading. An unchanged archival copy, shared with redistribution authorization to the maintainer, is documented in [`docs/copyright/README.md`](docs/copyright/README.md), and the [daily reflection index](docs/copyright/Just-for-Today-index.md) lists dates, titles, and page links only.
+- **Our Daily Bread** links (Reading Plans and the Discover the Word podcast) appear only after choosing Christian under **Settings → Daily readings** and turning on **Show Christian extras**. Stillpoint adds an original prompt and does not reproduce publisher text.
+- **Meetings** data is a dated, partial snapshot with sources listed in [`docs/meeting-sources.md`](docs/meeting-sources.md).
+
+Not affiliated with Narcotics Anonymous World Services, Our Daily Bread Ministries, or any fellowship.
+
+## Contributing
+
+Contributions are welcome. Please read [Contributing and Troubleshooting](docs/wiki/Contributing-and-Troubleshooting.md) first. In short:
+
+1. Branch from `main` and keep one concern per pull request.
+2. Keep recovery data local by default: no hidden uploads, analytics, or required accounts.
+3. Preserve keyboard access, focus, text scaling, high contrast, reduced motion, and discreet mode.
+4. Use supportive, non-clinical language, and don't claim encryption, medical efficacy, or outcomes the code doesn't support.
+5. Run `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build`, and the documentation checker before opening a PR.
+
+Deeper docs live in the [project wiki](docs/wiki/Home.md): getting started, architecture, PWA/offline, testing and CI, accessibility validation, and content and licensing.
+
+## License
+
+[MIT](LICENSE) © 2026 Stillpoint Recovery contributors. The license covers the original application source and documentation in this repository. It does not grant rights to bundled or user-supplied media, brand assets, third-party marks, Our Daily Bread or NAWS content, or dependency packages under their own licenses.
+
+<p align="center"><sub>Made for the day you are in.</sub></p>
