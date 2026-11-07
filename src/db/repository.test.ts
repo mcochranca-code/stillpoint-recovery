@@ -1,6 +1,6 @@
 import Dexie from 'dexie';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { db } from './database';
+import { CURRENT_SCHEMA_VERSION, db } from './database';
 import { defaultPreferences, ensureDefaults, returnedAfterActivityBreak, updateDailyActivity } from './repository';
 import { localDateKey } from '../domain/time';
 import { effectiveTraditionPreference, hasChosenTradition } from '../domain/traditions';
@@ -22,7 +22,7 @@ describe('local data repositories', () => {
 
     expect(preferences).toMatchObject({
       id: 'preferences',
-      schemaVersion: 6,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       contentPreset: 'faith-based',
       theme: 'system',
       onboardingComplete: false,
@@ -31,7 +31,7 @@ describe('local data repositories', () => {
     });
     expect(profile).toMatchObject({
       id: 'recovery-profile',
-      schemaVersion: 6,
+      schemaVersion: CURRENT_SCHEMA_VERSION,
       startAt: null,
       localStartDate: null,
       intention: '',
@@ -78,7 +78,7 @@ describe('local data repositories', () => {
     legacy.close();
     await db.open();
 
-    expect((await db.recoveryProfiles.get('recovery-profile'))?.schemaVersion).toBe(6);
+    expect((await db.recoveryProfiles.get('recovery-profile'))?.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
   });
 
   it('migrates a version-5 database to v6 without losing data, mapping the content preset to a tradition', async () => {
@@ -98,7 +98,7 @@ describe('local data repositories', () => {
 
     await db.open();
     const preferences = await db.preferences.get('preferences');
-    expect(preferences).toMatchObject({ schemaVersion: 6, contentPreset: 'faith-neutral', highContrast: true, traditionPreference: { mode: 'one', traditions: ['reflective'] } });
+    expect(preferences).toMatchObject({ schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: 'faith-neutral', highContrast: true, traditionPreference: { mode: 'one', traditions: ['reflective'] } });
     // Existing installs keep their migrated tradition and count as chosen: no first-run prompt.
     expect(preferences?.traditionChoicePending).toBeUndefined();
     expect(hasChosenTradition(preferences)).toBe(true);

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, EyeOff, FileUp, HeartHandshake, ShieldCheck, Trash2 } from 'lucide-react';
+import { BookOpen, Download, EyeOff, FileUp, HeartHandshake, ShieldCheck, Trash2 } from 'lucide-react';
+import { NA_STEP_GUIDES_CREDIT, NA_STEP_GUIDES_PATH, NA_STEP_GUIDES_TITLE } from '../../data/na-step-guides/meta';
 import { useAppContext } from '../../app/AppContext';
 import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText, inspectBackupText, MAX_BACKUP_FILE_BYTES } from '../../db/backup';
 import { db } from '../../db/database';
@@ -119,7 +120,7 @@ export function SettingsPage() {
   }
 
   async function deleteAll() {
-    if (!window.confirm('Permanently remove all Stillpoint data saved in this browser? This includes journals, recovery settings, charms, garden history, and meditation records.')) return;
+    if (!window.confirm('Permanently remove all Stillpoint data saved in this browser? This includes journals, step-work answers, recovery settings, charms, garden history, and meditation records.')) return;
     if (!window.confirm('This cannot be undone. Have you downloaded a backup if you want to keep any records?')) return;
     setBusy(true);
     try {
@@ -188,6 +189,12 @@ export function SettingsPage() {
       </section>
 
       <section className="card danger-zone"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Delete local Stillpoint data</h2><p>Remove this app’s saved information from this browser. It cannot be recovered unless you have a backup.</p></div></div><button className="button button-danger" disabled={busy} onClick={() => void deleteAll()}><Trash2 size={16} aria-hidden="true" /> Permanently delete all data</button></section>
+      <section className="card" id="about" aria-labelledby="about-heading"><div className="card-header"><div><p className="eyebrow">Sources and credits</p><h2 id="about-heading">About Stillpoint</h2><p>Stillpoint’s own code and original writing are MIT-licensed. Some reading material is used by permission and keeps its own copyright.</p></div><BookOpen size={20} aria-hidden="true" /></div>
+        <h3 className="about-credit-heading">{NA_STEP_GUIDES_TITLE}</h3>
+        <p className="fine-print"><strong>{NA_STEP_GUIDES_CREDIT.approved}</strong> {NA_STEP_GUIDES_CREDIT.copyright}</p>
+        <p className="fine-print">{NA_STEP_GUIDES_CREDIT.disclaimer} This text is excluded from Stillpoint’s MIT license. Your step-work answers stay on this device.</p>
+        <Link to={NA_STEP_GUIDES_PATH} className="button button-secondary button-small">Open {NA_STEP_GUIDES_TITLE}</Link>
+      </section>
       <p className="fine-print">Stillpoint is a personal recovery companion, not a clinical monitoring system or emergency service. Prayer and meditation do not replace medical care, professional treatment or peer support.</p>
     </div>
   );
