@@ -2,13 +2,13 @@
 
 ## Current web behavior
 
-Stillpoint is a React progressive web app. The daily meditation reminder toggle in Settings is the explicit opt-in action. Turning it off does not prompt. Turning it on checks browser support and reads the current permission; it calls `Notification.requestPermission()` only if the browser still reports `default`. The preference is enabled only when permission is `granted`. Denied, dismissed, and unsupported cases leave the reminder off and show a clear notice.
+Stillpoint is a React progressive web app. There are two explicit opt-in actions for the daily reminder: the toggle in Settings, and the optional “Would a gentle daily reminder help?” card on Today, which appears only after the person's first daily check-in, never on first launch or during onboarding, never after a browser denial, and stays hidden for 30 days after “Not now”. Onboarding never requests notification permission. Turning it off does not prompt. Turning it on checks browser support and reads the current permission; it calls `Notification.requestPermission()` only if the browser still reports `default`. The preference is enabled only when permission is `granted`. Denied, dismissed, and unsupported cases leave the reminder off and show a clear notice.
 
 The copy identifies delivery as best-effort while the app is open and says closed-app delivery depends on browser support. That is the correct boundary: browser/OS lifecycle policy, focus modes, battery management, notification settings, PWA installation and service-worker support vary. A stored reminder preference or a computed next occurrence is not proof that a notification was delivered.
 
-`src/platform/notificationPermissions.ts` centralizes permission status reads and the explicit request path. Reading permission does not prompt. The Settings opt-in handler calls the request helper; the helper uses the browser API by default and gracefully reports `unsupported` when neither capability exists.
+`src/platform/notificationPermissions.ts` centralizes permission status reads and the explicit request path. Reading permission does not prompt. The Settings and Today opt-in handlers call the request helper; the helper uses the browser API by default and gracefully reports `unsupported` when neither capability exists.
 
-Notification titles and text must remain neutral. Do not place a recovery date, meeting name, fellowship, journal excerpt, diagnosis, or other sensitive field in the lock-screen payload. Do not request geolocation or contact a trusted person as part of permission handling.
+Notification titles and text must remain neutral. Do not place a recovery date, meeting name, fellowship, journal excerpt, diagnosis, or other sensitive field in the lock-screen payload. The daily reminder text is “A quiet moment for today, if it helps.” and opens Today; the service worker's `notificationclick` handler focuses or opens the app at the reminder's same-origin path. Do not request geolocation or contact a trusted person as part of permission handling.
 
 ## Native mobile status and bridge contract
 

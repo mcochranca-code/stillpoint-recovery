@@ -1,12 +1,15 @@
 import { CURRENT_SCHEMA_VERSION, db } from './database';
 import type { BackupPayload, JournalType } from '../domain/types';
 import { DEFAULT_CONTENT_PRESET, isContentPreset } from '../domain/content-preset';
+import { isTraditionPreference, normalizeTraditionPreference } from '../domain/traditions';
 
 const STORE_NAMES = [
   'preferences', 'recoveryProfiles', 'recoveryDateHistory', 'dailyReflections', 'scriptureActivity',
   'journalEntries', 'journalDrafts', 'meditationSessions', 'activeSessions', 'earnedCharms',
   'dailyActivity', 'personalGoals', 'personalMilestones', 'milestoneRecords', 'fieldGuideNotes', 'resetRecords',
+  'meetingReminders', 'stepWorkAnswers', 'readerProgress',
 ] as const;
+const CLEARABLE_STORE_NAMES = [...STORE_NAMES, 'communityCredentials'] as const;
 const SINGLETON_STORES = new Set<string>(['preferences', 'recoveryProfiles']);
 export const MAX_BACKUP_FILE_BYTES = 15_000_000;
 const SHA256_HEX = /^[a-f0-9]{64}$/;
@@ -19,6 +22,9 @@ const JOURNAL_TYPES = new Set<JournalType>([
 ]);
 const MOODS = new Set(['peaceful', 'hopeful', 'steady', 'anxious', 'sad', 'angry', 'tired', 'grateful']);
 const GUIDE_KINDS = new Set(['strategy', 'trigger', 'reflection', 'prayer', 'note']);
+const STEP_QUESTION_ID = /^s([1-9]|1[0-2])-q\d{3}$/;
+const READER_CHAPTER_ID = /^(preface|step-([1-9]|1[0-2]))$/;
+const READER_TEXT_SIZES = new Set(['small', 'default', 'large', 'larger']);
 
 /** Export every supported local table as a versioned JSON-ready payload. */
 export async function createBackup(): Promise<BackupPayload> {
@@ -114,7 +120,7 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
 
   switch (name) {
     case 'preferences':
-      return row.id === 'preferences' && isCount(row.schemaVersion, 1, 5) && typeof row.onboardingComplete === 'boolean'
+      return row.id === 'preferences' && isCount(row.schemaVersion, 1, CURRENT_SCHEMA_VERSION) && typeof row.onboardingComplete === 'boolean'
         && typeof row.theme === 'string' && THEME_MODES.has(row.theme)
         && (row.colorTheme === undefined || (typeof row.colorTheme === 'string' && COLOR_THEMES.has(row.colorTheme)))
         && typeof row.highContrast === 'boolean' && typeof row.reducedMotion === 'boolean'
@@ -124,10 +130,13 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
         && (row.meetingReminders === undefined || isMeetingReminderArray(row.meetingReminders))
         && isStringArray(row.trustedContacts) && (row.supportResources === undefined || isStringArray(row.supportResources))
         && (row.contentPreset === undefined || isContentPreset(row.contentPreset))
+        && (row.traditionPreference === undefined || isTraditionPreference(row.traditionPreference))
+        && (row.traditionChoicePending === undefined || typeof row.traditionChoicePending === 'boolean')
+        && (row.christianExtras === undefined || typeof row.christianExtras === 'boolean')
         && typeof row.discreetMode === 'boolean' && typeof row.gardenStyle === 'string' && GARDEN_STYLES.has(row.gardenStyle)
         && typeof row.allowBreathHolds === 'boolean' && isDate(row.createdAt) && isDate(row.updatedAt);
     case 'recoveryProfiles':
-      return row.id === 'recovery-profile' && isCount(row.schemaVersion, 1, 5)
+      return row.id === 'recovery-profile' && isCount(row.schemaVersion, 1, CURRENT_SCHEMA_VERSION)
         && (row.startAt === null || isDate(row.startAt))
         && (row.localStartDate === null || isLocalDate(row.localStartDate))
         && (row.localStartTime === null || isTime(row.localStartTime))
@@ -187,6 +196,19 @@ function validRecord(name: string, value: unknown): value is Record<string, unkn
     case 'resetRecords':
       return isString(row.feeling, 120) && isNonEmptyString(row.practice, 200)
         && isString(row.nextStep, 1000) && isDate(row.createdAt) && typeof row.completed === 'boolean';
+    case 'meetingReminders':
+      return isNonEmptyString(row.meetingId, 240) && [15, 30, 60].includes(Number(row.leadMinutes))
+        && isDate(row.createdAt) && isOptionalDate(row.lastNotifiedOccurrenceAt)
+        && isOptionalDate(row.lastAttemptedOccurrenceAt);
+    case 'stepWorkAnswers': {
+      const match = typeof row.questionId === 'string' ? STEP_QUESTION_ID.exec(row.questionId) : null;
+      return Boolean(match) && row.id === row.questionId && row.stepNumber === Number(match?.[1])
+        && isString(row.text, 20000) && isDate(row.createdAt) && isDate(row.updatedAt);
+    }
+    case 'readerProgress':
+      return row.id === 'na-step-guides' && typeof row.chapterId === 'string' && READER_CHAPTER_ID.test(row.chapterId)
+        && (row.sectionId === undefined || isNonEmptyString(row.sectionId, 200))
+        && typeof row.textSize === 'string' && READER_TEXT_SIZES.has(row.textSize) && isDate(row.updatedAt);
     default:
       return false;
   }
@@ -220,7 +242,7 @@ async function parseBackupText(text: string): Promise<ParsedBackup> {
   const candidate = payload as Partial<BackupPayload>;
   if (candidate.application !== 'stillpoint-recovery' || typeof candidate.schemaVersion !== 'number'
     || !Number.isInteger(candidate.schemaVersion) || candidate.schemaVersion < 1
-    || candidate.schemaVersion > CURRENT_SCHEMA_VERSION || !candidate.tables
+    || candidate.schemaVersion > CURRENT_SCHEMA_VERSION || !isDate(candidate.exportedAt) || !candidate.tables
     || typeof candidate.tables !== 'object' || Array.isArray(candidate.tables)) {
     throw new Error('The backup format is not supported by this version of Stillpoint.');
   }
@@ -313,6 +335,7 @@ export async function importBackupText(text: string): Promise<ImportResult> {
             ...raw,
             schemaVersion: CURRENT_SCHEMA_VERSION,
             contentPreset: isContentPreset(raw.contentPreset) ? raw.contentPreset : DEFAULT_CONTENT_PRESET,
+            traditionPreference: normalizeTraditionPreference(raw.traditionPreference, isContentPreset(raw.contentPreset) ? raw.contentPreset : DEFAULT_CONTENT_PRESET),
             colorTheme: typeof raw.colorTheme === 'string' && COLOR_THEMES.has(raw.colorTheme) ? raw.colorTheme : 'stillpoint',
             supportResources: isStringArray(raw.supportResources) ? raw.supportResources : [],
             meetingReminders: isMeetingReminderArray(raw.meetingReminders) ? raw.meetingReminders : [],
@@ -340,7 +363,7 @@ export async function importBackupText(text: string): Promise<ImportResult> {
 
 /** Permanently remove every Stillpoint table from the current browser profile. */
 export async function clearAllLocalData(): Promise<void> {
-  await db.transaction('rw', STORE_NAMES.map((name) => db.table(name)), async () => {
-    for (const name of STORE_NAMES) await db.table(name).clear();
+  await db.transaction('rw', CLEARABLE_STORE_NAMES.map((name) => db.table(name)), async () => {
+    for (const name of CLEARABLE_STORE_NAMES) await db.table(name).clear();
   });
 }

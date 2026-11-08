@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Download, EyeOff, FileUp, HeartHandshake, ShieldCheck, Trash2 } from 'lucide-react';
+import { BookOpen, Download, EyeOff, FileUp, HeartHandshake, ShieldCheck, Trash2 } from 'lucide-react';
+import { NA_STEP_GUIDES_CREDIT, NA_STEP_GUIDES_PATH, NA_STEP_GUIDES_TITLE } from '../../data/na-step-guides/meta';
 import { useAppContext } from '../../app/AppContext';
 import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText, inspectBackupText, MAX_BACKUP_FILE_BYTES } from '../../db/backup';
 import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
+import { TraditionPicker } from '../../components/TraditionPicker';
+import { hasChosenTradition, normalizeTraditionPreference } from '../../domain/traditions';
+import { hasChosenChristianTradition, shouldShowChristianExtras } from '../../domain/content-preset';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
-import type { ContentPreset, ThemeMode } from '../../domain/types';
+import type { ThemeMode } from '../../domain/types';
+import { clearAllLocalSignals, readLocalSignal, requestPersistentStorage, writeLocalSignal } from '../../platform/localSignals';
+import { formatLocalDate } from '../../domain/time';
 import { getNotificationPermission, requestNotificationPermission, type NotificationPermissionStatus } from '../../platform/notificationPermissions';
 
 function formatBytes(value: number): string {
@@ -27,6 +33,7 @@ export function SettingsPage() {
   const [storageUse, setStorageUse] = useState('Checking…');
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermissionStatus>('unsupported');
   const [busy, setBusy] = useState(false);
+  const [lastBackupAt, setLastBackupAt] = useState(() => readLocalSignal('lastBackupAt'));
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -80,7 +87,7 @@ export function SettingsPage() {
 
   async function exportBackup() {
     setBusy(true);
-    try { downloadJsonBackup(await createBackup()); notify('Your local JSON backup has been downloaded. Keep it somewhere private.'); }
+    try { downloadJsonBackup(await createBackup()); const at = new Date().toISOString(); writeLocalSignal('lastBackupAt', at); setLastBackupAt(at); void requestPersistentStorage(); notify('Your local JSON backup has been downloaded. Keep it somewhere private.'); }
     catch { notify('The backup could not be created. Check browser storage and try again.'); }
     finally { setBusy(false); }
   }
@@ -113,11 +120,13 @@ export function SettingsPage() {
   }
 
   async function deleteAll() {
-    if (!window.confirm('Permanently remove all Stillpoint data saved in this browser? This includes journals, recovery settings, charms, garden history, and meditation records.')) return;
+    if (!window.confirm('Permanently remove all Stillpoint data saved in this browser? This includes journals, step-work answers, recovery settings, charms, garden history, and meditation records.')) return;
     if (!window.confirm('This cannot be undone. Have you downloaded a backup if you want to keep any records?')) return;
     setBusy(true);
     try {
       await clearAllLocalData();
+      clearAllLocalSignals();
+      setLastBackupAt(null);
       await db.preferences.put(defaultPreferences());
       await db.recoveryProfiles.put(defaultRecoveryProfile());
       notify('All local recovery records have been removed. Setup will begin again.');
@@ -141,18 +150,26 @@ export function SettingsPage() {
         <label className="toggle-row"><span><strong>Reduce motion</strong><small>Minimize nonessential transitions and animated visuals.</small></span><input type="checkbox" checked={preferences.reducedMotion} onChange={(event) => void updatePreferences({ reducedMotion: event.target.checked })} /></label>
         <label className="toggle-row"><span><strong>Hide meditation visuals</strong><small>Use written cues and session timing without the animation.</small></span><input type="checkbox" checked={preferences.hideMeditationVisual} onChange={(event) => void updatePreferences({ hideMeditationVisual: event.target.checked })} /></label>
         <label className="toggle-row"><span><strong>Live sobriety counter</strong><small>Update the exact timer continuously when it is shown.</small></span><input type="checkbox" checked={preferences.liveCounter} onChange={(event) => void updatePreferences({ liveCounter: event.target.checked })} /></label>
-        <label className="toggle-row discreet-row"><span><strong><EyeOff size={15} /> Discreet display</strong><small>Hide exact sobriety duration and sensitive headings from casual view.</small></span><input type="checkbox" checked={preferences.discreetMode} onChange={(event) => void updatePreferences({ discreetMode: event.target.checked })} /></label>
+        <label className="toggle-row discreet-row"><span><strong><EyeOff size={15} aria-hidden="true" /> Discreet display</strong><small>Hide exact sobriety duration and sensitive headings from casual view.</small></span><input type="checkbox" checked={preferences.discreetMode} onChange={(event) => void updatePreferences({ discreetMode: event.target.checked })} /></label>
         <div className="form-grid"><label className="field-label" htmlFor="garden-style">Living Garden style<select id="garden-style" value={preferences.gardenStyle} onChange={(event) => void updatePreferences({ gardenStyle: event.target.value as 'woodland' | 'desert-bloom' })}><option value="woodland">Woodland</option><option value="desert-bloom">Desert bloom</option></select></label></div>
       </section>
 
-      <section className="card"><div className="card-header"><div><p className="eyebrow">Choose what appears</p><h2>Content preferences</h2></div></div>
-        <label className="field-label" htmlFor="content-preset">Content preset<select id="content-preset" value={preferences.contentPreset ?? 'faith-based'} onChange={(event) => void updatePreferences({ contentPreset: event.target.value as ContentPreset })}><option value="faith-based">Faith-based content included</option><option value="faith-neutral">Faith-neutral · hide faith-based sections</option></select></label>
-        <p className="fine-print">Faith-neutral hides Our Daily Bread and Scripture for the Journey on Today, the Scripture tab in Library, and Scripture-specific saved-reading and progress labels. This choice stays on this device; switching presets hides or restores these views without deleting your saved data.</p>
+      <section className="card" id="daily-readings" aria-labelledby="daily-readings-heading"><div className="card-header"><div><p className="eyebrow">Your path, your words</p><h2 id="daily-readings-heading">Daily readings</h2><p>Readings can come from one tradition, a few you choose, or all of them in turn. Each one shows its source, translation and license.</p></div></div>
+        {!hasChosenTradition(preferences) && <p className="fine-print">You haven’t chosen yet. Until you do, readings come from the spiritual-but-not-religious set, which needs no faith.</p>}
+        <TraditionPicker value={hasChosenTradition(preferences) ? normalizeTraditionPreference(preferences.traditionPreference, preferences.contentPreset) : null} onChange={(next) => void updatePreferences({ traditionPreference: next, traditionChoicePending: false }).then(() => notify('Your reading choice is saved on this device.'))} />
+        <p className="fine-print">Texts are public-domain translations, or original Stillpoint reflections and paraphrases where the best-known words are still under copyright. They have not yet been reviewed by faith leaders; if something reads wrongly to you, please tell the project.</p>
+      </section>
+
+      <section className="card" aria-labelledby="christian-extras-heading"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2 id="christian-extras-heading">Christian extras</h2></div></div>
+        {hasChosenChristianTradition(preferences)
+          ? <label className="toggle-row"><span><strong>Show Christian extras</strong><small>Adds links to Our Daily Bread reading plans and podcasts on Today, the Scripture tab in Library, and Scripture labels in saved readings and progress. Off unless you turn it on.</small></span><input type="checkbox" checked={shouldShowChristianExtras(preferences)} onChange={(event) => { const on = event.target.checked; void updatePreferences({ christianExtras: on }).then(() => notify(on ? 'Christian extras are on for this device.' : 'Christian extras are hidden on this device.')); }} /></label>
+          : <p className="fine-print">Optional Christian resources, such as Our Daily Bread reading plans and a Scripture library, can be added if you choose Christian under Daily readings. They stay off until you turn them on.</p>}
+        <p className="fine-print">This choice stays on this device. Turning extras off hides these views without deleting anything you saved.</p>
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Gentle reminders</h2><p>Neutral wording. No guilt or recovery details in notifications.</p></div></div>
-        <label className="toggle-row"><span><strong>Daily meditation reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available on this browser or mobile host.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
-        <label className="field-label" htmlFor="reminder-time">Daily meditation reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
+        <label className="toggle-row"><span><strong>Daily reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available on this browser or mobile host.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
+        <label className="field-label" htmlFor="reminder-time">Daily reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
       </section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">People you choose</p><h2>Trusted contacts</h2><p>Keep a private contact list or outreach reminder. Stillpoint will never message or call anyone.</p></div><HeartHandshake size={20} aria-hidden="true" /></div>
@@ -163,14 +180,21 @@ export function SettingsPage() {
       <section className="card"><div className="card-header"><div><p className="eyebrow">Your private playbook</p><h2>Personal Recovery Field Guide</h2><p>Review triggers, strategies and reflections you choose to record. This tool does not predict or diagnose anything.</p></div></div><Link to="/field-guide" className="button button-secondary">Open Field Guide</Link></section>
 
       <section className="card"><div className="card-header"><div><p className="eyebrow">Your information belongs to you</p><h2>Backup & restore</h2><p>To move between devices, download a backup here, transfer the JSON file using a private method you trust, then choose Restore from JSON on the other device. Stillpoint does not upload or sync the file.</p></div></div>
-        <div className="backup-actions"><button className="button button-primary" disabled={busy} onClick={() => void exportBackup()}><Download size={16} /> Download JSON backup</button><button className="button button-secondary" disabled={busy} onClick={() => inputRef.current?.click()}><FileUp size={16} /> Restore from JSON</button><input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" aria-label="Select Stillpoint JSON backup" onChange={(event) => void restoreBackup(event.target.files?.[0])} /></div>
+        <div className="backup-actions"><button className="button button-primary" disabled={busy} onClick={() => void exportBackup()}><Download size={16} aria-hidden="true" /> Download JSON backup</button><button className="button button-secondary" disabled={busy} onClick={() => inputRef.current?.click()}><FileUp size={16} aria-hidden="true" /> Restore from JSON</button><input ref={inputRef} className="sr-only" type="file" accept="application/json,.json" aria-label="Select Stillpoint JSON backup" onChange={(event) => void restoreBackup(event.target.files?.[0])} /></div>
+        <p className="fine-print backup-last">{lastBackupAt ? `Last backup downloaded from this device: ${formatLocalDate(lastBackupAt)}.` : 'No backup downloaded from this device yet.'}</p>
         <p className="fine-print">Restore previews record counts before confirmation. Preferences and the recovery profile replace their local values; other records merge by ID, duplicates are kept as-is, and existing records are not cleared.</p>
         <p className="fine-print">Backup files are ordinary, unencrypted JSON and may contain journals, recovery dates and other sensitive details. New backups include a SHA-256 checksum to detect accidental changes, but checksums do not encrypt the file or prove who created it. Keep backups private and use a transfer method you trust.</p>
         <p className="fine-print">Date-only recovery dates are interpreted as local midnight on the date selected. Travel and time-zone changes may affect the local clock display; the saved start instant remains the source for elapsed time.</p>
-        <p className="storage-note"><ShieldCheck size={16} /> Stored in this browser profile on this device · {storageUse} · not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it.</p>
+        <p className="storage-note"><ShieldCheck size={16} aria-hidden="true" /> Stored in this browser profile on this device · {storageUse} · not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it.</p>
       </section>
 
-      <section className="card danger-zone"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Delete local Stillpoint data</h2><p>Remove this app’s saved information from this browser. It cannot be recovered unless you have a backup.</p></div></div><button className="button button-danger" disabled={busy} onClick={() => void deleteAll()}><Trash2 size={16} /> Permanently delete all data</button></section>
+      <section className="card danger-zone"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Delete local Stillpoint data</h2><p>Remove this app’s saved information from this browser. It cannot be recovered unless you have a backup.</p></div></div><button className="button button-danger" disabled={busy} onClick={() => void deleteAll()}><Trash2 size={16} aria-hidden="true" /> Permanently delete all data</button></section>
+      <section className="card" id="about" aria-labelledby="about-heading"><div className="card-header"><div><p className="eyebrow">Sources and credits</p><h2 id="about-heading">About Stillpoint</h2><p>Stillpoint’s own code and original writing are MIT-licensed. Some reading material is used by permission and keeps its own copyright.</p></div><BookOpen size={20} aria-hidden="true" /></div>
+        <h3 className="about-credit-heading">{NA_STEP_GUIDES_TITLE}</h3>
+        <p className="fine-print"><strong>{NA_STEP_GUIDES_CREDIT.approved}</strong> {NA_STEP_GUIDES_CREDIT.copyright}</p>
+        <p className="fine-print">{NA_STEP_GUIDES_CREDIT.disclaimer} This text is excluded from Stillpoint’s MIT license. Your step-work answers stay on this device.</p>
+        <Link to={NA_STEP_GUIDES_PATH} className="button button-secondary button-small">Open {NA_STEP_GUIDES_TITLE}</Link>
+      </section>
       <p className="fine-print">Stillpoint is a personal recovery companion, not a clinical monitoring system or emergency service. Prayer and meditation do not replace medical care, professional treatment or peer support.</p>
     </div>
   );

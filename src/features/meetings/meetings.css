@@ -112,3 +112,31 @@
 .meeting-empty-sources { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 18px; margin-top: 4px; }
 .meeting-empty-sources a { display: inline-flex; align-items: center; gap: 5px; color: var(--primary); font-size: 0.6875rem; font-weight: 700; text-decoration: none; }
 .meeting-empty-sources a:hover, .meeting-empty-sources a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Keyboard-focusable map pins, opt-in position control and the list alternative's details. */
+.meeting-map-pin { display: grid; place-items: center; border-radius: 50%; background: transparent; border: 0; cursor: pointer; }
+.meeting-map-pin__dot { display: block; width: 14px; height: 14px; border: 2px solid var(--surface); border-radius: 50%; background: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,.28); transition: transform var(--motion-quick, 160ms) var(--ease-settle, ease); }
+.meeting-map-pin:hover .meeting-map-pin__dot, .meeting-map-pin.is-selected .meeting-map-pin__dot { transform: scale(1.25); }
+.meeting-map-pin.is-selected .meeting-map-pin__dot { box-shadow: 0 0 0 4px var(--primary-soft-strong), 0 1px 4px rgba(0,0,0,.28); }
+.meeting-map-pin:focus-visible { outline: var(--focus-ring-width, 3px) solid var(--focus-ring); outline-offset: 1px; }
+.meeting-map-canvas:focus-visible { outline: var(--focus-ring-width, 3px) solid var(--focus-ring); outline-offset: 2px; }
+.meeting-map-locate { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 8px; }
+.meeting-map-locate small { flex: 1 1 260px; color: var(--muted); font-size: 0.625rem; line-height: 1.5; }
+.meeting-map-locate .button { display: inline-flex; align-items: center; gap: 6px; }
+.meeting-map-locate-status:empty { display: none; }
+.meeting-map-locate-status { margin: 0 0 8px; color: var(--ink); font-size: 0.6875rem; line-height: 1.5; }
+.meeting-map-directory-hint { margin: 2px 0 0; color: var(--muted); font-size: 0.625rem; }
+.meeting-map-directory button[aria-pressed='true'] { border-color: var(--primary); background: var(--selected-bg); color: var(--selected-ink); }
+.meeting-map-directory button span { display: inline-flex; align-items: center; gap: 5px; }
+.meeting-map-selected:empty { display: none; }
+.meeting-map-selected { margin-top: 10px; padding: 12px; border: 1px solid var(--border); border-left: 3px solid var(--primary); border-radius: 12px; background: var(--surface); font-size: 0.6875rem; line-height: 1.5; animation: route-enter var(--motion-gentle, 280ms) var(--ease-settle, ease) both; }
+.meeting-map-selected h4 { margin: 0 0 4px; font-size: 0.75rem; }
+.meeting-map-selected-note { margin: 0 0 8px; color: var(--muted); }
+.meeting-map-selected ul { display: grid; gap: 8px; margin: 0; padding-left: 17px; }
+.meeting-map-selected li span, .meeting-map-selected li a { display: block; }
+.meeting-map-selected a { color: var(--primary); text-underline-offset: 2px; }
+.meeting-map-position { position: relative; pointer-events: none; }
+.meeting-map-position__halo { position: absolute; inset: 0; border-radius: 50%; background: color-mix(in srgb, var(--focus-ring) 22%, transparent); animation: splash-breathe var(--motion-breath, 4200ms) var(--ease-breathe, ease-in-out) infinite; }
+.meeting-map-position__dot { position: absolute; inset: 11px; border: 2px solid #fff; border-radius: 50%; background: var(--focus-ring); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+@media (prefers-reduced-motion: reduce) { .meeting-map-position__halo { animation: none; } }
+.reduce-motion .meeting-map-position__halo { animation: none; }

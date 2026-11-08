@@ -13,11 +13,15 @@ pnpm test:coverage
 pnpm build
 ```
 
-The test suite uses Vitest with a JSDOM environment, fake IndexedDB, and Testing Library. Coverage includes date and timer math, achievement rules and persistence, daily activity mutation, reached-milestone idempotence, journal entry creation/editing/deletion and draft recovery, backup validation/transaction rollback/merge/deletion, share previews, content integrity, dialog focus, ambient audio, external-resource cards, meeting filters, and Box Breathing sphere-path calculations.
+The test suite uses Vitest with a JSDOM environment, fake IndexedDB, and Testing Library. Coverage includes date and timer math, achievement rules and persistence, daily activity mutation, reached-milestone idempotence, journal entry creation/editing/deletion and draft recovery, backup validation/transaction rollback/merge/deletion, IndexedDB migration from historical schema versions, share previews, content integrity, dialog keyboard/focus behavior, navigation, reduced-motion settings, ambient audio, external-resource cards, meeting filters, and Box Breathing sphere-path calculations.
 
 ## Coverage workflow
 
-`.github/workflows/coverage.yml` runs on pushes to `main`, pull requests, manual dispatch, and every Monday at 08:47 UTC. It runs all Vitest tests with the V8 provider, scopes instrumentation to `src/**/*.{ts,tsx}`, writes text/HTML/JSON-summary reports, adds line/branch/function percentages to the GitHub job summary, and uploads the complete `coverage/` directory as a 14-day artifact. The workflow reports coverage without enforcing a threshold, so coverage can improve incrementally without masking a failing test suite.
+`.github/workflows/coverage.yml` runs on pushes to `main`, pull requests, manual dispatch, and every Monday at 08:47 UTC. Vitest enforces repository-wide floors of 80% statements and lines, 70% branches, and 55% functions. `pnpm check:coverage` also enforces stronger file-specific floors for IndexedDB/backup, domain date and journal rules, onboarding, and the journal, meditation, and Today flows. The workflow writes text/HTML/JSON-summary reports, adds line/branch/function percentages to the GitHub job summary, and uploads the complete `coverage/` directory as a 14-day artifact. Raise thresholds when coverage grows; do not lower them just to bypass a failing check.
+
+The production PWA verification script checks the standalone manifest, route metadata, same-origin precache entries, cached root app shell, and service-worker navigation fallback. These checks protect the generated offline shell and install metadata; they do not promise that uncached external pages or map tiles work without a network.
+
+`.github/workflows/accessibility.yml` runs Lighthouse accessibility audits on pull requests and pushes to `main`, with a minimum 0.90 accessibility score for the production app-shell route. Vitest keyboard tests separately cover navigation, dialog focus trapping, Escape handling, and reduced-motion preference controls. Follow the [accessibility regression checklist](Accessibility-Validation.md); Lighthouse is an automated signal, not a substitute for manual screen-reader, keyboard, contrast, and reduced-motion review.
 
 ## Failure notifications
 

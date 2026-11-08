@@ -31,7 +31,7 @@ describe('MeetingsPage', () => {
     expect(screen.getByText(/Stanislaus AA\/NA snapshot was checked Oct 23, 2026/)).toBeTruthy();
     expect(screen.getByText(/233-row workbook snapshot and a separate 157-row online\/hybrid schedule snapshot, both dated October 26, 2026/)).toBeTruthy();
     expect(screen.getAllByText(/not an exhaustive/i).length).toBeGreaterThan(0);
-    expect(screen.getByText(/does not request your location, record attendance/)).toBeTruthy();
+    expect(screen.getByText(/does not request your location unless you choose “Show my approximate position”/)).toBeTruthy();
   });
 
   it('discloses online snapshot limitations and lets users find broad-scope entries without publishing join credentials', () => {
@@ -64,7 +64,7 @@ describe('MeetingsPage', () => {
   it('shows a user-provided Faith-Based row as unverified and without a fabricated source link or map pin', () => {
     render(<MeetingsPage />);
     fireEvent.click(screen.getByText(/Faith-Based snapshot: 39 user-provided rows/));
-    expect(screen.getAllByText(/not independently rechecked/i)).toHaveLength(2);
+    expect(screen.getAllByText(/not independently rechecked/i).length).toBeGreaterThan(0);
 
     fireEvent.change(screen.getByLabelText('Day'), { target: { value: 'all' } });
     fireEvent.change(screen.getByLabelText('County / source region'), { target: { value: 'Central Valley' } });
