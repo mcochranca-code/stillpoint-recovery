@@ -4,8 +4,10 @@ import { hashRandomToken, isValidReadingKey, isValidRandomToken, validateComment
 const token = 'ea817b3a-1f42-49a3-8c61-a769ff1f56bc';
 
 describe('community comment policy', () => {
-  it('accepts only date-scoped original Stillpoint reading keys', () => {
+  it('accepts date-scoped original readings and only the exact independent notes-board key', () => {
     expect(isValidReadingKey('stillpoint:2026-11-01:reflection-001')).toBe(true);
+    expect(isValidReadingKey('stillpoint:community-notes')).toBe(true);
+    expect(isValidReadingKey('stillpoint:community-notes:reflection-001')).toBe(false);
     expect(isValidReadingKey('na:2026-11-01:jft')).toBe(false);
     expect(isValidReadingKey('stillpoint:2026-02-31:reflection-001')).toBe(false);
     expect(isValidReadingKey('stillpoint:2026-11-01:../../settings')).toBe(false);

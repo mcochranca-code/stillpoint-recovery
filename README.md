@@ -51,6 +51,7 @@ Recovery is personal. Most tracking apps turn it into a score; Stillpoint makes 
 - **Make it yours** — five palettes (Stillpoint, Catppuccin, Monokai, Obsidian, Lucide) and accessibility controls.
 - **Backups you control** — export and restore versioned JSON backups on-device, and opt-in milestone sharing that you preview first.
 - **Optional community notes** — short, public, date-scoped notes on the day's original reading, only if you choose to post (see [Data and privacy](#data-and-privacy)).
+- **Community Notes** is a first-class, account-free navigation destination with a separate shared board. Notes are fetched only after you explicitly open it and expire after up to 90 days.
 
 ## Screenshots
 

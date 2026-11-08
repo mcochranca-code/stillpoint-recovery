@@ -992,6 +992,7 @@ textarea { resize: vertical; line-height: 1.65; }
 
 /* Optional hosted community notes */
 .community-discussion { margin-top: 20px; padding-top: 19px; border-top: 1px solid var(--border); }
+.community-discussion--standalone { margin-top: 0; padding: 20px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }
 .community-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .community-heading h3 { display: flex; align-items: center; gap: 7px; margin: 0 0 5px; font: 500 1.0625rem/1.3 Georgia, serif; }
 .community-heading h3 svg { color: var(--primary); }

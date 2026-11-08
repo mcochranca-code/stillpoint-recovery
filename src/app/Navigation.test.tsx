@@ -7,7 +7,7 @@ describe('Navigation', () => {
   it('keeps every mobile destination and readable visible labels with full accessible names', () => {
     render(<MemoryRouter><Navigation /></MemoryRouter>);
     const mobileNavigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
-    const routeLabels = ['Home', 'Progress', 'Current milestone token', 'Journal', 'Meditation', 'Meetings', 'Community', 'Library'];
+    const routeLabels = ['Home', 'Progress', 'Current milestone token', 'Journal', 'Meditation', 'Meetings', 'Community Notes', 'Library'];
 
     expect(within(mobileNavigation).getAllByRole('link')).toHaveLength(routeLabels.length);
     for (const label of routeLabels) {

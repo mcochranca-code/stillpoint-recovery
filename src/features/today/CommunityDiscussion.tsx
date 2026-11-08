@@ -5,6 +5,7 @@ import { useAppContext } from '../../app/AppContext';
 import { db } from '../../db/database';
 import type { CommunityCommentCredential } from '../../domain/types';
 import {
+  COMMUNITY_NOTES_BOARD_KEY,
   countCommentCharacters,
   deleteCommunityComment,
   fetchReadingComments,
@@ -17,17 +18,21 @@ import {
 } from '../../domain/communityClient';
 
 interface CommunityDiscussionProps {
-  date: string;
-  reflectionId: string;
+  date?: string;
+  reflectionId?: string;
+  mode?: 'reflection' | 'board';
 }
 
 function makeToken(): string {
   return window.crypto.randomUUID();
 }
 
-export function CommunityDiscussion({ date, reflectionId }: CommunityDiscussionProps) {
+export function CommunityDiscussion({ date, reflectionId, mode = 'reflection' }: CommunityDiscussionProps) {
+  const isBoard = mode === 'board';
   const { notify } = useAppContext();
-  const readingKey = `stillpoint:${date}:${reflectionId}`;
+  const readingKey = isBoard
+    ? COMMUNITY_NOTES_BOARD_KEY
+    : `stillpoint:${date ?? ''}:${reflectionId ?? ''}`;
   const [open, setOpen] = useState(false);
   const [comments, setComments] = useState<PublicCommunityComment[]>([]);
   const [loading, setLoading] = useState(false);
@@ -95,8 +100,8 @@ export function CommunityDiscussion({ date, reflectionId }: CommunityDiscussionP
       setComments((current) => [...current, posted]);
       setText('');
       setConsent(false);
-      setStatus('Your short note is now visible with this original reading.');
-      notify('Your optional community note was posted.');
+      setStatus(isBoard ? 'Your short note is now visible on the Community Notes board.' : 'Your short note is now visible with this original reading.');
+      notify(isBoard ? 'Your community note was posted.' : 'Your optional community note was posted.');
     } catch (postError) {
       setError(postError instanceof CommunityResponseError ? postError.message : 'We could not confirm that your note was posted. Your private removal key was kept on this device; check the thread before trying again.');
     } finally {
@@ -134,29 +139,39 @@ export function CommunityDiscussion({ date, reflectionId }: CommunityDiscussionP
     }
   }
 
+  const sectionClass = `community-discussion${isBoard ? ' community-discussion--standalone' : ''}`;
+  const threadLabel = isBoard ? 'Public notes on the Community Notes board' : 'Public notes for this reading';
+
   return (
-    <section className="community-discussion" aria-labelledby="community-discussion-title">
+    <section className={sectionClass} aria-labelledby="community-discussion-title">
       <div className="community-heading">
         <div>
-          <p className="eyebrow">Optional, shared space</p>
-          <h3 id="community-discussion-title"><MessageCircle size={17} aria-hidden="true" /> Community notes</h3>
-          <p>Short, account-free thoughts on this original Stillpoint reading. Posting is optional.</p>
+          <p className="eyebrow">{isBoard ? 'Separate shared board' : 'Optional, shared space'}</p>
+          <h3 id="community-discussion-title"><MessageCircle size={17} aria-hidden="true" /> {isBoard ? 'Community Notes board' : 'Community notes'}</h3>
+          <p>{isBoard ? 'A shared space for short notes, separate from any single Stillpoint reflection.' : 'Short, account-free thoughts on this original Stillpoint reading. Posting is optional.'}</p>
         </div>
         <button className="button button-secondary button-small" type="button" aria-expanded={open} onClick={() => void toggleDiscussion()}>
-          {open ? 'Close notes' : 'Open notes'}
+          {open ? (isBoard ? 'Close board' : 'Close notes') : (isBoard ? 'Open board' : 'Open notes')}
         </button>
       </div>
 
-      {!open && <p className="community-teaser">Opening this section loads public notes for today’s original reflection. Nothing from your private recovery profile or journal is sent.</p>}
+      {!open && <p className="community-teaser">{isBoard
+        ? 'The board is independent of the daily reflection thread. Choose “Open board” to fetch public notes; nothing is fetched until you open it.'
+        : 'Opening this section loads public notes for today’s original reflection. Nothing from your private recovery profile or journal is sent.'}</p>}
 
       {open && <div className="community-body" aria-busy={loading || busy}>
         <aside className="community-disclosure" aria-label="Community privacy and safety information">
           <strong>Before you join</strong>
-          <p>Notes are public to other visitors and hosted online for up to 90 days. No account or name is required, but this is pseudonymous—not guaranteed anonymous to the hosting service, which may process ordinary connection/security metadata. Only this short note and the original reading’s date/id are sent; your sobriety date, recovery profile, journal, location, and meditation history are not.</p>
-          <p>Do not share names, contact details, health information, or anything you would not want copied. Basic automated checks reject some links, personal contact details, and targeted harmful language; three reports from different browser-held tokens hide a note. These controls are limited, tokens can be reset, there is no guaranteed human review, and harmful posts cannot be fully prevented. Your deletion key is stored only in this browser; clearing site data can remove your ability to delete a note here.</p>
+          {isBoard ? <>
+            <p>Notes are public to other visitors and hosted online for up to 90 days. No account or name is required, but posting is pseudonymous—not guaranteed anonymous to the hosting service, which may process ordinary connection/security metadata. Only the short note and fixed Community Notes board identifier are sent; your sobriety date, recovery profile, journal, location, and meditation history are not.</p>
+            <p>Do not share names, contact details, health information, or anything you would not want copied. Basic automated checks reject some links, personal contact details, and targeted harmful language; three reports from different browser-held tokens hide a note. These controls are limited, tokens can be reset, there is no guaranteed human review, and harmful posts cannot be fully prevented. Your deletion key is stored only in this browser; clearing site data can remove your ability to delete a note here.</p>
+          </> : <>
+            <p>Notes are public to other visitors and hosted online for up to 90 days. No account or name is required, but this is pseudonymous—not guaranteed anonymous to the hosting service, which may process ordinary connection/security metadata. Only this short note and the original reading’s date/id are sent; your sobriety date, recovery profile, journal, location, and meditation history are not.</p>
+            <p>Do not share names, contact details, health information, or anything you would not want copied. Basic automated checks reject some links, personal contact details, and targeted harmful language; three reports from different browser-held tokens hide a note. These controls are limited, tokens can be reset, there is no guaranteed human review, and harmful posts cannot be fully prevented. Your deletion key is stored only in this browser; clearing site data can remove your ability to delete a note here.</p>
+          </>}
         </aside>
 
-        <div className="community-thread" aria-label="Public notes for this reading">
+        <div className="community-thread" aria-label={threadLabel}>
           <div className="community-thread-header"><strong>{comments.length} {comments.length === 1 ? 'note' : 'notes'}</strong><button type="button" className="text-button" onClick={() => void loadComments(true)} disabled={loading}>Refresh</button></div>
           {loading && <p className="fine-print" role="status">Loading public notes…</p>}
           {!loading && !error && comments.length === 0 && <p className="community-empty">No notes yet. A kind, brief thought can be enough.</p>}
@@ -176,8 +191,8 @@ export function CommunityDiscussion({ date, reflectionId }: CommunityDiscussionP
         </div>
 
         <form className="community-form" onSubmit={(event) => void postComment(event)}>
-          <label className="field-label" htmlFor="community-note">Add a short note</label>
-          <input id="community-note" type="text" autoComplete="off" maxLength={240} value={text} onChange={(event) => setText(Array.from(event.target.value).slice(0, 120).join(''))} aria-describedby="community-note-count community-note-guidance" placeholder="Offer a kind thought about today’s reading…" disabled={busy} />
+          <label className="field-label" htmlFor="community-note">{isBoard ? 'Add a community note' : 'Add a short note'}</label>
+          <input id="community-note" type="text" autoComplete="off" maxLength={240} value={text} onChange={(event) => setText(Array.from(event.target.value).slice(0, 120).join(''))} aria-describedby="community-note-count community-note-guidance" placeholder={isBoard ? 'Share a brief, supportive thought with the community…' : 'Offer a kind thought about today’s reading…'} disabled={busy} />
           <div className="community-form-meta"><small id="community-note-guidance">120 characters maximum. No links, names, or contact details.</small><small id="community-note-count" aria-live="polite">{textLength}/120</small></div>
           <label className="community-consent"><input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} disabled={busy} /><span>I understand this note will be public and hosted, and I will avoid personal details.</span></label>
           <button className="button button-primary" type="submit" disabled={busy || !text.trim() || !consent}><Send size={15} aria-hidden="true" /> {busy ? 'Please wait…' : 'Post note'}</button>

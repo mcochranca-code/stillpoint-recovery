@@ -12,7 +12,7 @@ const items: NavigationItem[] = [
   { to: '/journal', label: 'Journal', mobileLabel: 'Journal', icon: BookOpen },
   { to: '/meditation', label: 'Meditation', mobileLabel: 'Meditate', icon: Heart },
   { to: '/meetings', label: 'Meetings', mobileLabel: 'Meetings', icon: CalendarDays },
-  { to: '/community', label: 'Community', mobileLabel: 'Community', icon: MessageCircle },
+  { to: '/community', label: 'Community Notes', mobileLabel: 'Community', icon: MessageCircle },
   { to: '/library', label: 'Library', mobileLabel: 'Library', icon: Compass },
 ];
 const MOBILE_NAV_PREFERENCE = 'stillpoint-mobile-nav-expanded-v1';
