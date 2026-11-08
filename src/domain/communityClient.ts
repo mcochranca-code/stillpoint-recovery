@@ -13,6 +13,16 @@ export class CommunityResponseError extends Error {
   constructor(message: string, readonly status: number) { super(message); }
 }
 
+/** Parse a JSON body, tolerating non-JSON error pages (for example a host 502) so callers show their friendly message. */
+async function readJson<T extends object>(response: Response): Promise<Partial<T>> {
+  try {
+    const payload: unknown = await response.json();
+    return payload && typeof payload === 'object' ? payload as Partial<T> : {};
+  } catch {
+    return {};
+  }
+}
+
 const BROWSER_TOKEN_KEY = 'stillpoint-community-browser-token-v1';
 
 export function clearCommunityBrowserToken(): void {
@@ -56,7 +66,7 @@ export async function fetchReadingComments(readingKey: string): Promise<PublicCo
   const response = await fetch(`/api/community/comments/${encodeURIComponent(readingKey)}`, {
     credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer', headers: { Accept: 'application/json' },
   });
-  const payload = await response.json() as { comments?: PublicCommunityComment[]; error?: string };
+  const payload = await readJson<{ comments: PublicCommunityComment[]; error: string }>(response);
   if (!response.ok) throw new Error(payload.error || 'Community notes are temporarily unavailable.');
   return Array.isArray(payload.comments) ? payload.comments : [];
 }
@@ -76,7 +86,7 @@ export async function submitReadingComment(input: {
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(input),
   });
-  const payload = await response.json() as { comment?: PublicCommunityComment; error?: string };
+  const payload = await readJson<{ comment: PublicCommunityComment; error: string }>(response);
   if (!response.ok || !payload.comment) throw new CommunityResponseError(payload.error || 'Your note could not be posted.', response.status);
   return payload.comment;
 }
@@ -90,7 +100,7 @@ export async function reportReadingComment(commentId: string, browserToken: stri
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ browserToken }),
   });
-  const payload = await response.json() as { message?: string; error?: string };
+  const payload = await readJson<{ message: string; error: string }>(response);
   if (!response.ok) throw new Error(payload.error || 'The report could not be submitted.');
   return payload.message || 'Thank you. The report was recorded.';
 }

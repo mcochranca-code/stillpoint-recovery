@@ -128,7 +128,7 @@ flowchart TD
     API --> DB[(MySQL-compatible DB)]
 ```
 
-The one networked exception is the optional `/community` route, served by a small Express API in [`server/`](server/) under `/api/community` (plus `/healthz`). It is off by default: the local `communityNotesEnabled` preference must be turned on in Settings before the route appears in navigation or the daily discussion mounts. It needs a `DATABASE_URL`; without one, local runs keep working and the opt-in board reports that hosted notes are unavailable.
+The one networked exception is the optional `/community` route, served by a small Express API in [`server/`](server/) under `/api/community` (plus `/healthz` for the standalone server). On Netlify it runs as a same-origin Netlify Function. It is off by default: the local `communityNotesEnabled` preference must be turned on in Settings before the route appears in navigation or the daily discussion mounts. It needs a `DATABASE_URL`; without one, local runs keep working and the opt-in board reports that hosted notes are unavailable.
 
 <details>
 <summary><strong>Project map</strong></summary>
@@ -173,12 +173,13 @@ Open `http://localhost:3000`. `pnpm dev` runs Vite on port 3000 and the communit
 | `pnpm verify:pwa` | Manifest, routes, service worker, and precache checks |
 | `pnpm preview` | Serve the production build on port 3000 |
 | `pnpm start` | Run the community API (`server/index.mjs`) |
-| `pnpm check:server` | Syntax-check the server modules |
+| `pnpm check:server` | Syntax-check the server modules and Netlify Function |
+| `pnpm db:migrate` | Apply the community schema migration to `DATABASE_URL` |
 | `node scripts/check-documentation-links.mjs` | Validate doc links, PDF anchors, and rights references |
 
 ## Testing and coverage
 
-Tests cover domain rules (dates, timers, milestones), onboarding, journal create/edit/delete and draft recovery, meditation session state, backup validation and transactional restore, IndexedDB migrations and persistence, keyboard focus, meeting filters, Box Breathing phase positions, and the community API's router and policy.
+Tests cover domain rules (dates, timers, milestones), onboarding, journal create/edit/delete and draft recovery, meditation session state, backup validation and transactional restore, IndexedDB migrations and persistence, keyboard focus, meeting filters, Box Breathing phase positions, and the community API's router, policy, and Netlify Function adapter (routing and the 503 unavailable state).
 
 `pnpm test:coverage` enforces repository-wide minimums set in [`vite.config.ts`](vite.config.ts):
 
@@ -203,9 +204,17 @@ CodeQL analysis and Dependabot also run on the repository.
 
 ## Deployment
 
-- **Netlify (static PWA).** [`netlify.toml`](netlify.toml) builds with `pnpm install --frozen-lockfile && pnpm build`, publishes `dist/`, adds an SPA fallback, and sets security headers (CSP, `X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies) plus no-cache rules for `index.html`, the manifest, and `sw.js`.
-- **Docker (community API).** The [`Dockerfile`](Dockerfile) builds on `node:22-alpine` and runs `server/index.mjs` on port 3000.
-- **Database.** Set `DATABASE_URL` to a `mysql://` URL that includes an `ssl` query parameter with its TLS settings; it is required when `NODE_ENV=production`. On start, the server applies its schema migration and removes expired notes daily.
+- **Netlify (PWA + community API).** [`netlify.toml`](netlify.toml) builds with `pnpm install --frozen-lockfile && pnpm build`, publishes `dist/`, adds an SPA fallback, and sets security headers (CSP, `X-Frame-Options: DENY`, `nosniff`, referrer and permissions policies) plus no-cache rules for `index.html`, the manifest, and `sw.js`. The community API runs on the same site as a Netlify Function ([`netlify/functions/community.mjs`](netlify/functions/community.mjs), which reuses `server/`); `/api/community/*` is rewritten to it, so the app calls it same-origin and the CSP needs no extra hosts.
+- **Database (Netlify).** In **Site configuration → Environment variables**, add `DATABASE_URL` (scope: Functions) as a `mysql://` URL whose `ssl` query parameter is URL-encoded JSON TLS settings. For TiDB Cloud Starter (TLS required; the system CA store already trusts its ISRG Root X1 certificate):
+
+  ```text
+  mysql://<USER>.root:<PASSWORD>@gateway01.us-west-2.prod.aws.tidbcloud.com:4000/stillpoint?ssl=%7B%22minVersion%22%3A%22TLSv1.2%22%2C%22rejectUnauthorized%22%3Atrue%7D
+  ```
+
+  The `ssl` value decodes to `{"minVersion":"TLSv1.2","rejectUnauthorized":true}`. URL-encode any special characters in the password. Never commit the real URL. Redeploy after setting it.
+- **Migrations.** Migration `001_optional_reading_community` runs automatically on the first community request after each function cold start. It is idempotent (`CREATE TABLE IF NOT EXISTS` plus a `stillpoint_schema_migrations` record) and serialized with `GET_LOCK`, so concurrent instances are safe. To apply it ahead of time from a workstation, run `DATABASE_URL='mysql://…' pnpm db:migrate`. Notes older than 90 days are removed opportunistically, at most every six hours per warm function instance, and are never returned after 90 days regardless.
+- **Without a database.** If `DATABASE_URL` is missing or invalid, `/api/community/*` answers `503` JSON and the Community tab shows its unavailable message; the rest of the app is unaffected.
+- **Docker (standalone community API).** The [`Dockerfile`](Dockerfile) builds on `node:22-alpine` and runs `server/index.mjs` on port 3000. There, `DATABASE_URL` (same format) is required when `NODE_ENV=production`; on start the server applies the migration and removes expired notes daily.
 
 The Just for Today card links to the official [NA World Services daily-meditations page](https://na.org/daily-meditations/). NAWS controls the reading and its publication date, which may differ from the device’s local date near timezone boundaries. The app does not rehost or embed the text. With redistribution authorization provided to the repository maintainer, an unchanged archival copy of *Just for Today: Daily Meditations for Recovering Addicts* is available in [`docs/copyright/Just-for-Today-NA.pdf`](docs/copyright/Just-for-Today-NA.pdf). The [daily reflection index](docs/copyright/Just-for-Today-index.md) lists dates, titles, and PDF page links only; it does not reproduce the meditation passages. Full attribution, permission scope, checksum, and non-affiliation language are recorded in [`docs/copyright/README.md`](docs/copyright/README.md).
 
@@ -223,7 +232,7 @@ The production build creates `dist/`, a web app manifest, a service worker, and 
 
 **Backups and restore.** Backups are versioned JSON files. Restore previews counts and merges records locally; the profile and preferences replace saved values, duplicate IDs are skipped, and nothing syncs automatically between devices.
 
-**Community notes (opt-in).** Posting sends only a short note (120 characters or fewer) scoped to the day. It never sends your recovery profile, sobriety date, journal, meeting, location, or meditation data. Notes are public, retained for up to 90 days, and deletion keys stay in the posting browser.
+**Community notes (opt-in).** Posting sends only a short note (120 characters or fewer) scoped to the day, plus random, non-identifying keys this browser creates for rate limits and deletion (the server stores only their hashes). Reading notes sends only the day's reading key. Neither sends your recovery profile, sobriety date, journal, meeting, location, or meditation data. Notes are public, retained for up to 90 days, and deletion keys stay in the posting browser.
 
 Community Notes are disabled on new installs. Turning them on is a local preference stored in IndexedDB; turning them off removes the destination and daily discussion without deleting private recovery records. The mobile navigation keeps a pinned Settings control visible even when the hamburger menu is closed.
 

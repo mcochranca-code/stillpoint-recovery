@@ -59,7 +59,7 @@ async function takeDailySlot(connection, tokenHash, action) {
 export function createCommunityRouter(pool) {
   const router = Router();
   router.use((_req, res, next) => {
-    if (!pool) return res.status(503).json({ error: 'Hosted community notes are not configured for this local app.' });
+    if (!pool) return res.status(503).json({ error: 'Hosted community notes are not configured for this app.' });
     next();
   });
 

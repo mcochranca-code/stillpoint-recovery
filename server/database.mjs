@@ -30,12 +30,12 @@ export const pool = DATABASE_URL ? mysql.createPool(mysqlOptionsFromUrl(DATABASE
 const MIGRATION = '001_optional_reading_community';
 const MIGRATION_LOCK = 'stillpoint_community_schema_v1';
 
-export async function migrateCommunitySchema() {
+export async function migrateCommunitySchema({ lockTimeoutSeconds = 20 } = {}) {
   if (!pool) throw new Error('A managed database is required for the hosted community API.');
   const connection = await pool.getConnection();
   let lockAcquired = false;
   try {
-    const [lockRows] = await connection.query('SELECT GET_LOCK(?, 20) AS acquired', [MIGRATION_LOCK]);
+    const [lockRows] = await connection.query('SELECT GET_LOCK(?, ?) AS acquired', [MIGRATION_LOCK, lockTimeoutSeconds]);
     if (Number(lockRows[0]?.acquired) !== 1) throw new Error('Could not acquire the community schema migration lock.');
     lockAcquired = true;
 

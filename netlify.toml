@@ -2,6 +2,20 @@
   command = "pnpm install --frozen-lockfile && pnpm build"
   publish = "dist"
 
+# Optional community API (server/) runs as a Netlify Function on the same origin.
+# Set DATABASE_URL in Netlify environment variables; without it the API answers 503
+# and the Community tab shows its unavailable state.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  external_node_modules = ["mysql2"]
+
+[[redirects]]
+  from = "/api/community/*"
+  to = "/.netlify/functions/community/:splat"
+  status = 200
+  force = true
+
 [[redirects]]
   from = "/*"
   to = "/index.html"

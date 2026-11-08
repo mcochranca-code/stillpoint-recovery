@@ -13,7 +13,8 @@
     "check:coverage": "node scripts/check-coverage-summary.mjs",
     "preview": "vite preview",
     "start": "node server/index.mjs",
-    "check:server": "node --check server/index.mjs && node --check server/community-router.mjs && node --check server/community-policy.mjs && node --check server/database.mjs",
+    "check:server": "node --check server/index.mjs && node --check server/app.mjs && node --check server/serverless.mjs && node --check server/community-router.mjs && node --check server/community-policy.mjs && node --check server/database.mjs && node --check netlify/functions/community.mjs",
+    "db:migrate": "node scripts/migrate-community.mjs",
     "test:coverage": "vitest run --coverage",
     "verify:pwa": "node scripts/check-pwa-artifact.mjs"
   },
@@ -28,6 +29,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.28.1",
+    "serverless-http": "3.2.0",
     "three": "0.128.0"
   },
   "devDependencies": {
@@ -41,7 +43,7 @@
     "@types/react-dom": "18.3.1",
     "@types/three": "0.128.0",
     "@vitejs/plugin-react": "4.3.4",
-    "@vitest/coverage-v8": "3.2.6",
+    "@vitest/coverage-v8": "5.1.0",
     "autoprefixer": "10.4.20",
     "axe-core": "4.10.2",
     "concurrently": "10.0.6",
