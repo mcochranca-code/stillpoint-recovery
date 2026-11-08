@@ -5,8 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@11.25.0",
   "scripts": {
-    "dev": "concurrently -k -n API,WEB \"APP_API_PORT=3001 node server/index.mjs\" \"vite --host 0.0.0.0\"",
-    "build": "tsc -b && vite build && node scripts/create-precache-manifest.mjs",
+    "dev": "node scripts/generate-theme-assets.mjs && concurrently -k -n API,WEB \"APP_API_PORT=3001 node server/index.mjs\" \"vite --host 0.0.0.0\"",
+    "build": "node scripts/generate-theme-assets.mjs && tsc -b && vite build && node scripts/create-precache-manifest.mjs",
     "typecheck": "tsc -b --pretty",
     "lint": "eslint .",
     "test": "vitest run",

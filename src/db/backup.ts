@@ -1,6 +1,7 @@
 import { CURRENT_SCHEMA_VERSION, db } from './database';
 import type { BackupPayload, JournalType } from '../domain/types';
 import { DEFAULT_CONTENT_PRESET, isContentPreset } from '../domain/content-preset';
+import { colorThemePresets } from '../data/themes';
 
 const STORE_NAMES = [
   'preferences', 'recoveryProfiles', 'recoveryDateHistory', 'dailyReflections', 'scriptureActivity',
@@ -10,7 +11,7 @@ const STORE_NAMES = [
 const SINGLETON_STORES = new Set<string>(['preferences', 'recoveryProfiles']);
 export const MAX_BACKUP_FILE_BYTES = 15_000_000;
 const SHA256_HEX = /^[a-f0-9]{64}$/;
-const COLOR_THEMES = new Set(['stillpoint', 'catppuccin', 'monokai', 'obsidian', 'lucide']);
+const COLOR_THEMES = new Set<string>(colorThemePresets.map((preset) => preset.id));
 const THEME_MODES = new Set(['light', 'dark', 'system']);
 const GARDEN_STYLES = new Set(['woodland', 'desert-bloom']);
 const JOURNAL_TYPES = new Set<JournalType>([

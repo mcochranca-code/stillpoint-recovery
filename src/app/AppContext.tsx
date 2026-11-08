@@ -5,6 +5,7 @@ import { ensureDefaults } from '../db/repository';
 import { getNextDailyReminderAt, getNextMeetingReminder, isDailyReminderDue } from '../domain/reminders';
 import { localDateKey } from '../domain/time';
 import type { MeetingReminder, RecoveryProfile, UserPreferences } from '../domain/types';
+import { applyThemeIdentity } from '../platform/themeIdentity';
 
 interface AppContextValue {
   preferences: UserPreferences | undefined;
@@ -56,6 +57,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [initialized, setInitialized] = useState(false);
   const [storageError, setStorageError] = useState<string | null>(null);
   const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    if (preferences?.colorTheme) applyThemeIdentity(preferences.colorTheme);
+  }, [preferences?.colorTheme]);
 
   useEffect(() => {
     let alive = true;

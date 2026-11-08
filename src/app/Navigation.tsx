@@ -15,6 +15,7 @@ const items: NavigationItem[] = [
   { to: '/community', label: 'Community', mobileLabel: 'Community', icon: MessageCircle },
   { to: '/library', label: 'Library', mobileLabel: 'Library', icon: Compass },
 ];
+const mobileItems = items.filter((item) => item.to !== '/');
 const MOBILE_NAV_PREFERENCE = 'stillpoint-mobile-nav-expanded-v1';
 const MOBILE_NAV_HIDDEN_PREFERENCE = 'stillpoint-mobile-nav-hidden-v1';
 const DESKTOP_SIDEBAR_PREFERENCE = 'stillpoint-desktop-sidebar-collapsed-v1';
@@ -79,35 +80,42 @@ export default function Navigation() {
         <p className="sidebar-quote">“For this day, this moment, this breath.”</p>
       </aside>
       <div className={`mobile-nav-wrap${mobileExpanded ? ' expanded' : ''}${mobileHidden ? ' is-hidden' : ''}`}>
-        <button
-          type="button"
-          className="mobile-nav-visibility-toggle"
-          aria-expanded={!mobileHidden}
-          aria-controls="mobile-primary-navigation"
-          aria-label={mobileHidden ? 'Show mobile navigation' : 'Hide mobile navigation'}
-          title={mobileHidden ? 'Show navigation' : 'Hide navigation'}
-          onClick={() => setMobileHidden((value) => !value)}
-        >
-          {mobileHidden ? <Eye size={18} aria-hidden="true" /> : <EyeOff size={18} aria-hidden="true" />}
-        </button>
-        <button
-          type="button"
-          className="mobile-nav-toggle"
-          aria-expanded={mobileExpanded}
-          aria-controls="mobile-primary-navigation"
-          aria-label={mobileExpanded ? 'Collapse mobile navigation labels' : 'Expand mobile navigation labels'}
-          title={mobileExpanded ? 'Collapse navigation' : 'Expand navigation'}
-          onClick={() => setMobileExpanded((value) => !value)}
-        >
-          {mobileExpanded ? <ChevronDown size={18} aria-hidden="true" /> : <ChevronUp size={18} aria-hidden="true" />}
-        </button>
-        <nav id="mobile-primary-navigation" className="mobile-nav" aria-label="Mobile primary navigation" hidden={mobileHidden}>
-          {items.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end }) => (
+        <div className="mobile-nav-controls" aria-label="Mobile navigation controls">
+          <NavLink to="/" end aria-label="Home" title="Home" className={({ isActive }) => `mobile-home-link${isActive ? ' active' : ''}`}>
+            <Home size={19} aria-hidden="true" /><span>Home</span>
+          </NavLink>
+          <button
+            type="button"
+            className="mobile-nav-visibility-toggle"
+            aria-expanded={!mobileHidden}
+            aria-controls="mobile-primary-navigation"
+            aria-label={mobileHidden ? 'Show mobile navigation' : 'Hide mobile navigation'}
+            title={mobileHidden ? 'Show navigation' : 'Hide navigation'}
+            onClick={() => setMobileHidden((value) => !value)}
+          >
+            {mobileHidden ? <Eye size={17} aria-hidden="true" /> : <EyeOff size={17} aria-hidden="true" />}
+            <span className="mobile-nav-action-label">{mobileHidden ? 'Show' : 'Hide'}</span>
+          </button>
+          <button
+            type="button"
+            className="mobile-nav-toggle"
+            aria-expanded={mobileExpanded}
+            aria-controls="mobile-primary-navigation"
+            aria-label={mobileExpanded ? 'Close expanded mobile navigation' : 'Expand mobile navigation'}
+            title={mobileExpanded ? 'Close expanded navigation' : 'Expand navigation'}
+            onClick={() => setMobileExpanded((value) => !value)}
+          >
+            {mobileExpanded ? <ChevronDown size={17} aria-hidden="true" /> : <ChevronUp size={17} aria-hidden="true" />}
+            <span className="mobile-nav-action-label">{mobileExpanded ? 'Close' : 'Expand'}</span>
+          </button>
+        </div>
+        <nav id="mobile-primary-navigation" className="mobile-nav" aria-label="Mobile primary navigation" aria-hidden={mobileHidden} ref={(element) => { if (element) element.toggleAttribute('inert', mobileHidden); }}>
+          {mobileItems.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}>
-              <Icon size={21} aria-hidden="true" /><span>{mobileLabel ?? label}</span>
+              <Icon size={20} aria-hidden="true" /><span>{mobileLabel ?? label}</span>
             </NavLink>
           ))}
-          <button type="button" className="quick-find-trigger quick-find-trigger--mobile" aria-label="Search Stillpoint" title={`Quick Find (${shortcutLabel})`} onClick={openQuickFind}>
+          <button type="button" className="quick-find-trigger quick-find-trigger--mobile mobile-nav-item" aria-label="Search Stillpoint" title={`Quick Find (${shortcutLabel})`} onClick={openQuickFind}>
             <Search aria-hidden="true" /><span>Search</span>
           </button>
         </nav>

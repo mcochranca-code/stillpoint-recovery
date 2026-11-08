@@ -24,7 +24,12 @@ const publicAssets = (await walk(publicAssetRoot))
     && !path.relative(publicAssetRoot, file).split(path.sep).includes('reference'))
   .map((file) => `/${path.posix.join('assets', path.relative(publicAssetRoot, file).split(path.sep).join('/'))}`);
 
+const themeManifestRoot = path.join(root, 'public/theme-manifests');
+const themeManifests = (await readdir(themeManifestRoot))
+  .filter((file) => file.endsWith('.webmanifest'))
+  .map((file) => `/theme-manifests/${file}`);
+
 const core = ['/', '/manifest.webmanifest', '/manus-routes.json', '/precache-manifest.json'];
 const generated = generatedFiles.filter(Boolean).map((file) => `/${file}`);
-const assets = [...new Set([...core, ...publicAssets, ...generated])].sort();
+const assets = [...new Set([...core, ...themeManifests, ...publicAssets, ...generated])].sort();
 await writeFile(path.join(dist, 'precache-manifest.json'), `${JSON.stringify({ assets }, null, 2)}\n`);

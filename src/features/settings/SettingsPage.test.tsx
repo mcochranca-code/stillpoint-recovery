@@ -52,7 +52,10 @@ describe('SettingsPage content preset', () => {
   it('shows a readable selected state for palette previews', () => {
     render(<MemoryRouter><SettingsPage /></MemoryRouter>);
 
-    expect(screen.getByText('Palette previews; colors adapt to light or dark appearance.')).toBeInTheDocument();
+    expect(screen.getByText(/Palette previews; colors adapt to light or dark appearance/)).toBeInTheDocument();
     expect(screen.getByText('Selected')).toBeInTheDocument();
+    expect(screen.getByText(/browser icon and the app icon used when you next save or install/)).toBeInTheDocument();
+    expect(screen.getByText('Ocean Calm')).toBeInTheDocument();
+    expect(screen.getByText('Slate')).toBeInTheDocument();
   });
 });

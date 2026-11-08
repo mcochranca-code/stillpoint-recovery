@@ -1086,6 +1086,39 @@ textarea { resize: vertical; line-height: 1.65; }
   .garden-scene.motion-active .garden-plant-motion { animation: none; }
 }
 
+@media (max-width: 700px) {
+  .mobile-nav-wrap { padding: 7px; transition: padding 220ms ease, border-radius 220ms ease, box-shadow 220ms ease; }
+  .mobile-nav-controls { display: flex; align-items: center; gap: 6px; min-height: 42px; }
+  .mobile-home-link, .mobile-nav-toggle, .mobile-nav-visibility-toggle {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; padding: 0 10px;
+    border: 1px solid var(--border); border-radius: 13px; background: var(--surface); color: var(--muted); text-decoration: none;
+    font-size: .75rem; font-weight: 650; cursor: pointer; box-shadow: none; transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+  }
+  .mobile-home-link { flex: 1 1 auto; justify-content: flex-start; color: var(--ink); }
+  .mobile-home-link.active { background: var(--selected-bg); color: var(--selected-ink); }
+  .mobile-nav-toggle, .mobile-nav-visibility-toggle { position: static; transform: none; width: auto; height: auto; white-space: nowrap; }
+  .mobile-nav-toggle:hover, .mobile-nav-visibility-toggle:hover, .mobile-home-link:hover { background: var(--primary-soft); color: var(--ink); }
+  .mobile-nav-wrap.is-hidden { width: auto; height: auto; padding: 7px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); backdrop-filter: blur(16px); }
+  .mobile-nav-wrap.is-hidden .mobile-nav-toggle { display: inline-flex; }
+  .mobile-nav-wrap.is-hidden .mobile-nav-visibility-toggle { position: static; width: auto; height: 42px; color: var(--muted); box-shadow: none; }
+  .mobile-nav-visibility-toggle:focus-visible, .mobile-nav-item:focus-visible, .mobile-nav-toggle:focus-visible, .mobile-home-link:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+  .mobile-nav { display: flex; align-items: stretch; gap: 2px; max-height: 58px; margin-top: 4px; overflow-x: auto; overflow-y: hidden; opacity: 1; transform: translateY(0); transition: max-height 260ms ease, opacity 200ms ease, transform 260ms ease, margin 260ms ease; scrollbar-width: none; }
+  .mobile-nav::-webkit-scrollbar { display: none; }
+  .mobile-nav-item { display: flex; flex: 1 0 38px; min-width: 38px; min-height: 48px; align-items: center; justify-content: center; gap: 3px; border: 0; border-radius: 13px; color: var(--muted); text-decoration: none; transition: background-color 180ms ease, color 180ms ease, transform 180ms ease; }
+  .mobile-nav-item.active { color: var(--selected-ink); background: var(--selected-bg); }
+  .mobile-nav-wrap:not(.expanded) .mobile-nav-item span { display: none; }
+  .mobile-nav-wrap.expanded { padding-bottom: 8px; }
+  .mobile-nav-wrap.expanded .mobile-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(2, 52px); gap: 4px; max-height: 112px; overflow: hidden; }
+  .mobile-nav-wrap.expanded .mobile-nav-item { flex-direction: column; min-height: 48px; font-size: max(12px, .75rem); font-weight: 650; line-height: 1.2; }
+  .mobile-nav-wrap.expanded .mobile-nav-item span { display: block; }
+  .mobile-nav-wrap.is-hidden .mobile-nav { max-height: 0; margin-top: 0; opacity: 0; transform: translateY(8px); overflow: hidden; pointer-events: none; }
+  :root[data-mobile-nav-expanded='true'] .page-content { padding-bottom: calc(230px + env(safe-area-inset-bottom)); }
+  :root[data-mobile-nav-hidden='true'] .page-content { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-wrap, .mobile-nav, .mobile-nav-item, .mobile-home-link, .mobile-nav-toggle, .mobile-nav-visibility-toggle { transition: none !important; }
+}
+
 .meeting-reminder-toggle { display: flex; align-items: center; gap: 10px; min-height: 48px; margin-top: 11px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--ink); cursor: pointer; }
 .meeting-reminder-toggle > input { flex: 0 0 18px; width: 18px; height: 18px; margin: 0; accent-color: var(--primary); }
 .meeting-reminder-toggle > span { display: grid; gap: 3px; }

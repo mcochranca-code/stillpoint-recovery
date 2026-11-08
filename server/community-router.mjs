@@ -71,8 +71,8 @@ export function createCommunityRouter(pool) {
         `SELECT id, body, created_at FROM stillpoint_community_comments
          WHERE reading_key = ? AND status = 'visible'
            AND created_at >= UTC_TIMESTAMP(3) - INTERVAL 90 DAY
-         ORDER BY created_at DESC LIMIT ?`,
-        [readingKey, COMMENT_LIST_LIMIT],
+         ORDER BY created_at DESC LIMIT ${COMMENT_LIST_LIMIT}`,
+        [readingKey],
       );
       return res.json({ comments: rows.reverse().map(publicComment), limit: COMMENT_LIST_LIMIT });
     } catch {

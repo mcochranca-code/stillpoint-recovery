@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const dist = resolve('dist');
-const requiredFiles = ['index.html', 'manifest.webmanifest', 'sw.js', 'precache-manifest.json', 'manus-routes.json'];
+const requiredFiles = ['index.html', 'manifest.webmanifest', 'sw.js', 'precache-manifest.json', 'manus-routes.json', 'assets/branding/theme-presets.css'];
 
 for (const relativePath of requiredFiles) {
   const path = resolve(dist, relativePath);
@@ -29,6 +29,21 @@ const precache = JSON.parse(await readFile(resolve(dist, 'precache-manifest.json
 if (!Array.isArray(precache.assets) || precache.assets.length === 0) {
   throw new Error('Precache manifest must contain at least one asset');
 }
+const themePresets = JSON.parse(await readFile(resolve('src/data/theme-presets.json'), 'utf8'));
+if (!Array.isArray(themePresets) || themePresets.length !== 15) throw new Error('Expected fifteen theme presets.');
+for (const preset of themePresets) {
+  const themeManifestPath = `/theme-manifests/${preset.id}.webmanifest`;
+  const themeManifest = JSON.parse(await readFile(resolve(dist, themeManifestPath.slice(1)), 'utf8'));
+  if (themeManifest.display !== 'standalone' || themeManifest.start_url !== '/' || themeManifest.scope !== '/') {
+    throw new Error(`Theme install manifest is invalid: ${preset.id}`);
+  }
+  const iconPath = themeManifest.icons?.[0]?.src;
+  if (iconPath !== `/assets/branding/theme-icons/${preset.id}.svg`) throw new Error(`Theme icon does not match its palette: ${preset.id}`);
+  await readFile(resolve(dist, iconPath.slice(1)), 'utf8');
+  if (!precache.assets.includes(themeManifestPath) || !precache.assets.includes(iconPath)) {
+    throw new Error(`Theme install assets are not available offline: ${preset.id}`);
+  }
+}
 if (precache.assets.some((asset) => asset.startsWith('/assets/reference/'))) {
   throw new Error('Reference-only assets must not be included in the offline precache');
 }
@@ -38,4 +53,4 @@ if (!serviceWorker.includes('precache-manifest.json')) {
   throw new Error('Service worker does not reference the generated precache manifest');
 }
 
-console.log(`Verified PWA artifact: ${requiredFiles.length} required files, ${routes.routes.length} routes, ${precache.assets.length} precached assets`);
+console.log(`Verified PWA artifact: ${requiredFiles.length} required files, ${routes.routes.length} routes, ${themePresets.length} palette icons/manifests, ${precache.assets.length} precached assets`);

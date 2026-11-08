@@ -7,7 +7,7 @@
     <code>LOCAL-FIRST</code> &nbsp; <code>INSTALLABLE PWA</code> &nbsp; <code>NO ACCOUNT</code> &nbsp; <code>MIT LICENSE · SOURCE</code> &nbsp; <code>BUILT FOR GENTLENESS</code>
   </p>
   <p>
-    <a href="https://stillpointco-lq5mbm5o.manus.space/"><strong>Open the public PWA</strong></a>
+    <a href="https://stillpoint-mcvk9f6m.manus.space/"><strong>Open the published Manus app</strong></a>
     &nbsp; · &nbsp;
     <a href="https://stillpoint-recovery-demo.netlify.app/"><strong>Open the Netlify demo</strong></a>
     &nbsp; · &nbsp;
@@ -113,8 +113,8 @@ The choices are invitations rather than requirements. No route depends on a stre
 <p align="center"><sub>Product screenshots use a local demo profile with sample activity. No private journal content or personal contacts are shown.</sub></p>
 
 <h3 align="center">Make the space your own</h3>
-<p align="center"><a href="docs/media/settings.webp"><img src="docs/media/settings.webp" alt="Settings screen displaying the five Stillpoint color palettes and accessibility controls" width="720"></a></p>
-<p align="center"><sub>Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—plus text size, contrast, reduced motion, and discreet display.</sub></p>
+<p align="center"><a href="docs/media/settings.webp"><img src="docs/media/settings.webp" alt="Settings screen displaying color palette and accessibility controls" width="720"></a></p>
+<p align="center"><sub>Fifteen color themes—ten new palettes alongside Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—plus text size, contrast, reduced motion, and discreet display.</sub></p>
 
 ## Small practices. Useful details.
 
@@ -124,7 +124,10 @@ The choices are invitations rather than requirements. No route depends on a stre
 - **Private journaling** supports gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing—with editable entries, search, and recoverable drafts.
 - **Meditation Studio** includes ten gentle practices, selectable session lengths, pause and resume controls, and three bundled soundscapes: rain, woodland, and shoreline. In active Box Breathing, a highlighted sphere moves around the square in time with the inhale/hold/exhale/rest cues.
 - **Meetings** bundles a partial source-linked sample of public AA/NA schedules from Stanislaus, Fresno, Mariposa and Merced counties, plus one Fresno FA listing, for offline browsing. Coverage is not exhaustive; blank results do not mean no meeting exists. County, fellowship, weekday, city, format and start-time filters run locally. New regional records are not pinned on the approximate map; its existing Stanislaus pins use on-demand OpenStreetMap tiles. See [source, coverage and privacy notes](docs/meeting-sources.md), and confirm details with official directories before traveling.
-- **Five palettes**—Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide—can be paired with text scaling, high contrast, reduced motion, and a discreet display.
+- **Fifteen palettes**—the original Stillpoint, Catppuccin, Monokai, Obsidian, and Lucide themes plus Ocean Calm, Lavender Haze, Terra Cotta, Meadow, Morning Dawn, Midnight Blue, Rosewater, Alpine Air, Golden Hour, and Slate—adapt to light/dark appearance and pair with text scaling, high contrast, reduced motion, and discreet display.
+- **Palette-aware app icon.** Each palette has locally generated PWA icon and install-manifest assets. The selected palette supplies the icon when Stillpoint is next saved or installed; updates to an already installed launcher icon remain controlled by the browser and operating system.
+- **Mobile navigation that stays close.** Home remains visible when the destination bar is hidden. Separate Show/Hide and Expand/Close controls animate with reduced-motion support, and the chosen layout persists locally.
+- **Ambient volume that responds.** Rain, woodland, and shoreline loops remain silent until selected and started. The volume slider uses a local Web Audio gain node where available and falls back to native media volume, with a 50% maximum.
 - **Backups stay yours.** Export a versioned JSON backup or restore one on-device. Sharing is opt-in: the NA card shares the official link only, while milestone details are previewed and selected by you. You can also share or download a Stillpoint-branded standalone HTML milestone card; its name and date stay off unless selected.
 - **Keep the parts that matter.** Journals, meditation history, and earned charms are not erased when you edit your recovery date.
 - **Milestones you can turn over.** Open the Journey Collection directly from Today or Progress, then tap or keyboard-activate a two-sided 3D charm to spin its medallion; the interaction is local, keyboard accessible, and reduced-motion aware.

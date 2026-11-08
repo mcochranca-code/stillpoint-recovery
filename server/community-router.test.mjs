@@ -45,6 +45,9 @@ const pool = {
   async getConnection() { return connection; },
   async execute(sql, parameters = []) {
     if (sql.includes('WHERE reading_key = ?')) {
+      expect(sql).toContain('LIMIT 50');
+      expect(sql).not.toMatch(/LIMIT\s*\?/);
+      expect(parameters).toEqual([readingKey]);
       return [[comment?.reading_key === parameters[0] && comment.status === 'visible'
         ? { id: comment.id, body: comment.body, created_at: comment.created_at }
         : []].flat(), []];

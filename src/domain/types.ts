@@ -1,5 +1,5 @@
 export type ThemeMode = 'light' | 'dark' | 'system';
-export type ColorTheme = 'stillpoint' | 'catppuccin' | 'monokai' | 'obsidian' | 'lucide';
+export type ColorTheme = 'stillpoint' | 'catppuccin' | 'monokai' | 'obsidian' | 'lucide' | 'ocean' | 'lavender' | 'terracotta' | 'meadow' | 'dawn' | 'midnight' | 'rosewater' | 'alpine' | 'golden-hour' | 'slate';
 export type GardenStyle = 'woodland' | 'desert-bloom';
 export type JournalType =
   | 'daily-reflection'

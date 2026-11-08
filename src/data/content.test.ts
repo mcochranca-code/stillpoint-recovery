@@ -57,8 +57,9 @@ describe('bundled local recovery content', () => {
     expect(charmDefinitions.every((item) => item.name && item.criteria && item.description && item.image)).toBe(true);
   });
 
-  it('offers five named, distinct color palettes with three preview swatches each', () => {
-    expect(colorThemePresets.map((preset) => preset.id)).toEqual(['stillpoint', 'catppuccin', 'monokai', 'obsidian', 'lucide']);
+  it('offers fifteen named, distinct color palettes with three preview swatches each', () => {
+    expect(colorThemePresets.map((preset) => preset.id)).toEqual(['stillpoint', 'catppuccin', 'monokai', 'obsidian', 'lucide', 'ocean', 'lavender', 'terracotta', 'meadow', 'dawn', 'midnight', 'rosewater', 'alpine', 'golden-hour', 'slate']);
+    expect(new Set(colorThemePresets.map((preset) => preset.id)).size).toBe(15);
     expect(colorThemePresets.every((preset) => preset.swatches.length === 3 && preset.label && preset.description)).toBe(true);
   });
 });

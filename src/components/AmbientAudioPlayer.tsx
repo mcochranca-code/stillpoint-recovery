@@ -18,6 +18,9 @@ interface AmbientAudioPlayerProps {
 /** Provide opt-in ambient sound controls that respect the current meditation state. */
 export function AmbientAudioPlayer({ context, sessionStatus = 'idle' }: AmbientAudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const mediaSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const gainNodeRef = useRef<GainNode | null>(null);
   const previousStatus = useRef<SessionStatus>(sessionStatus);
   const [selected, setSelected] = useState<SoundscapeId | 'off'>('off');
   const [playing, setPlaying] = useState(false);
@@ -29,7 +32,13 @@ export function AmbientAudioPlayer({ context, sessionStatus = 'idle' }: AmbientA
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = volume / 100;
+    const gain = gainNodeRef.current;
+    const audioContext = audioContextRef.current;
+    if (gain && audioContext && audioContext.state !== 'closed') {
+      gain.gain.setTargetAtTime(volume / 100, audioContext.currentTime, 0.015);
+    } else {
+      audio.volume = volume / 100;
+    }
   }, [volume, selected]);
 
   useEffect(() => {
@@ -50,7 +59,39 @@ export function AmbientAudioPlayer({ context, sessionStatus = 'idle' }: AmbientA
     previousStatus.current = sessionStatus;
   }, [sessionStatus]);
 
-  useEffect(() => () => { audioRef.current?.pause(); }, []);
+  useEffect(() => () => {
+    audioRef.current?.pause();
+    const audioContext = audioContextRef.current;
+    if (audioContext && audioContext.state !== 'closed') void audioContext.close().catch(() => undefined);
+  }, []);
+
+  async function prepareVolumeControl(audio: HTMLAudioElement) {
+    const AudioContextConstructor = window.AudioContext;
+    if (typeof AudioContextConstructor !== 'function') {
+      audio.volume = volume / 100;
+      return;
+    }
+    try {
+      const audioContext = audioContextRef.current ?? new AudioContextConstructor();
+      audioContextRef.current = audioContext;
+      if (!mediaSourceRef.current || !gainNodeRef.current) {
+        const mediaSource = audioContext.createMediaElementSource(audio);
+        const gain = audioContext.createGain();
+        mediaSource.connect(gain);
+        gain.connect(audioContext.destination);
+        mediaSourceRef.current = mediaSource;
+        gainNodeRef.current = gain;
+      }
+      audio.volume = 1;
+      gainNodeRef.current.gain.setValueAtTime(volume / 100, audioContext.currentTime);
+      await audioContext.resume();
+    } catch {
+      const gain = gainNodeRef.current;
+      const audioContext = audioContextRef.current;
+      if (gain && audioContext && audioContext.state !== 'closed') gain.gain.setValueAtTime(1, audioContext.currentTime);
+      audio.volume = volume / 100;
+    }
+  }
 
   async function togglePlayback() {
     const audio = audioRef.current;
@@ -62,6 +103,7 @@ export function AmbientAudioPlayer({ context, sessionStatus = 'idle' }: AmbientA
       return;
     }
     try {
+      await prepareVolumeControl(audio);
       await audio.play();
       setPlaying(true);
     } catch {
