@@ -2,12 +2,16 @@ import { CURRENT_SCHEMA_VERSION, db } from './database';
 import type { DailyActivity, RecoveryProfile, UserPreferences } from '../domain/types';
 import { DEFAULT_CONTENT_PRESET, isContentPreset } from '../domain/content-preset';
 import { localDateKey } from '../domain/time';
+import { NEUTRAL_TRADITION_PREFERENCE, isTraditionPreference, normalizeTraditionPreference } from '../domain/traditions';
 
-/** Create the initial preferences record with privacy-conscious and accessible defaults. */
+/**
+ * Create the initial preferences record with privacy-conscious and accessible defaults.
+ * A new install has not chosen a tradition: readings stay neutral until the person picks one.
+ */
 export const defaultPreferences = (): UserPreferences => {
   const now = new Date().toISOString();
   return {
-    id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: DEFAULT_CONTENT_PRESET, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
+    id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: DEFAULT_CONTENT_PRESET, traditionPreference: { ...NEUTRAL_TRADITION_PREFERENCE, traditions: [...NEUTRAL_TRADITION_PREFERENCE.traditions] }, traditionChoicePending: true, christianExtras: false, communityNotesEnabled: false, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
     highContrast: false, reducedMotion: false, hideMeditationVisual: false, textScale: 1,
     timeFormat: '12h', counterStyle: 'full', liveCounter: true, reminderEnabled: false,
     reminderTime: '19:00', meetingReminderLeadMinutes: 30, meetingReminders: [], trustedContacts: [], supportResources: [], discreetMode: false, gardenStyle: 'woodland',
@@ -27,11 +31,14 @@ export async function ensureDefaults(): Promise<void> {
     const preferences = await db.preferences.get('preferences');
     if (!preferences) {
       await db.preferences.add(defaultPreferences());
-    } else if (preferences.schemaVersion !== CURRENT_SCHEMA_VERSION || !isContentPreset(preferences.contentPreset)) {
+    } else if (preferences.schemaVersion !== CURRENT_SCHEMA_VERSION || !isContentPreset(preferences.contentPreset) || !isTraditionPreference(preferences.traditionPreference) || typeof preferences.communityNotesEnabled !== 'boolean') {
+      const contentPreset = isContentPreset(preferences.contentPreset) ? preferences.contentPreset : DEFAULT_CONTENT_PRESET;
       await db.preferences.put({
         ...preferences,
         schemaVersion: CURRENT_SCHEMA_VERSION,
-        contentPreset: isContentPreset(preferences.contentPreset) ? preferences.contentPreset : DEFAULT_CONTENT_PRESET,
+        contentPreset,
+        traditionPreference: normalizeTraditionPreference(preferences.traditionPreference, contentPreset),
+        communityNotesEnabled: preferences.communityNotesEnabled === true,
         supportResources: Array.isArray(preferences.supportResources) ? preferences.supportResources : [],
         meetingReminders: Array.isArray(preferences.meetingReminders) ? preferences.meetingReminders : [],
         colorTheme: preferences.colorTheme ?? 'stillpoint',

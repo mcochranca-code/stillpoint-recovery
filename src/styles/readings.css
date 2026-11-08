@@ -1,0 +1,89 @@
+/*
+ * Daily readings: tradition accents, the tradition picker and the reading card.
+ *
+ * Each tradition gets a quiet accent drawn from the landscape in its motif (morning gold,
+ * water blue, river green, evening indigo, dew green, red earth, sea stone). They mark the
+ * card and picker; --tradition-ink is the only accent used for text and is contrast-tested
+ * against every palette surface in light and dark mode (src/styles/contrast.test.ts).
+ */
+
+.tradition-christian { --tradition-accent: #9c6a17; --tradition-ink: #74500f; --tradition-wash: rgba(192, 138, 46, .1); }
+.tradition-buddhist { --tradition-accent: #4f7fb0; --tradition-ink: #2f557d; --tradition-wash: rgba(79, 127, 176, .1); }
+.tradition-hindu { --tradition-accent: #3c8a7e; --tradition-ink: #20605a; --tradition-wash: rgba(60, 138, 126, .1); }
+.tradition-muslim { --tradition-accent: #6f62b0; --tradition-ink: #4b3f8a; --tradition-wash: rgba(111, 98, 176, .1); }
+.tradition-jain { --tradition-accent: #5f8f3e; --tradition-ink: #3f6623; --tradition-wash: rgba(95, 143, 62, .1); }
+.tradition-red-road { --tradition-accent: #b4553c; --tradition-ink: #8a3a25; --tradition-wash: rgba(180, 85, 60, .1); }
+.tradition-reflective { --tradition-accent: #6b7f8f; --tradition-ink: #45576a; --tradition-wash: rgba(107, 127, 143, .1); }
+
+.dark .tradition-christian { --tradition-accent: #e2b866; --tradition-ink: #f0cf8e; --tradition-wash: rgba(226, 184, 102, .1); }
+.dark .tradition-buddhist { --tradition-accent: #8db7e0; --tradition-ink: #b3d0ee; --tradition-wash: rgba(141, 183, 224, .1); }
+.dark .tradition-hindu { --tradition-accent: #7cc4b6; --tradition-ink: #a6dcd0; --tradition-wash: rgba(124, 196, 182, .1); }
+.dark .tradition-muslim { --tradition-accent: #b3a8ec; --tradition-ink: #cdc5f5; --tradition-wash: rgba(179, 168, 236, .11); }
+.dark .tradition-jain { --tradition-accent: #a3cc7f; --tradition-ink: #c2e0a6; --tradition-wash: rgba(163, 204, 127, .1); }
+.dark .tradition-red-road { --tradition-accent: #e79a80; --tradition-ink: #f2bba7; --tradition-wash: rgba(231, 154, 128, .1); }
+.dark .tradition-reflective { --tradition-accent: #a9bccb; --tradition-ink: #c9d6e0; --tradition-wash: rgba(169, 188, 203, .1); }
+
+/* Motif artwork. */
+.tradition-motif { width: 44px; height: 44px; flex: none; color: var(--tradition-accent, var(--sage)); }
+.tradition-motif .motif-ground { fill: var(--tradition-wash, rgba(127, 165, 138, .12)); stroke: none; }
+.tradition-motif .motif-soft { opacity: .55; }
+.tradition-motif .motif-fill { fill: currentColor; stroke: none; }
+
+/* Reading card. */
+.daily-reading-card { position: relative; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+.daily-reading-card::before { content: ''; position: absolute; inset: 0 0 auto; height: 4px; background: linear-gradient(90deg, var(--tradition-accent), transparent 85%); }
+.daily-reading-card::after { content: ''; position: absolute; z-index: 0; top: -60px; right: -60px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, var(--tradition-wash), transparent 70%); pointer-events: none; }
+.daily-reading-card > * { position: relative; z-index: 1; }
+.daily-reading-card .card-header { margin-bottom: 2px; }
+.daily-reading-card h2 { font-size: 1rem; letter-spacing: .05em; }
+.daily-reading-title { display: flex; align-items: center; gap: 12px; }
+.daily-reading-motif { width: 52px; height: 52px; }
+.daily-reading-motif .motif-soft { animation: stillpoint-motif-drift var(--motion-breath) var(--ease-breathe) infinite alternate; }
+@keyframes stillpoint-motif-drift { from { transform: translateX(0); } to { transform: translateX(2px); } }
+.reduce-motion .daily-reading-motif .motif-soft { animation: none; }
+@media (prefers-reduced-motion: reduce) { .daily-reading-motif .motif-soft { animation: none; } }
+.tradition-eyebrow { color: var(--tradition-ink) !important; }
+.tradition-pill { align-self: flex-start; border-color: transparent; background: var(--tradition-wash) !important; color: var(--tradition-ink) !important; font-weight: 650; }
+.reading-text { margin: 6px 0 2px; padding: 4px 0 4px 18px; border-left: 3px solid var(--tradition-accent); font: 400 var(--text-reading)/1.6 var(--font-display); color: var(--ink); text-wrap: pretty; }
+.reading-text p { margin: 0; }
+blockquote.reading-text { font-style: italic; }
+.reading-citation { margin: 0; color: var(--muted); font-size: 0.75rem; line-height: 1.55; }
+.reading-citation strong { color: var(--tradition-ink); font-weight: 650; }
+.reading-context { margin: 0; color: var(--muted); font-size: 0.8125rem; line-height: 1.65; }
+.reading-inspired, .reading-further { margin: 0; color: var(--muted); font-size: 0.75rem; line-height: 1.55; }
+.reading-further span:first-child { font-weight: 650; color: var(--ink); }
+.reading-further cite { font-style: italic; }
+.reading-prompt { border-left-color: var(--tradition-accent); background: var(--tradition-wash); }
+.reading-prompt span { color: var(--tradition-ink); }
+.reading-why { display: grid; gap: 3px; margin: 2px 0 0; padding: 10px 12px; border: 1px dashed var(--border); border-radius: var(--radius-md); color: var(--muted); font-size: 0.75rem; line-height: 1.55; }
+.reading-why span { color: var(--ink); font-size: 0.625rem; font-weight: 750; letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.tradition-note { margin: 0; padding: 10px 12px; border-radius: var(--radius-md); background: var(--tradition-wash); color: var(--ink); font-size: 0.75rem; line-height: 1.6; }
+.reading-license { color: var(--muted); font-size: 0.75rem; }
+.reading-license summary { cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; color: var(--ink); font-weight: 600; }
+.reading-license p { margin: 4px 0 0; line-height: 1.55; }
+
+/* Tradition picker. */
+.tradition-picker { margin: 0; padding: 0; border: 0; min-width: 0; display: grid; gap: 12px; }
+.tradition-picker > legend { padding: 0; margin-bottom: 4px; font-weight: 650; font-size: 0.9375rem; }
+.tradition-picker fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.tradition-mode { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tradition-mode-option, .tradition-option { position: relative; display: flex; gap: 10px; align-items: flex-start; min-height: var(--target-min); padding: 11px 12px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); cursor: pointer; transition: border-color var(--motion-quick) var(--ease-gentle), box-shadow var(--motion-quick) var(--ease-gentle), transform var(--motion-quick) var(--ease-gentle); }
+.tradition-mode-option:hover, .tradition-option:hover { box-shadow: var(--elev-1); }
+.tradition-mode-option input, .tradition-option input { flex: none; width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--primary, #245444); }
+.tradition-mode-option span, .tradition-option-copy { display: grid; gap: 3px; min-width: 0; }
+.tradition-mode-option strong, .tradition-option strong { font-size: 0.8125rem; }
+.tradition-mode-option small, .tradition-option small { color: var(--muted); font-size: 0.6875rem; line-height: 1.45; }
+.tradition-mode-option.selected { border-color: var(--primary, #245444); box-shadow: inset 0 0 0 1px var(--primary, #245444); }
+.tradition-mode-option:focus-within, .tradition-option:focus-within { outline: var(--focus-ring-width) solid var(--focus-ring, #4b91c5); outline-offset: 2px; }
+.tradition-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.tradition-options > .fine-print, .tradition-options > legend { grid-column: 1 / -1; }
+.tradition-option { padding: 12px; }
+.tradition-option .tradition-motif { width: 40px; height: 40px; }
+.tradition-option.selected { border-color: var(--tradition-accent); box-shadow: inset 0 0 0 1px var(--tradition-accent), var(--elev-1); background-image: linear-gradient(135deg, var(--tradition-wash), transparent 70%); }
+.tradition-sources { display: block; margin-top: 3px; font-style: italic; }
+.tradition-option-state { position: absolute; top: 10px; right: 12px; color: var(--tradition-ink); font-size: 0.625rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.tradition-rotate-note { margin: 0; padding: 12px 14px; border-radius: var(--radius-md); background: var(--selected-bg, rgba(127, 165, 138, .12)); color: var(--selected-ink, var(--ink)); font-size: 0.8125rem; line-height: 1.55; }
+.onboarding-more .tradition-picker { margin-top: 10px; }
+.onboarding-more .tradition-options { grid-template-columns: 1fr; }
+@media (max-width: 640px) { .tradition-mode { grid-template-columns: 1fr; } }
+.tradition-option.selected .tradition-option-copy { padding-right: 58px; }

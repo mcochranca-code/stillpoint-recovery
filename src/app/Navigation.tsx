@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Compass, Eye, EyeOff, Heart, Home, MessageCircle, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
+import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Compass, Eye, EyeOff, Heart, Home, LockKeyhole, MessageCircle, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
 import { QuickFindDialog } from '../components/QuickFindDialog';
 
 type NavigationItem = { to: string; label: string; mobileLabel?: string; accessibleLabel?: string; icon: LucideIcon; end?: boolean };
@@ -12,16 +12,15 @@ const items: NavigationItem[] = [
   { to: '/journal', label: 'Journal', mobileLabel: 'Journal', icon: BookOpen },
   { to: '/meditation', label: 'Meditation', mobileLabel: 'Meditate', icon: Heart },
   { to: '/meetings', label: 'Meetings', mobileLabel: 'Meetings', icon: CalendarDays },
-  { to: '/community', label: 'Community', mobileLabel: 'Community', icon: MessageCircle },
+  { to: '/community', label: 'Community Notes', mobileLabel: 'Community', icon: MessageCircle },
   { to: '/library', label: 'Library', mobileLabel: 'Library', icon: Compass },
 ];
-const mobileItems = items.filter((item) => item.to !== '/');
 const MOBILE_NAV_PREFERENCE = 'stillpoint-mobile-nav-expanded-v1';
 const MOBILE_NAV_HIDDEN_PREFERENCE = 'stillpoint-mobile-nav-hidden-v1';
 const DESKTOP_SIDEBAR_PREFERENCE = 'stillpoint-desktop-sidebar-collapsed-v1';
 
 /** Render primary navigation and route-aware page controls. */
-export default function Navigation() {
+export default function Navigation({ communityNotesEnabled = false }: { communityNotesEnabled?: boolean }) {
   const [quickFindOpen, setQuickFindOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const [mobileHidden, setMobileHidden] = useState(false);
@@ -29,11 +28,13 @@ export default function Navigation() {
   const openQuickFind = useCallback(() => setQuickFindOpen(true), []);
   const closeQuickFind = useCallback(() => setQuickFindOpen(false), []);
   const shortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
+  const visibleItems = communityNotesEnabled ? items : items.filter((item) => item.to !== '/community');
+  const mobileItems = visibleItems.filter((item) => item.to !== '/');
+
   useEffect(() => {
     try { setMobileExpanded(window.localStorage.getItem(MOBILE_NAV_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
-  }, []);
-  useEffect(() => {
     try { setMobileHidden(window.localStorage.getItem(MOBILE_NAV_HIDDEN_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
+    try { setDesktopCollapsed(window.localStorage.getItem(DESKTOP_SIDEBAR_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
   }, []);
   useEffect(() => {
     document.documentElement.dataset.mobileNavExpanded = String(mobileExpanded);
@@ -45,9 +46,6 @@ export default function Navigation() {
     try { window.localStorage.setItem(MOBILE_NAV_HIDDEN_PREFERENCE, String(mobileHidden)); } catch { /* Storage is optional. */ }
     return () => { delete document.documentElement.dataset.mobileNavHidden; };
   }, [mobileHidden]);
-  useEffect(() => {
-    try { setDesktopCollapsed(window.localStorage.getItem(DESKTOP_SIDEBAR_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
-  }, []);
   useEffect(() => {
     try { window.localStorage.setItem(DESKTOP_SIDEBAR_PREFERENCE, String(desktopCollapsed)); } catch { /* Storage is optional. */ }
   }, [desktopCollapsed]);
@@ -63,8 +61,8 @@ export default function Navigation() {
           {desktopCollapsed ? <ChevronRight size={17} aria-hidden="true" /> : <ChevronLeft size={17} aria-hidden="true" />}
           <span>{desktopCollapsed ? 'Expand' : 'Collapse'}</span>
         </button>
-        <nav id="desktop-primary-navigation" className="side-links">
-          {items.map(({ to, label, accessibleLabel, icon: Icon, end }) => (
+        <nav id="desktop-primary-navigation" className="side-links" aria-label="Primary navigation">
+          {visibleItems.map(({ to, label, accessibleLabel, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
               <Icon size={19} aria-hidden="true" /><span>{label}</span>
             </NavLink>
@@ -83,6 +81,9 @@ export default function Navigation() {
         <div className="mobile-nav-controls" aria-label="Mobile navigation controls">
           <NavLink to="/" end aria-label="Home" title="Home" className={({ isActive }) => `mobile-home-link${isActive ? ' active' : ''}`}>
             <Home size={19} aria-hidden="true" /><span>Home</span>
+          </NavLink>
+          <NavLink to="/settings" className="mobile-settings-lock" aria-label="Settings and privacy (pinned)" title="Settings and privacy — always available">
+            <Settings size={18} aria-hidden="true" /><LockKeyhole className="mobile-settings-lock-badge" size={10} aria-hidden="true" />
           </NavLink>
           <button
             type="button"
@@ -120,7 +121,7 @@ export default function Navigation() {
           </button>
         </nav>
       </div>
-      <QuickFindDialog open={quickFindOpen} onOpen={openQuickFind} onClose={closeQuickFind} />
+      <QuickFindDialog open={quickFindOpen} onOpen={openQuickFind} onClose={closeQuickFind} communityNotesEnabled={communityNotesEnabled} />
     </>
   );
 }

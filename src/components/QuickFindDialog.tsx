@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import {
   ArrowRight, Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, Compass,
-  Flower2, Heart, Home, Leaf, Settings, Shield, Sparkles, Wind,
+  Flower2, Heart, Home, Leaf, MessageCircle, Settings, Shield, Sparkles, Wind,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDialogFocus } from '../app/useDialogFocus';
@@ -25,12 +25,13 @@ const quickFindItems: QuickFindItem[] = [
   { id: 'start-meditation', label: 'Begin a meditation', detail: 'Choose a short, optional guided practice', path: '/meditation', group: 'Quick actions', keywords: 'breathe relax calm audio mindfulness', icon: Heart, featured: true },
   { id: 'open-charms', label: 'Explore activity charms', detail: 'View earned charms and private memories', path: '/charms', group: 'Quick actions', keywords: 'achievement badge collection garden activity progress', icon: Sparkles, featured: true },
   { id: 'open-journal', label: 'Write a private note', detail: 'Open your on-device journal', path: '/journal', group: 'Quick actions', keywords: 'journal reflection gratitude feelings private', icon: BookOpen, featured: true },
-  { id: 'open-today', label: 'Today', detail: 'Your daily recovery companion', path: '/', group: 'Pages', keywords: 'home dashboard reflection scripture counter', icon: Home },
+  { id: 'open-home', label: 'Home', detail: 'Your daily recovery companion', path: '/', group: 'Pages', keywords: 'home today daily dashboard reflection scripture counter', icon: Home },
   { id: 'open-progress', label: 'Progress', detail: 'Activity, milestones, and personal timeline', path: '/progress', group: 'Pages', keywords: 'statistics activity timeline growth', icon: ChartNoAxesColumnIncreasing },
   { id: 'open-tokens', label: 'Current token', detail: 'AA medallion or NA keytag for your current counter', path: '/tokens', group: 'Pages', keywords: 'token tokens AA medallion NA keytag sobriety day milestone', icon: Award },
   { id: 'open-journal', label: 'Journal', detail: 'Private notes saved on this device', path: '/journal', group: 'Pages', keywords: 'writing diary reflection', icon: BookOpen },
   { id: 'open-meditation', label: 'Meditation', detail: 'Breathing, grounding, and quiet practices', path: '/meditation', group: 'Pages', keywords: 'breathing audio relaxation', icon: Heart },
   { id: 'open-meetings', label: 'Meeting finder', detail: 'Offline AA, NA, FA, and SMART listings', path: '/meetings', group: 'Pages', keywords: 'AA NA FA SMART directory recovery support map', icon: CalendarDays },
+  { id: 'open-community-notes', label: 'Community Notes', detail: 'Open the separate, optional shared notes board', path: '/community', group: 'Pages', keywords: 'community notes shared public board supportive account-free', icon: MessageCircle },
   { id: 'open-library', label: 'Library', detail: 'Browse readings and recovery tools', path: '/library', group: 'Pages', keywords: 'reading scripture tools explore', icon: Compass },
   { id: 'open-charms-page', label: 'Journey Collection', detail: 'Activity charms and private memories', path: '/charms', group: 'Pages', keywords: 'charms activity collection achievement garden memories', icon: Sparkles },
   { id: 'open-garden', label: 'Living Garden', detail: 'A visual record of care over time', path: '/garden', group: 'Pages', keywords: 'garden plants scenery activity', icon: Flower2 },
@@ -42,7 +43,7 @@ const quickFindItems: QuickFindItem[] = [
 const quickFindGroups: QuickFindItem['group'][] = ['Quick actions', 'Pages'];
 
 /** A global, local-only launcher for Stillpoint pages and safe built-in actions. */
-export function QuickFindDialog({ open, onOpen, onClose }: { open: boolean; onOpen: () => void; onClose: () => void }) {
+export function QuickFindDialog({ open, onOpen, onClose, communityNotesEnabled = false }: { open: boolean; onOpen: () => void; onClose: () => void; communityNotesEnabled?: boolean }) {
   const dialogRef = useDialogFocus<HTMLDivElement>(open, onClose);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -67,10 +68,11 @@ export function QuickFindDialog({ open, onOpen, onClose }: { open: boolean; onOp
   const [query, setQuery] = useSearchQuery(open);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const results = useMemo(() => quickFindItems.filter((item) => {
+    if (item.id === 'open-community-notes' && !communityNotesEnabled) return false;
     if (!normalizedQuery && !item.featured) return false;
     if (!normalizedQuery) return true;
     return `${item.label} ${item.detail} ${item.keywords}`.toLocaleLowerCase().includes(normalizedQuery);
-  }), [normalizedQuery]);
+  }), [communityNotesEnabled, normalizedQuery]);
 
   const focusResult = (index: number) => {
     const links = dialogRef.current?.querySelectorAll<HTMLAnchorElement>('[data-quick-find-result]');

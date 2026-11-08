@@ -73,7 +73,7 @@ export function MilestoneShareDialog({ milestone, onClose }: MilestoneShareDialo
       <section ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="milestone-share-title" className="dialog-card share-dialog-card">
         <div className="card-header">
           <div><p className="eyebrow">Nothing leaves unless you choose</p><h2 id="milestone-share-title">Share a milestone</h2></div>
-          <button className="icon-button" type="button" onClick={onClose} aria-label="Close milestone share preview"><X size={18} /></button>
+          <button className="icon-button" type="button" onClick={onClose} aria-label="Close milestone share preview"><X size={18} aria-hidden="true" /></button>
         </div>
         <p className="muted">Only the preview below can be shared or downloaded. Journals, contacts and private recovery details are never included.</p>
         <label className="field-label" htmlFor="milestone-share-message">Your message</label>
@@ -99,10 +99,10 @@ export function MilestoneShareDialog({ milestone, onClose }: MilestoneShareDialo
           <p>{preview || 'Add a short message to continue.'}</p>
         </div>
         <div className="action-row share-dialog-actions">
-          <button className="button button-primary" type="button" onClick={() => void shareCard()} disabled={!preview.trim()}><Share2 size={16} /> Share HTML card</button>
-          <button className="button button-secondary" type="button" onClick={downloadCard} disabled={!preview.trim()}><Download size={16} /> Download .html</button>
-          <button className="button button-secondary" type="button" onClick={() => void sharePreview()} disabled={!preview.trim()}><Share2 size={16} /> Share text</button>
-          <button className="button button-secondary" type="button" onClick={downloadPreview} disabled={!preview.trim()}><Download size={16} /> Download .txt</button>
+          <button className="button button-primary" type="button" onClick={() => void shareCard()} disabled={!preview.trim()}><Share2 size={16} aria-hidden="true" /> Share HTML card</button>
+          <button className="button button-secondary" type="button" onClick={downloadCard} disabled={!preview.trim()}><Download size={16} aria-hidden="true" /> Download .html</button>
+          <button className="button button-secondary" type="button" onClick={() => void sharePreview()} disabled={!preview.trim()}><Share2 size={16} aria-hidden="true" /> Share text</button>
+          <button className="button button-secondary" type="button" onClick={downloadPreview} disabled={!preview.trim()}><Download size={16} aria-hidden="true" /> Download .txt</button>
           <button className="button button-quiet" type="button" onClick={onClose}>Cancel</button>
         </div>
         <p className="fine-print">Exact milestone names and dates are excluded until you select them. The app does not post automatically.</p>

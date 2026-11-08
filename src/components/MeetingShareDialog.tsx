@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Download, Share2, Sprout, X } from 'lucide-react';
+import { CalendarPlus, Download, Share2, Sprout, X } from 'lucide-react';
 import type { MeetingListing } from '../data/meetings';
 import { useDialogFocus } from '../app/useDialogFocus';
 import {
@@ -11,6 +11,7 @@ import {
 } from '../domain/meeting-sharing';
 import type { MeetingShareTheme } from '../domain/meeting-sharing';
 import { downloadHtmlFile, shareHtmlCard, shareOrCopy } from '../domain/sharing';
+import { buildGoogleCalendarUrl, downloadMeetingCalendarFile, shareMeetingCalendarFile } from '../domain/meeting-calendar';
 import './MeetingShareDialog.css';
 
 interface MeetingShareDialogProps {
@@ -78,6 +79,19 @@ export function MeetingShareDialog({ meetings, onClose }: MeetingShareDialogProp
     }
   }
 
+  function downloadCalendarInvite() {
+    downloadMeetingCalendarFile(meetings);
+    setStatus('The calendar invite was downloaded as an iCal file. It contains the selected recurring meeting schedule and no private recovery details.');
+  }
+  async function shareCalendarInvite() {
+    const result = await shareMeetingCalendarFile(meetings);
+    if (result === 'shared') setStatus('The calendar invite was handed to your device share sheet. Stillpoint did not upload it.');
+    else if (result === 'cancelled') setStatus('Sharing canceled. Nothing was sent or downloaded.');
+    else {
+      downloadMeetingCalendarFile(meetings);
+      setStatus('File sharing is unavailable here, so the calendar invite was downloaded as an iCal file.');
+    }
+  }
   function downloadCard() {
     downloadHtmlFile('stillpoint-meeting-card.html', cardHtml);
     setStatus('The standalone branded HTML card was downloaded locally. Nothing was sent.');
@@ -111,7 +125,7 @@ export function MeetingShareDialog({ meetings, onClose }: MeetingShareDialogProp
 
         <section className="meeting-share-card-preview" aria-labelledby="meeting-share-preview-title">
           <div className="meeting-share-brand">
-            <span className="meeting-share-mark" aria-hidden="true"><Sprout size={21} /></span>
+            <span className="meeting-share-mark" aria-hidden="true"><Sprout size={21} aria-hidden="true" /></span>
             <span><strong>Stillpoint</strong><small>RECOVERY</small></span>
           </div>
           <div className="meeting-share-preview-heading">
@@ -149,7 +163,10 @@ export function MeetingShareDialog({ meetings, onClose }: MeetingShareDialogProp
 
         <p className="fine-print">The selection exists temporarily on this screen and is not saved to your recovery records. Nothing is shared until you choose a share action. The standalone card is an HTML file you can open, save or screenshot on your phone.</p>
         <div className="action-row share-dialog-actions meeting-share-actions">
-          <button className="button button-primary" type="button" onClick={() => void shareCard()}><Share2 size={16} aria-hidden="true" /> Share card</button>
+          <button className="button button-primary" type="button" onClick={() => void shareCalendarInvite()}><CalendarPlus size={16} aria-hidden="true" /> Share calendar invite</button>
+          <button className="button button-secondary" type="button" onClick={downloadCalendarInvite}><Download size={16} aria-hidden="true" /> Download iCal invite</button>
+          {meetings.length === 1 && meetings[0] && <a className="button button-secondary" href={buildGoogleCalendarUrl(meetings[0])} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer"><CalendarPlus size={16} aria-hidden="true" /> Google Calendar</a>}
+          <button className="button button-secondary" type="button" onClick={() => void shareCard()}><Share2 size={16} aria-hidden="true" /> Share card</button>
           <button className="button button-secondary" type="button" onClick={downloadCard}><Download size={16} aria-hidden="true" /> Download card</button>
           <button className="button button-secondary" type="button" onClick={() => void shareText()}><Share2 size={16} aria-hidden="true" /> Share text</button>
           <button className="button button-quiet" type="button" onClick={onClose}>Close</button>

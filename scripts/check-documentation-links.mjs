@@ -174,7 +174,11 @@ async function checkExternalLink(url) {
     }
     await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
   }
-  reportError(`${url}: external link check failed after ${MAX_EXTERNAL_RETRIES} attempts (${lastProblem})`);
+  if (/^HTTP 4\d\d$/.test(lastProblem)) {
+    reportError(`${url}: external link check failed after ${MAX_EXTERNAL_RETRIES} attempts (${lastProblem})`);
+  } else {
+    reportWarning(`${url}: external link could not be verified after ${MAX_EXTERNAL_RETRIES} attempts (${lastProblem}); retained for manual review`);
+  }
 }
 
 function assertReference(file, requiredText) {

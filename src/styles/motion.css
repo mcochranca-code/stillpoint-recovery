@@ -1,0 +1,116 @@
+/*
+ * Quiet motion, loading states and navigation affordances.
+ *
+ * Everything here reads its timing from the motion tokens in tokens.css, which
+ * fall to 0ms under prefers-reduced-motion or Stillpoint's Reduced motion
+ * setting. Ambient loops are additionally switched off in those modes so
+ * nothing pulses for someone who asked for stillness.
+ */
+
+/* ---------- Skip link ---------- */
+.skip-link {
+  position: fixed; z-index: var(--z-skip-link); top: var(--space-3); left: var(--space-3);
+  padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+  background: var(--primary); color: var(--primary-ink);
+  font-size: var(--text-sm); font-weight: 700; text-decoration: none;
+  box-shadow: var(--shadow);
+  transform: translateY(calc(-100% - var(--space-6)));
+  transition: transform var(--motion-quick) var(--ease-settle);
+}
+.skip-link:focus, .skip-link:focus-visible { transform: translateY(0); outline: var(--focus-ring-width) solid var(--focus-ring); outline-offset: 2px; }
+
+/* Headings focused programmatically after a route change should not show a ring. */
+.page-content h1[tabindex='-1']:focus:not(:focus-visible),
+.page-content:focus:not(:focus-visible) { outline: none; }
+
+/* ---------- Branded splash / loading screen ---------- */
+.loading-screen { position: relative; overflow: hidden; }
+.splash-mark { position: relative; display: grid; place-items: center; width: 132px; height: 132px; }
+.splash-mark img { position: relative; z-index: 1; width: 92px; height: 92px; }
+.splash-halo {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: radial-gradient(circle, var(--primary-soft-strong, rgba(127,165,138,.23)) 0, var(--primary-soft, rgba(127,165,138,.14)) 45%, transparent 70%);
+  animation: splash-breathe var(--motion-breath) var(--ease-breathe) infinite;
+}
+.splash-halo--outer { inset: -18px; opacity: .55; animation-delay: calc(var(--motion-breath) / -2); }
+.loading-screen .splash-title { margin: 0; font: 400 var(--text-lg) var(--font-serif); letter-spacing: -.02em; color: var(--ink); }
+.loading-screen .splash-message { margin: 0; color: var(--muted); font: italic 1.0625rem var(--font-serif); animation: soft-appear var(--motion-calm) var(--ease-gentle) 400ms both; }
+.splash-horizon { width: 120px; height: 2px; border-radius: var(--radius-pill); background: var(--primary-soft); overflow: hidden; }
+.splash-horizon::after {
+  content: ''; display: block; width: 40%; height: 100%; border-radius: inherit; background: var(--sage, #7fa58a);
+  animation: splash-drift calc(var(--motion-breath) * .75) var(--ease-breathe) infinite alternate;
+}
+@keyframes splash-breathe { 0%, 100% { transform: scale(.94); opacity: .65; } 50% { transform: scale(1.04); opacity: 1; } }
+@keyframes splash-drift { from { transform: translateX(-10%); } to { transform: translateX(160%); } }
+@keyframes soft-appear { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Skeleton loaders ---------- */
+.page-skeleton { display: grid; gap: var(--space-5); min-height: 44vh; place-items: stretch; animation: soft-appear var(--motion-gentle) var(--ease-gentle) 150ms both; }
+.skeleton-header { display: grid; gap: var(--space-3); max-width: 520px; }
+.skeleton-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr); gap: var(--space-5); }
+.skeleton-card { display: grid; gap: var(--space-3); padding: var(--space-6); border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.skeleton-block {
+  display: block; height: 12px; border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--muted) 16%, transparent);
+  animation: skeleton-glow var(--motion-breath) var(--ease-breathe) infinite;
+}
+.skeleton-block--eyebrow { width: 28%; height: 9px; }
+.skeleton-block--title { width: 72%; height: 26px; border-radius: var(--radius-sm); }
+.skeleton-block--line { width: 92%; }
+.skeleton-block--short { width: 58%; }
+.skeleton-block--tall { height: 120px; border-radius: var(--radius-md); }
+.skeleton-card .skeleton-block:nth-child(2n) { animation-delay: 300ms; }
+@keyframes skeleton-glow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@media (max-width: 900px) { .skeleton-grid { grid-template-columns: 1fr; } }
+
+.meeting-map-skeleton { display: grid; place-items: center; gap: var(--space-2); width: 100%; height: min(50vh, 440px); min-height: 320px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); color: var(--muted); font-size: var(--text-xs); }
+.meeting-map-skeleton .skeleton-block { width: 60%; height: 60%; border-radius: var(--radius-md); }
+
+/* ---------- Gentle page transitions ---------- */
+.route-transition { animation: route-enter var(--motion-gentle) var(--ease-settle) both; }
+@keyframes route-enter { from { opacity: 0; transform: translateY(var(--motion-rise)); } to { opacity: 1; transform: none; } }
+
+/* ---------- Micro-interactions ---------- */
+.button, .icon-button, .quick-action, .nav-item, .mobile-nav-item, .library-tab, .filter-chip {
+  transition-duration: var(--motion-quick);
+  transition-timing-function: var(--ease-gentle);
+}
+.button:active:not(:disabled), .icon-button:active:not(:disabled) { transform: scale(var(--motion-press-scale)); }
+
+/* Progress ring: registered so the conic fill can ease in rather than jump. */
+@property --progress { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+.progress-ring { transition: --progress var(--motion-slow) var(--ease-out-soft); animation: ring-fill var(--motion-slow) var(--ease-out-soft) both; }
+@keyframes ring-fill { from { --progress: 0deg; } }
+
+/* A small, soft confirmation when a check-in is recorded. */
+.check-settle { animation: check-settle var(--motion-calm) var(--ease-out-soft) both; }
+@keyframes check-settle { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+
+/* Toasts and dialogs settle into place. Framer-driven dialogs set inline styles and are left alone. */
+.toast { animation: toast-in var(--motion-gentle) var(--ease-settle) both; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(var(--motion-rise)); } to { opacity: 1; transform: none; } }
+.dialog-backdrop:not([style]) { animation: soft-appear var(--motion-quick) var(--ease-gentle) both; }
+.dialog-backdrop:not([style]) > .dialog-card:not([style]) { animation: route-enter var(--motion-gentle) var(--ease-settle) both; }
+
+/* ---------- Mobile bottom navigation ---------- */
+@media (max-width: 700px) {
+  /* Keep every destination on one row while labels are collapsed. */
+  .mobile-nav-wrap:not(.expanded) .mobile-nav { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+  .mobile-nav-item { position: relative; }
+  /* Active state is not conveyed by color alone: a small bar marks the current page. */
+  .mobile-nav-item::after {
+    content: ''; position: absolute; left: 50%; bottom: 4px; width: 16px; height: 3px; border-radius: var(--radius-pill);
+    background: currentColor; opacity: 0; transform: translateX(-50%) scaleX(.4);
+    transition: opacity var(--motion-quick) var(--ease-gentle), transform var(--motion-gentle) var(--ease-settle);
+  }
+  .mobile-nav-item.active::after { opacity: 1; transform: translateX(-50%) scaleX(1); }
+  .mobile-nav-wrap.expanded .mobile-nav-item::after { bottom: 2px; }
+  .mobile-nav-toggle svg { transition: transform var(--motion-gentle) var(--ease-settle); }
+}
+
+/* ---------- Ambient loops stop entirely when motion is reduced ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .splash-halo, .splash-horizon::after, .skeleton-block, .route-transition, .progress-ring, .check-settle, .toast { animation: none !important; }
+}
+.reduce-motion .splash-halo, .reduce-motion .splash-horizon::after, .reduce-motion .skeleton-block,
+.reduce-motion .route-transition, .reduce-motion .progress-ring, .reduce-motion .check-settle, .reduce-motion .toast { animation: none !important; }

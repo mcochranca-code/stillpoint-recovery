@@ -7,6 +7,8 @@ export interface PublicCommunityComment {
   createdAt: string;
 }
 
+export const COMMUNITY_NOTES_BOARD_KEY = 'stillpoint:community-notes';
+
 export class CommunityResponseError extends Error {
   constructor(message: string, readonly status: number) { super(message); }
 }

@@ -57,6 +57,8 @@ Keep domain rules in `src/domain/`, persistence and backup behavior in `src/db/`
 
 For React changes, preserve semantic HTML, labels, focus management, responsive layouts, and reduced-motion behavior. Avoid introducing global state when a local feature boundary is sufficient. For date or timer logic, test timezone, midnight, leap-day, and boundary behavior explicitly.
 
+When changing navigation, keep the mobile hamburger keyboard-accessible and keep the pinned Settings and privacy control visible when the menu is closed. Community Notes is opt-in and must remain absent from navigation and Today until `communityNotesEnabled` is explicitly true.
+
 For IndexedDB changes, consider existing users and backup compatibility. Validate imported JSON, preserve unknown records where the merge contract requires it, and document any schema or deletion behavior. Never use browser storage as a reason to claim that data is encrypted or permanently recoverable.
 
 ## Documentation and content rules

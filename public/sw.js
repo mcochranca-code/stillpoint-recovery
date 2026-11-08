@@ -54,3 +54,21 @@ self.addEventListener('fetch', (event) => {
     });
   }));
 });
+
+// Open (or focus) Stillpoint at the reminder's in-app path when a local reminder is tapped.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const requested = event.notification.data && typeof event.notification.data.path === 'string' ? event.notification.data.path : '/';
+  const path = requested.startsWith('/') && !requested.startsWith('//') ? requested : '/';
+  event.waitUntil((async () => {
+    const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of windows) {
+      if (new URL(client.url).origin === self.location.origin && 'focus' in client) {
+        await client.focus();
+        if ('navigate' in client) await client.navigate(path).catch(() => undefined);
+        return;
+      }
+    }
+    await self.clients.openWindow(path);
+  })());
+});

@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import Navigation from '../app/Navigation';
 
 function CurrentPath() {
@@ -9,16 +9,18 @@ function CurrentPath() {
   return <output data-testid="current-path">{location.pathname}</output>;
 }
 
-function renderNavigation(initialPath = '/') {
+function renderNavigation(initialPath = '/', communityNotesEnabled = false) {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
-      <Navigation />
+      <Navigation communityNotesEnabled={communityNotesEnabled} />
       <CurrentPath />
     </MemoryRouter>,
   );
 }
 
 describe('Quick Find', () => {
+  beforeEach(() => window.localStorage.clear());
+
   it('opens from the mobile navigation and shows grouped local suggestions', () => {
     renderNavigation();
     fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
@@ -46,6 +48,19 @@ describe('Quick Find', () => {
 
     fireEvent.change(search, { target: { value: 'private_entry_content_90531' } });
     expect(within(dialog).getByText('No matches.')).toBeTruthy();
+  });
+
+  it('finds the Home page and dedicated Community Notes destination', () => {
+    renderNavigation('/', true);
+    fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
+    const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
+    const search = within(dialog).getByRole('searchbox');
+
+    fireEvent.change(search, { target: { value: 'home' } });
+    expect(within(dialog).getByRole('link', { name: /Home Your daily recovery companion/ })).toHaveAttribute('href', '/');
+
+    fireEvent.change(search, { target: { value: 'community notes' } });
+    expect(within(dialog).getByRole('link', { name: /Community Notes/ })).toHaveAttribute('href', '/community');
   });
 
   it('opens with Ctrl+K and supports arrow-key movement through results', () => {

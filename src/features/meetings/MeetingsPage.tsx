@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { CalendarDays, ExternalLink, MapPin, Search, Share2, UsersRound } from 'lucide-react';
+import { CalendarDays, CalendarPlus, Download, ExternalLink, MapPin, Search, Share2, UsersRound } from 'lucide-react';
 import { meetingListings, meetingSnapshotCheckedAt, meetingSources, onlineWorkbookDuplicateRowCount } from '../../data/meetings';
 import { meetingVenueCoordinateFor } from '../../data/meeting-coordinates';
 import { workbookMeetingCoverage } from '../../data/workbook-meeting-coverage';
@@ -9,6 +9,7 @@ import { db } from '../../db/database';
 import { filterMeetingListings, type FellowshipFilter, type MeetingDayFilter, type MeetingFormatFilter } from '../../domain/meetings';
 import { buildMeetingMapLocations } from '../../domain/meeting-map';
 import { MEETING_SHARE_LIMIT } from '../../domain/meeting-sharing';
+import { buildGoogleCalendarUrl, downloadMeetingCalendarFile } from '../../domain/meeting-calendar';
 import { MeetingShareDialog } from '../../components/MeetingShareDialog';
 import './meetings.css';
 
@@ -265,10 +266,10 @@ export function MeetingsPage() {
             </button>
           </div>
           <p className="meeting-map-disclosure">
-            {mappedListingCount} of {physicalOrHybridResultCount} in-person or hybrid listings in this view have an exact address-range match{unmappedPhysicalOrHybridCount > 0 ? `; ${unmappedPhysicalOrHybridCount} without an exact match are not pinned` : ''}. Pins are approximate address-range positions, not confirmed building entrances. Tiles load from OpenStreetMap only after you choose the map; the tile server receives ordinary connection metadata and the viewed map area, which may correlate with this local filter view, but not your search text, filter values, device location, or recovery information. See the <a href="https://operations.osmfoundation.org/policies/tiles/" {...sourceLinkProps}>tile usage policy</a>.
+            {mappedListingCount} of {physicalOrHybridResultCount} in-person or hybrid listings in this view have an exact address-range match{unmappedPhysicalOrHybridCount > 0 ? `; ${unmappedPhysicalOrHybridCount} without an exact match are not pinned` : ''}. Pins are approximate address-range positions, not confirmed building entrances. Tiles load from OpenStreetMap only after you choose the map; the tile server receives ordinary connection metadata and the viewed map area, which may correlate with this local filter view, but not your search text, filter values, or recovery information. Your device position is never sent; if you choose to show it, the map centers there and the tiles requested for that area can reveal it approximately. See the <a href="https://operations.osmfoundation.org/policies/tiles/" {...sourceLinkProps}>tile usage policy</a>.
           </p>
           <div id="interactive-meeting-map" className="meeting-map-slot" hidden={!mapOpen}>
-            {mapOpen && <Suspense fallback={<p className="meeting-map-loading" role="status">Loading the interactive map…</p>}>
+            {mapOpen && <Suspense fallback={<div className="meeting-map-skeleton" role="status" aria-busy="true"><span className="skeleton-block" aria-hidden="true" /><span>Loading the interactive map…</span></div>}>
               <InteractiveMeetingMap locations={mapLocations} />
             </Suspense>}
           </div>
@@ -303,6 +304,8 @@ export function MeetingsPage() {
                 <div className="meeting-listing-actions">
                   {meeting.sourceUrl && <a href={meeting.sourceUrl} {...sourceLinkProps}>Official listing <ExternalLink size={13} aria-hidden="true" /></a>}
                   {mapReady && <a href={mapsUrl(meeting.address, meeting.city)} {...sourceLinkProps}>Map <MapPin size={13} aria-hidden="true" /></a>}
+                  <a href={buildGoogleCalendarUrl(meeting)} {...sourceLinkProps}>Google Calendar <CalendarPlus size={13} aria-hidden="true" /></a>
+                  <button type="button" onClick={() => downloadMeetingCalendarFile([meeting])}><Download size={13} aria-hidden="true" /> iCal invite</button>
                 </div>
                 <div className="meeting-reminder-controls">
                   <label className="meeting-reminder-toggle"><input type="checkbox" checked={Boolean(reminder)} onChange={(event) => void changeMeetingReminder(meeting.id, event.target.checked)} aria-label={`${reminder ? 'Remove' : 'Set'} weekly reminder for ${meeting.name}`} /><span>Weekly reminder</span></label>
@@ -338,7 +341,7 @@ export function MeetingsPage() {
         {visible.length < filtered.length && <div className="meeting-show-more"><button className="button button-secondary" type="button" onClick={() => setLimit((value) => value + 30)}>Show 30 more</button></div>}
       </section>
 
-      <p className="fine-print meetings-privacy-note">Stillpoint does not request your location, record attendance, or transmit meeting search text, filter values, or recovery details to a service. Bundled listings and reminder choices stay on this device. The public demo intentionally omits direct Zoom invitations, meeting IDs and passcodes; use the linked official detail page for current access information. Loading the optional in-app map sends OpenStreetMap tile requests that reveal the viewed map area, which may correlate with local filters; external directory and map links open only after you choose them. FA search criteria are entered on the official external site only after you choose its link. NA format abbreviations follow the source’s key.</p>
+      <p className="fine-print meetings-privacy-note">Stillpoint does not request your location unless you choose “Show my approximate position” on the optional map (that position stays in memory on this page and is never saved or sent to Stillpoint), and does not record attendance, or transmit meeting search text, filter values, or recovery details to a service. Bundled listings and reminder choices stay on this device. The public demo intentionally omits direct Zoom invitations, meeting IDs and passcodes; use the linked official detail page for current access information. Loading the optional in-app map sends OpenStreetMap tile requests that reveal the viewed map area, which may correlate with local filters; external directory and map links open only after you choose them. FA search criteria are entered on the official external site only after you choose its link. NA format abbreviations follow the source’s key.</p>
       {shareDialogOpen && <MeetingShareDialog meetings={selectedMeetings} onClose={() => setShareDialogOpen(false)} />}
     </div>
   );
