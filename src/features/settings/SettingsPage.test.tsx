@@ -46,6 +46,17 @@ describe('SettingsPage content preferences', () => {
     expect(screen.getByText(/can be added if you choose Christian under Daily readings/)).toBeInTheDocument();
   });
 
+  it('keeps Community Notes off by default and saves an explicit opt-in', async () => {
+    render(<MemoryRouter><SettingsPage /></MemoryRouter>);
+    const toggle = screen.getByRole('checkbox', { name: /Show Community Notes/ });
+
+    expect(toggle).not.toBeChecked();
+    fireEvent.click(toggle);
+
+    expect(mocks.updatePreferences).toHaveBeenCalledWith({ communityNotesEnabled: true });
+    await waitFor(() => expect(mocks.notify).toHaveBeenCalledWith('Community Notes are available on this device.'));
+  });
+
   it('offers Christian extras, off by default, once Christian is chosen, and saves the opt-in', async () => {
     mocks.context = {
       ...(mocks.context as object),

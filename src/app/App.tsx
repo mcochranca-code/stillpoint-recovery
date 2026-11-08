@@ -37,7 +37,7 @@ function AppRoutes() {
     <MotionConfig reducedMotion={preferences.reducedMotion ? 'always' : 'user'}>
     <div className="app-frame">
       <a className="skip-link" href="#main-content">Skip to main content</a>
-      <Navigation />
+      <Navigation communityNotesEnabled={preferences?.communityNotesEnabled === true} />
       <main className="page-content" id="main-content" tabIndex={-1}>
         <RouteFocusManager />
         <Suspense fallback={<PageSkeleton />}>

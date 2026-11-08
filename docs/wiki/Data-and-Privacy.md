@@ -6,6 +6,8 @@ Recovery dates, preferences, journals and drafts, reflections, scripture activit
 
 The app does not require an account, cloud sync, analytics tracker, advertising service, or recovery-data API. The service worker caches app assets, not a remote recovery profile.
 
+Community Notes are a separate, optional hosted feature. The `communityNotesEnabled` preference is false for new installs and is stored locally in IndexedDB. While it is off, the Community Notes route is not mounted in navigation or on Today, and no hosted notes are fetched. Enabling it adds the destination and lets the person open the board; posting still requires a separate consent checkbox.
+
 ## Storage and data-loss risks
 
 Local does not mean encrypted. Stillpoint does not encrypt the IndexedDB database or its exported backups. Someone with access to the device or browser profile may be able to access saved records. Browser storage is also subject to the browser’s own storage limits and lifecycle; browser or device maintenance, storage pressure, profile removal, or site-data clearing can make records unavailable or remove them.
@@ -41,6 +43,8 @@ If local storage cannot be opened, do not clear site data, reinstall, or repeate
 The NA World Services Just for Today link and Our Daily Bread links are opened only after a user click. Stillpoint does not copy, cache, proxy, or rehost those publisher readings. An external visit is subject to the publisher’s own privacy, cookies, analytics, and terms practices.
 
 Trusted contacts are user-entered. The app never sends a message or places a call automatically.
+
+When Community Notes are enabled and opened, the optional service can receive public note content, a fixed board or reading identifier, and ordinary connection/security metadata. It does not receive the recovery profile, sobriety date, journal, meeting filters, location, or meditation history. Notes are public for up to 90 days, and deletion credentials remain only in the posting browser.
 
 ## Optional interactive meeting map
 

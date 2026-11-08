@@ -1,11 +1,16 @@
+import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import Navigation from './Navigation';
 
 describe('Navigation', () => {
-  it('keeps every mobile destination and readable visible labels with full accessible names', () => {
-    render(<MemoryRouter><Navigation /></MemoryRouter>);
+  beforeEach(() => window.localStorage.clear());
+
+  it('keeps every enabled mobile destination behind the hamburger with a pinned Settings control', () => {
+    render(<MemoryRouter><Navigation communityNotesEnabled /></MemoryRouter>);
+    fireEvent.click(screen.getByRole('button', { name: 'Open mobile navigation' }));
+
     const mobileNavigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
     const routeLabels = ['Home', 'Progress', 'Current milestone token', 'Journal', 'Meditation', 'Meetings', 'Community Notes', 'Library'];
 
@@ -16,19 +21,32 @@ describe('Navigation', () => {
     expect(within(mobileNavigation).getByText('Tokens', { selector: 'span' })).toBeTruthy();
     expect(within(mobileNavigation).getByRole('button', { name: 'Search Stillpoint' })).toBeTruthy();
     expect(within(mobileNavigation).getByText('Meditate', { selector: 'span' })).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Settings and privacy (pinned)' })).toBeTruthy();
   });
 
-  it('can hide and show the mobile navigation separately from its labels', () => {
+  it('keeps Community Notes out of navigation until the local opt-in is enabled', () => {
     render(<MemoryRouter><Navigation /></MemoryRouter>);
-    const mobileNavigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
-    const visibilityToggle = screen.getByRole('button', { name: 'Hide mobile navigation' });
+    fireEvent.click(screen.getByRole('button', { name: 'Open mobile navigation' }));
 
-    expect(visibilityToggle).toHaveAttribute('aria-expanded', 'true');
-    fireEvent.click(visibilityToggle);
-    expect(screen.getByRole('button', { name: 'Show mobile navigation' })).toHaveAttribute('aria-expanded', 'false');
+    const mobileNavigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
+    expect(within(mobileNavigation).queryByRole('link', { name: 'Community Notes' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Community Notes' })).toBeNull();
+  });
+
+  it('opens and closes the mobile hamburger menu without affecting pinned Settings', () => {
+    render(<MemoryRouter><Navigation /></MemoryRouter>);
+    const mobileNavigation = document.getElementById('mobile-primary-navigation');
+    if (!mobileNavigation) throw new Error('Mobile navigation was not rendered.');
+    const openButton = screen.getByRole('button', { name: 'Open mobile navigation' });
+
     expect(mobileNavigation).toHaveAttribute('hidden');
-    fireEvent.click(screen.getByRole('button', { name: 'Show mobile navigation' }));
+    fireEvent.click(openButton);
+    expect(screen.getByRole('button', { name: 'Close mobile navigation' })).toHaveAttribute('aria-expanded', 'true');
     expect(mobileNavigation).not.toHaveAttribute('hidden');
+    fireEvent.click(screen.getByRole('button', { name: 'Close mobile navigation' }));
+    expect(screen.getByRole('button', { name: 'Open mobile navigation' })).toHaveAttribute('aria-expanded', 'false');
+    expect(mobileNavigation).toHaveAttribute('hidden');
+    expect(screen.getByRole('link', { name: 'Settings and privacy (pinned)' })).toBeTruthy();
   });
 
   it('provides an accessible desktop sidebar collapse toggle', () => {

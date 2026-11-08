@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Compass, Eye, EyeOff, Heart, Home, MessageCircle, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
+import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronLeft, ChevronRight, Compass, Heart, Home, LockKeyhole, Menu, MessageCircle, Search, Settings, Wind, X, type LucideIcon } from 'lucide-react';
 import { QuickFindDialog } from '../components/QuickFindDialog';
 
 type NavigationItem = { to: string; label: string; mobileLabel?: string; accessibleLabel?: string; icon: LucideIcon; end?: boolean };
@@ -16,34 +16,25 @@ const items: NavigationItem[] = [
   { to: '/library', label: 'Library', mobileLabel: 'Library', icon: Compass },
 ];
 const MOBILE_NAV_PREFERENCE = 'stillpoint-mobile-nav-expanded-v1';
-const MOBILE_NAV_HIDDEN_PREFERENCE = 'stillpoint-mobile-nav-hidden-v1';
 const DESKTOP_SIDEBAR_PREFERENCE = 'stillpoint-desktop-sidebar-collapsed-v1';
 
 /** Render primary navigation and route-aware page controls. */
-export default function Navigation() {
+export default function Navigation({ communityNotesEnabled = false }: { communityNotesEnabled?: boolean }) {
   const [quickFindOpen, setQuickFindOpen] = useState(false);
   const [mobileExpanded, setMobileExpanded] = useState(false);
-  const [mobileHidden, setMobileHidden] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const openQuickFind = useCallback(() => setQuickFindOpen(true), []);
   const closeQuickFind = useCallback(() => setQuickFindOpen(false), []);
   const shortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
+  const visibleItems = communityNotesEnabled ? items : items.filter((item) => item.to !== '/community');
   useEffect(() => {
     try { setMobileExpanded(window.localStorage.getItem(MOBILE_NAV_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
-  }, []);
-  useEffect(() => {
-    try { setMobileHidden(window.localStorage.getItem(MOBILE_NAV_HIDDEN_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
   }, []);
   useEffect(() => {
     document.documentElement.dataset.mobileNavExpanded = String(mobileExpanded);
     try { window.localStorage.setItem(MOBILE_NAV_PREFERENCE, String(mobileExpanded)); } catch { /* Storage is optional. */ }
     return () => { delete document.documentElement.dataset.mobileNavExpanded; };
   }, [mobileExpanded]);
-  useEffect(() => {
-    document.documentElement.dataset.mobileNavHidden = String(mobileHidden);
-    try { window.localStorage.setItem(MOBILE_NAV_HIDDEN_PREFERENCE, String(mobileHidden)); } catch { /* Storage is optional. */ }
-    return () => { delete document.documentElement.dataset.mobileNavHidden; };
-  }, [mobileHidden]);
   useEffect(() => {
     try { setDesktopCollapsed(window.localStorage.getItem(DESKTOP_SIDEBAR_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
   }, []);
@@ -63,7 +54,7 @@ export default function Navigation() {
           <span>{desktopCollapsed ? 'Expand' : 'Collapse'}</span>
         </button>
         <nav id="desktop-primary-navigation" className="side-links" aria-label="Primary navigation">
-          {items.map(({ to, label, accessibleLabel, icon: Icon, end }) => (
+          {visibleItems.map(({ to, label, accessibleLabel, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
               <Icon size={19} aria-hidden="true" /><span>{label}</span>
             </NavLink>
@@ -78,31 +69,23 @@ export default function Navigation() {
         </NavLink>
         <p className="sidebar-quote">“For this day, this moment, this breath.”</p>
       </aside>
-      <div className={`mobile-nav-wrap${mobileExpanded ? ' expanded' : ''}${mobileHidden ? ' is-hidden' : ''}`}>
-        <button
-          type="button"
-          className="mobile-nav-visibility-toggle"
-          aria-expanded={!mobileHidden}
-          aria-controls="mobile-primary-navigation"
-          aria-label={mobileHidden ? 'Show mobile navigation' : 'Hide mobile navigation'}
-          title={mobileHidden ? 'Show navigation' : 'Hide navigation'}
-          onClick={() => setMobileHidden((value) => !value)}
-        >
-          {mobileHidden ? <Eye size={18} aria-hidden="true" /> : <EyeOff size={18} aria-hidden="true" />}
-        </button>
+      <div className={`mobile-nav-wrap${mobileExpanded ? ' expanded' : ''}`}>
+        <NavLink to="/settings" className="mobile-settings-lock" aria-label="Settings and privacy (pinned)" title="Settings and privacy — always available">
+          <Settings size={19} aria-hidden="true" /><LockKeyhole className="mobile-settings-lock-badge" size={10} aria-hidden="true" />
+        </NavLink>
         <button
           type="button"
           className="mobile-nav-toggle"
           aria-expanded={mobileExpanded}
           aria-controls="mobile-primary-navigation"
-          aria-label={mobileExpanded ? 'Collapse mobile navigation labels' : 'Expand mobile navigation labels'}
-          title={mobileExpanded ? 'Collapse navigation' : 'Expand navigation'}
+          aria-label={mobileExpanded ? 'Close mobile navigation' : 'Open mobile navigation'}
+          title={mobileExpanded ? 'Close navigation' : 'Open navigation'}
           onClick={() => setMobileExpanded((value) => !value)}
         >
-          {mobileExpanded ? <ChevronDown size={18} aria-hidden="true" /> : <ChevronUp size={18} aria-hidden="true" />}
+          {mobileExpanded ? <X size={21} aria-hidden="true" /> : <Menu size={21} aria-hidden="true" />}
         </button>
-        <nav id="mobile-primary-navigation" className="mobile-nav" aria-label="Mobile primary navigation" hidden={mobileHidden}>
-          {items.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end }) => (
+        <nav id="mobile-primary-navigation" className="mobile-nav" aria-label="Mobile primary navigation" hidden={!mobileExpanded}>
+          {visibleItems.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end }) => (
             <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}>
               <Icon size={21} aria-hidden="true" /><span>{mobileLabel ?? label}</span>
             </NavLink>
@@ -112,7 +95,7 @@ export default function Navigation() {
           </button>
         </nav>
       </div>
-      <QuickFindDialog open={quickFindOpen} onOpen={openQuickFind} onClose={closeQuickFind} />
+      <QuickFindDialog open={quickFindOpen} onOpen={openQuickFind} onClose={closeQuickFind} communityNotesEnabled={communityNotesEnabled} />
     </>
   );
 }

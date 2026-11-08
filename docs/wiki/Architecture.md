@@ -17,7 +17,7 @@ flowchart TD
 ## Source boundaries
 
 - `src/app/` contains the provider, onboarding, navigation, lazy route loading, and dialog focus behavior.
-- `src/features/` contains Today, Progress, Journal, Meditation, Meetings, Library, Settings, Reset, Garden, and Field Guide experiences.
+- `src/features/` contains Today, Progress, Journal, Meditation, Meetings, optional Community Notes, Library, Settings, Reset, Garden, and Field Guide experiences.
 - `src/components/` contains reusable cards, forms, dialogs, audio controls, and sharing UI.
 - `src/db/` contains the Dexie schema, migrations, repositories, milestones, backup validation, import, and deletion.
 - `src/domain/` contains date policy, timer math, achievement criteria, presentation helpers, and share payload rules.
@@ -43,11 +43,14 @@ The app shell lazy-loads these routes:
 - `/journal` — private entries, search, editing, and draft recovery.
 - `/meditation` — exercises, timer controls, phase-synchronized Box Breathing orb, local soundscapes, and history.
 - `/meetings` — offline AA/NA/FA/SMART/Faith-Based directory snapshots with fellowship, county/source region, weekday, city, format, and text filters, source links where available, and explicit unverified provenance for Faith-Based demo rows.
+- `/community` — optional account-free Community Notes board. It is off by default and appears in navigation only after the local opt-in is enabled; public notes are fetched only after opening the board.
 - `/library` — reflections, scripture, practices, and collection browsing.
 - `/reset` — the brief “I need a moment” support flow.
 - `/garden` — visual, non-punitive growth from supportive activity.
 - `/field-guide` — user-built coping notes and strategies.
 - `/settings` — accessibility, privacy, reminders, backup, restore, and deletion.
+
+The mobile shell uses a hamburger menu for primary destinations while keeping a pinned Settings and privacy icon available at all times. Desktop navigation has its own collapsible icon rail. Both controls are local UI state and do not leave the browser.
 
 Meeting filters run entirely on the bundled snapshots. No location permission or attendance tracking is used; official schedule and map links open only after an explicit click. Coverage notes distinguish bundled records from partial or dynamic official directories instead of implying that an incomplete snapshot is exhaustive.
 

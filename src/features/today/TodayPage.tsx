@@ -223,7 +223,7 @@ export function TodayPage() {
           <button className="text-button reflection-expand" aria-expanded={reflectionExpanded} aria-controls="original-reflection-reading" onClick={() => setReflectionExpanded((expanded) => !expanded)}>{reflectionExpanded ? 'Show less' : 'Read full original reflection'}</button>
           <div className="principle-callout"><span>ONE PRINCIPLE</span><strong>{reflection.principle}</strong></div>
           <div className="reflection-details"><p><strong>For today</strong>{reflection.practice}</p><p><strong>A question to carry</strong>{reflection.question}</p></div>
-          <CommunityDiscussion key={`${today}:${reflection.id}`} date={today} reflectionId={reflection.id} />
+          {preferences?.communityNotesEnabled === true && <CommunityDiscussion key={`${today}:${reflection.id}`} date={today} reflectionId={reflection.id} />}
           <div className="action-row">
             <button className="button button-primary" onClick={() => void reflectToday()}>{reflectionActivity?.reflectedAt ? <><Check size={16} aria-hidden="true" className="check-settle" /> Reflected today</> : 'Mark as reflected'}</button>
             <button className="button button-secondary" onClick={() => void saveReflectionToJournal()}><BookOpen size={16} aria-hidden="true" /> Save to journal</button>

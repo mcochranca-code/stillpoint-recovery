@@ -43,7 +43,7 @@ const quickFindItems: QuickFindItem[] = [
 const quickFindGroups: QuickFindItem['group'][] = ['Quick actions', 'Pages'];
 
 /** A global, local-only launcher for Stillpoint pages and safe built-in actions. */
-export function QuickFindDialog({ open, onOpen, onClose }: { open: boolean; onOpen: () => void; onClose: () => void }) {
+export function QuickFindDialog({ open, onOpen, onClose, communityNotesEnabled = false }: { open: boolean; onOpen: () => void; onClose: () => void; communityNotesEnabled?: boolean }) {
   const dialogRef = useDialogFocus<HTMLDivElement>(open, onClose);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -68,10 +68,11 @@ export function QuickFindDialog({ open, onOpen, onClose }: { open: boolean; onOp
   const [query, setQuery] = useSearchQuery(open);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const results = useMemo(() => quickFindItems.filter((item) => {
+    if (item.id === 'open-community-notes' && !communityNotesEnabled) return false;
     if (!normalizedQuery && !item.featured) return false;
     if (!normalizedQuery) return true;
     return `${item.label} ${item.detail} ${item.keywords}`.toLocaleLowerCase().includes(normalizedQuery);
-  }), [normalizedQuery]);
+  }), [communityNotesEnabled, normalizedQuery]);
 
   const focusResult = (index: number) => {
     const links = dialogRef.current?.querySelectorAll<HTMLAnchorElement>('[data-quick-find-result]');

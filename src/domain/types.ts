@@ -99,8 +99,10 @@ export interface UserPreferences {
    * save false. Absent on installs from before this switch, which keep their earlier behaviour
    * (shown with the Faith-based preset and the Christian tradition) until they change it.
    * Only takes effect while Christian is among the chosen traditions.
-   */
+  */
   christianExtras?: boolean;
+  /** Community Notes stays off until the person explicitly enables the optional hosted feature. */
+  communityNotesEnabled?: boolean;
   onboardingComplete: boolean;
   theme: ThemeMode;
   colorTheme: ColorTheme;

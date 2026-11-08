@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import Navigation from '../app/Navigation';
 
 function CurrentPath() {
@@ -9,18 +9,21 @@ function CurrentPath() {
   return <output data-testid="current-path">{location.pathname}</output>;
 }
 
-function renderNavigation(initialPath = '/') {
+function renderNavigation(initialPath = '/', communityNotesEnabled = false) {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
-      <Navigation />
+      <Navigation communityNotesEnabled={communityNotesEnabled} />
       <CurrentPath />
     </MemoryRouter>,
   );
 }
 
 describe('Quick Find', () => {
+  beforeEach(() => window.localStorage.clear());
+
   it('opens from the mobile navigation and shows grouped local suggestions', () => {
     renderNavigation();
+    fireEvent.click(screen.getByRole('button', { name: 'Open mobile navigation' }));
     fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
 
     const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
@@ -34,6 +37,7 @@ describe('Quick Find', () => {
 
   it('filters only built-in destinations and actions as the user types', () => {
     renderNavigation();
+    fireEvent.click(screen.getByRole('button', { name: 'Open mobile navigation' }));
     fireEvent.click(screen.getByRole('button', { name: 'Open Quick Find' }));
     const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
     const search = within(dialog).getByRole('searchbox');
@@ -49,7 +53,8 @@ describe('Quick Find', () => {
   });
 
   it('finds the Home page and dedicated Community Notes destination', () => {
-    renderNavigation();
+    renderNavigation('/', true);
+    fireEvent.click(screen.getByRole('button', { name: 'Open mobile navigation' }));
     fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
     const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
     const search = within(dialog).getByRole('searchbox');
@@ -81,6 +86,7 @@ describe('Quick Find', () => {
 
   it('closes with Escape and restores focus to the launcher', () => {
     renderNavigation();
+    fireEvent.click(screen.getByRole('button', { name: 'Open mobile navigation' }));
     const launcher = screen.getByRole('button', { name: 'Search Stillpoint' });
     launcher.focus();
     fireEvent.click(launcher);
@@ -93,6 +99,7 @@ describe('Quick Find', () => {
 
   it('navigates to a selected destination and closes the dialog', () => {
     renderNavigation();
+    fireEvent.click(screen.getByRole('button', { name: 'Open mobile navigation' }));
     fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
     const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
     fireEvent.click(within(dialog).getByRole('link', { name: /Find a meeting/ }));

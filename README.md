@@ -50,8 +50,7 @@ Recovery is personal. Most tracking apps turn it into a score; Stillpoint makes 
 - **Meetings** — an offline, source-linked sample of public AA/NA schedules for Stanislaus, Fresno, Mariposa, and Merced counties, plus one Fresno Food Addicts (FA) listing, with on-device filters and an optional map. Coverage is partial; see [meeting sources](docs/meeting-sources.md) and confirm with official directories.
 - **Make it yours** — five palettes (Stillpoint, Catppuccin, Monokai, Obsidian, Lucide) and accessibility controls.
 - **Backups you control** — export and restore versioned JSON backups on-device, and opt-in milestone sharing that you preview first.
-- **Optional community notes** — short, public, date-scoped notes on the day's original reading, only if you choose to post (see [Data and privacy](#data-and-privacy)).
-- **Community Notes** is a first-class, account-free navigation destination with a separate shared board. Notes are fetched only after you explicitly open it and expire after up to 90 days.
+- **Optional community notes** — off by default; enable them in Settings if you want a first-class, account-free navigation destination with a separate shared board. Notes are fetched only after you explicitly open the board, and posting is a separate choice (see [Data and privacy](#data-and-privacy)).
 
 ## Screenshots
 
@@ -128,7 +127,7 @@ flowchart TD
     API --> DB[(MySQL-compatible DB)]
 ```
 
-The one networked exception is the optional `/community` route, served by a small Express API in [`server/`](server/) under `/api/community` (plus `/healthz`). It needs a `DATABASE_URL`; without one, local runs keep working and the Community tab reports that hosted notes are unavailable.
+The one networked exception is the optional `/community` route, served by a small Express API in [`server/`](server/) under `/api/community` (plus `/healthz`). It is off by default: the local `communityNotesEnabled` preference must be turned on in Settings before the route appears in navigation or the daily discussion mounts. It needs a `DATABASE_URL`; without one, local runs keep working and the opt-in board reports that hosted notes are unavailable.
 
 <details>
 <summary><strong>Project map</strong></summary>
@@ -224,6 +223,8 @@ The production build creates `dist/`, a web app manifest, a service worker, and 
 **Backups and restore.** Backups are versioned JSON files. Restore previews counts and merges records locally; the profile and preferences replace saved values, duplicate IDs are skipped, and nothing syncs automatically between devices.
 
 **Community notes (opt-in).** Posting sends only a short note (120 characters or fewer) scoped to the day. It never sends your recovery profile, sobriety date, journal, meeting, location, or meditation data. Notes are public, retained for up to 90 days, and deletion keys stay in the posting browser.
+
+Community Notes are disabled on new installs. Turning them on is a local preference stored in IndexedDB; turning them off removes the destination and daily discussion without deleting private recovery records. The mobile navigation keeps a pinned Settings control visible even when the hamburger menu is closed.
 
 **External links and maps.** NA, Our Daily Bread, and meeting-directory links open only when you click them, in a new tab, with no recovery data attached. The meeting map loads OpenStreetMap tiles only after you open it; tile requests reveal the viewed area, not your filters, search text, recovery data, or device location.
 
