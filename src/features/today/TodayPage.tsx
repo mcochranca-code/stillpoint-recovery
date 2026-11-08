@@ -171,7 +171,7 @@ export function TodayPage() {
     <div className="page-stack today-page">
       <header className="page-header today-header">
         <DaypartSky daypart={daypartFor(new Date(now))} />
-        <div><p className="eyebrow">{discreet ? 'A private space' : new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p><h1>A little space for today.</h1><p>There’s no perfect way through—only the next kind step.</p></div>
+        <div><p className="eyebrow">{discreet ? 'A private space' : new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p><h1>Home</h1><p>There’s no perfect way through—only the next kind step.</p></div>
         <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} aria-hidden="true" /> Show private details</button>}<Link to="/reset" className="button button-secondary"><Wind size={16} aria-hidden="true" /> I need a moment</Link><Link to="/settings" className="icon-button" aria-label="Open settings" title="Settings and privacy"><Settings2 size={18} aria-hidden="true" /></Link></div>
       </header>
 

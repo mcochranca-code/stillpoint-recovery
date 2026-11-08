@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import {
   ArrowRight, Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, Compass,
-  Flower2, Heart, Home, Leaf, Settings, Shield, Sparkles, Wind,
+  Flower2, Heart, Home, Leaf, MessageCircle, Settings, Shield, Sparkles, Wind,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useDialogFocus } from '../app/useDialogFocus';
@@ -25,12 +25,13 @@ const quickFindItems: QuickFindItem[] = [
   { id: 'start-meditation', label: 'Begin a meditation', detail: 'Choose a short, optional guided practice', path: '/meditation', group: 'Quick actions', keywords: 'breathe relax calm audio mindfulness', icon: Heart, featured: true },
   { id: 'open-charms', label: 'Explore activity charms', detail: 'View earned charms and private memories', path: '/charms', group: 'Quick actions', keywords: 'achievement badge collection garden activity progress', icon: Sparkles, featured: true },
   { id: 'open-journal', label: 'Write a private note', detail: 'Open your on-device journal', path: '/journal', group: 'Quick actions', keywords: 'journal reflection gratitude feelings private', icon: BookOpen, featured: true },
-  { id: 'open-today', label: 'Today', detail: 'Your daily recovery companion', path: '/', group: 'Pages', keywords: 'home dashboard reflection scripture counter', icon: Home },
+  { id: 'open-home', label: 'Home', detail: 'Your daily recovery companion', path: '/', group: 'Pages', keywords: 'home today daily dashboard reflection scripture counter', icon: Home },
   { id: 'open-progress', label: 'Progress', detail: 'Activity, milestones, and personal timeline', path: '/progress', group: 'Pages', keywords: 'statistics activity timeline growth', icon: ChartNoAxesColumnIncreasing },
   { id: 'open-tokens', label: 'Current token', detail: 'AA medallion or NA keytag for your current counter', path: '/tokens', group: 'Pages', keywords: 'token tokens AA medallion NA keytag sobriety day milestone', icon: Award },
   { id: 'open-journal', label: 'Journal', detail: 'Private notes saved on this device', path: '/journal', group: 'Pages', keywords: 'writing diary reflection', icon: BookOpen },
   { id: 'open-meditation', label: 'Meditation', detail: 'Breathing, grounding, and quiet practices', path: '/meditation', group: 'Pages', keywords: 'breathing audio relaxation', icon: Heart },
   { id: 'open-meetings', label: 'Meeting finder', detail: 'Offline AA, NA, FA, and SMART listings', path: '/meetings', group: 'Pages', keywords: 'AA NA FA SMART directory recovery support map', icon: CalendarDays },
+  { id: 'open-community-notes', label: 'Community Notes', detail: 'Open the separate, optional shared notes board', path: '/community', group: 'Pages', keywords: 'community notes shared public board supportive account-free', icon: MessageCircle },
   { id: 'open-library', label: 'Library', detail: 'Browse readings and recovery tools', path: '/library', group: 'Pages', keywords: 'reading scripture tools explore', icon: Compass },
   { id: 'open-charms-page', label: 'Journey Collection', detail: 'Activity charms and private memories', path: '/charms', group: 'Pages', keywords: 'charms activity collection achievement garden memories', icon: Sparkles },
   { id: 'open-garden', label: 'Living Garden', detail: 'A visual record of care over time', path: '/garden', group: 'Pages', keywords: 'garden plants scenery activity', icon: Flower2 },
