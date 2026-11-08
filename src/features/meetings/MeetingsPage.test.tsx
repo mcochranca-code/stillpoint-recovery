@@ -152,12 +152,16 @@ describe('MeetingsPage', () => {
     const selectors = screen.getAllByRole('checkbox', { name: /Select .+ for a share card/ });
     expect(selectors.length).toBeGreaterThan(4);
     selectors.slice(0, 4).forEach((selector) => fireEvent.click(selector));
+    expect(screen.getAllByRole('link', { name: /Google Calendar/ }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /iCal invite/ }).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Share selected meetings (4)' })).toBeTruthy();
     expect(selectors[4]?.hasAttribute('disabled')).toBe(true);
 
     fireEvent.click(screen.getByRole('button', { name: 'Share selected meetings (4)' }));
     expect(screen.getByRole('dialog', { name: 'Share selected meetings' })).toBeTruthy();
     expect(screen.getAllByRole('article', { name: /share preview/ })).toHaveLength(4);
+    expect(screen.getByRole('button', { name: 'Share calendar invite' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Download iCal invite' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Close meeting share preview' }));
     expect(screen.getByRole('button', { name: 'Share selected meetings (4)' })).toBeTruthy();
   });

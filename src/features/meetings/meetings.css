@@ -42,7 +42,9 @@
 .meeting-format { margin: 9px 0 12px; color: var(--muted); font-size: 0.625rem; line-height: 1.5; }
 .meeting-format strong { color: var(--ink); }
 .meeting-listing-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: auto; padding-top: 12px; }
-.meeting-listing-actions a { min-height: 33px; padding: 6px 8px; font-size: 0.625rem; }
+.meeting-listing-actions a, .meeting-listing-actions button { min-height: 33px; padding: 6px 8px; font-size: 0.625rem; }
+.meeting-listing-actions button { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 11px; background: var(--surface); color: var(--ink); cursor: pointer; font: inherit; text-decoration: none; }
+.meeting-listing-actions button:hover, .meeting-listing-actions button:focus-visible { border-color: var(--primary); background: var(--primary-soft); }
 .meeting-reminder-controls { display: grid; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
 .meeting-reminder-toggle { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 0.6875rem; font-weight: 650; }
 .meeting-reminder-toggle input { width: 16px; height: 16px; accent-color: var(--primary); }

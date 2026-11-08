@@ -1,6 +1,6 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { CalendarDays, ExternalLink, MapPin, Search, Share2, UsersRound } from 'lucide-react';
+import { CalendarDays, CalendarPlus, Download, ExternalLink, MapPin, Search, Share2, UsersRound } from 'lucide-react';
 import { meetingListings, meetingSnapshotCheckedAt, meetingSources, onlineWorkbookDuplicateRowCount } from '../../data/meetings';
 import { meetingVenueCoordinateFor } from '../../data/meeting-coordinates';
 import { workbookMeetingCoverage } from '../../data/workbook-meeting-coverage';
@@ -9,6 +9,7 @@ import { db } from '../../db/database';
 import { filterMeetingListings, type FellowshipFilter, type MeetingDayFilter, type MeetingFormatFilter } from '../../domain/meetings';
 import { buildMeetingMapLocations } from '../../domain/meeting-map';
 import { MEETING_SHARE_LIMIT } from '../../domain/meeting-sharing';
+import { buildGoogleCalendarUrl, downloadMeetingCalendarFile } from '../../domain/meeting-calendar';
 import { MeetingShareDialog } from '../../components/MeetingShareDialog';
 import './meetings.css';
 
@@ -303,6 +304,8 @@ export function MeetingsPage() {
                 <div className="meeting-listing-actions">
                   {meeting.sourceUrl && <a href={meeting.sourceUrl} {...sourceLinkProps}>Official listing <ExternalLink size={13} aria-hidden="true" /></a>}
                   {mapReady && <a href={mapsUrl(meeting.address, meeting.city)} {...sourceLinkProps}>Map <MapPin size={13} aria-hidden="true" /></a>}
+                  <a href={buildGoogleCalendarUrl(meeting)} {...sourceLinkProps}>Google Calendar <CalendarPlus size={13} aria-hidden="true" /></a>
+                  <button type="button" onClick={() => downloadMeetingCalendarFile([meeting])}><Download size={13} aria-hidden="true" /> iCal invite</button>
                 </div>
                 <div className="meeting-reminder-controls">
                   <label className="meeting-reminder-toggle"><input type="checkbox" checked={Boolean(reminder)} onChange={(event) => void changeMeetingReminder(meeting.id, event.target.checked)} aria-label={`${reminder ? 'Remove' : 'Set'} weekly reminder for ${meeting.name}`} /><span>Weekly reminder</span></label>
