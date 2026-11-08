@@ -9,8 +9,8 @@ export interface ColorThemePreset {
 
 export const colorThemePresets: readonly ColorThemePreset[] = [
   { id: 'stillpoint', label: 'Stillpoint', description: 'Warm ivory, sage, and forest', swatches: ['#f7f4ea', '#7fa58a', '#245444'] },
-  { id: 'catppuccin', label: 'Catppuccin', description: 'Soft mauve, periwinkle, and cream', swatches: ['#eff1f5', '#8839ef', '#ea76cb'] },
-  { id: 'monokai', label: 'Monokai', description: 'Leaf green, warm charcoal, and coral', swatches: ['#272822', '#a6e22e', '#f92672'] },
-  { id: 'obsidian', label: 'Obsidian', description: 'Deep graphite, cool slate, and violet', swatches: ['#0b0f14', '#334155', '#a78bfa'] },
-  { id: 'lucide', label: 'Lucide', description: 'Clear sky, blue, and soft lavender', swatches: ['#eff6ff', '#2563eb', '#a78bfa'] },
+  { id: 'catppuccin', label: 'Catppuccin', description: 'Lavender-gray, mauve, and green', swatches: ['#eff1f5', '#7c2fe0', '#40a02b'] },
+  { id: 'monokai', label: 'Monokai', description: 'Warm ivory, charcoal, and leaf green', swatches: ['#f2f0e5', '#668227', '#272822'] },
+  { id: 'obsidian', label: 'Obsidian', description: 'Cool gray, graphite, and teal', swatches: ['#f1f4f8', '#334155', '#0f766e'] },
+  { id: 'lucide', label: 'Lucide', description: 'Clear sky, blue, and teal', swatches: ['#eff6ff', '#2563eb', '#0f766e'] },
 ];

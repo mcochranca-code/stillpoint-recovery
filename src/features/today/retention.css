@@ -1,0 +1,41 @@
+/*
+ * Today: daily check-in, welcome-back note, optional single nudge, first steps.
+ * Uses design tokens only; motion durations collapse under reduced motion.
+ */
+.daily-check-in { display: grid; gap: var(--space-2); }
+.daily-check-in:focus-visible { outline: 3px solid var(--focus-ring, #245444); outline-offset: 3px; }
+.daily-check-in h2, .welcome-back h2, .today-nudge h2, .today-quick-start h2 { margin: 0 0 var(--space-1); font-size: 1.125rem; }
+.daily-check-in__intro p { margin: 0; }
+.daily-check-in__moods { margin-top: var(--space-2); }
+.daily-check-in__moods .choice-chip { min-height: 44px; min-width: 44px; display: inline-flex; align-items: center; gap: var(--space-1); font-size: 0.8125rem; color: var(--ink); }
+.daily-check-in__moods .choice-chip.selected { font-weight: 700; }
+.daily-check-in__next { margin-top: var(--space-2); }
+
+.welcome-back, .today-nudge { display: flex; align-items: flex-start; gap: var(--space-4); position: relative; }
+.welcome-back { border-color: var(--primary, #7fa58a); background: var(--primary-soft, rgba(127,165,138,.12)); }
+.welcome-back__icon, .today-nudge__icon { flex: none; width: 40px; height: 40px; border-radius: var(--radius-md); display: grid; place-items: center; background: var(--surface); color: var(--primary, #245444); border: 1px solid var(--border); }
+.welcome-back__copy, .today-nudge__copy { flex: 1; min-width: 0; }
+.welcome-back__copy p, .today-nudge__copy p { margin-top: 0; }
+.welcome-back__close { position: absolute; top: var(--space-3); right: var(--space-3); }
+.today-nudge__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); }
+.today-nudge__row .field-label { margin: 0; }
+.today-nudge__row input { width: auto; }
+
+.sobriety-actions { margin-top: var(--space-2); }
+.begin-again-note { display: flex; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); background: var(--primary-soft, rgba(127,165,138,.12)); color: var(--ink); margin: var(--space-2) 0 var(--space-3); }
+.begin-again-note p { margin: 0; line-height: 1.55; font-size: 0.8125rem; }
+.begin-again-note svg { flex: none; margin-top: 2px; }
+
+.today-quick-start { display: grid; gap: var(--space-3); }
+.today-quick-start__intro p { margin: 0; }
+.today-quick-start__links { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.today-quick-start__link { display: flex; align-items: center; gap: var(--space-3); min-height: 60px; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--ink); text-decoration: none; background: var(--surface); }
+.today-quick-start__link:hover { border-color: var(--primary, #7fa58a); }
+.today-quick-start__icon { flex: none; width: 34px; height: 34px; border-radius: var(--radius-sm); display: grid; place-items: center; background: var(--primary-soft, rgba(127,165,138,.14)); }
+.today-quick-start__copy { display: grid; flex: 1; }
+.today-quick-start__copy small { color: var(--muted); }
+
+@media (max-width: 640px) {
+  .welcome-back, .today-nudge { flex-direction: column; gap: var(--space-2); }
+  .welcome-back__copy { padding-right: var(--space-7); }
+}

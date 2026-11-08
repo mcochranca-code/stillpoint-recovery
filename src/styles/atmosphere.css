@@ -1,0 +1,66 @@
+/*
+ * Atmosphere: a layered, time-of-day background and a refreshed type and card system.
+ *
+ * The background tint follows the local time of day (data-daypart on <html>: dawn, day,
+ * dusk, night). Tints are kept faint so text drawn straight on the canvas stays at WCAG AA;
+ * src/styles/contrast.test.ts composites every tint over every palette's canvas to prove it.
+ * Nothing here moves when reduced motion is requested: the only animations use the motion
+ * tokens, which collapse to 0ms.
+ */
+
+:root, :root[data-daypart='day'] { --atmos-a: rgba(214, 232, 220, .42); --atmos-b: rgba(222, 234, 242, .38); --atmos-c: rgba(255, 252, 240, .5); }
+:root[data-daypart='dawn'] { --atmos-a: rgba(250, 222, 200, .4); --atmos-b: rgba(226, 232, 246, .36); --atmos-c: rgba(255, 244, 230, .5); }
+:root[data-daypart='dusk'] { --atmos-a: rgba(248, 222, 220, .3); --atmos-b: rgba(232, 226, 248, .28); --atmos-c: rgba(255, 240, 228, .45); }
+:root[data-daypart='night'] { --atmos-a: rgba(224, 228, 246, .3); --atmos-b: rgba(226, 232, 240, .34); --atmos-c: rgba(244, 244, 250, .45); }
+:root.dark, :root.dark[data-daypart='day'] { --atmos-a: rgba(127, 165, 138, .1); --atmos-b: rgba(110, 150, 190, .07); --atmos-c: rgba(255, 255, 255, .02); }
+:root.dark[data-daypart='dawn'] { --atmos-a: rgba(214, 150, 110, .09); --atmos-b: rgba(120, 140, 200, .07); --atmos-c: rgba(255, 220, 190, .02); }
+:root.dark[data-daypart='dusk'] { --atmos-a: rgba(200, 120, 140, .09); --atmos-b: rgba(140, 120, 200, .08); --atmos-c: rgba(255, 210, 200, .02); }
+:root.dark[data-daypart='night'] { --atmos-a: rgba(90, 110, 190, .1); --atmos-b: rgba(60, 80, 140, .08); --atmos-c: rgba(200, 210, 255, .02); }
+
+body {
+  background-color: var(--canvas);
+  background-image:
+    radial-gradient(110% 65% at 88% -12%, var(--atmos-a), transparent 62%),
+    radial-gradient(80% 55% at -12% 18%, var(--atmos-b), transparent 58%),
+    linear-gradient(180deg, var(--atmos-c), transparent 46%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+.dark body { background-color: var(--canvas); }
+.high-contrast body { background-image: none; }
+
+/* Typography: a display face for titles and readings, steadier label tracking. */
+.page-header h1 { font-family: var(--font-display); font-size: var(--text-display); line-height: var(--leading-display); letter-spacing: var(--tracking-display); font-weight: 400; text-wrap: balance; }
+.page-header p { max-width: 62ch; text-wrap: pretty; }
+.eyebrow { letter-spacing: var(--tracking-label); }
+.card-header h2, .card h2 { font-family: var(--font-display); }
+
+/* Cards: layered elevation, a soft top light and a gentle lift for interactive ones. */
+.card { box-shadow: var(--elev-1); background-image: linear-gradient(180deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, 0) 96px); }
+.dark .card { background-image: linear-gradient(180deg, rgba(255, 255, 255, .025), rgba(255, 255, 255, 0) 96px); }
+.high-contrast .card { background-image: none; }
+.quick-action { transition: transform var(--motion-quick) var(--ease-gentle), box-shadow var(--motion-quick) var(--ease-gentle); }
+.quick-action:hover { transform: translateY(calc(var(--motion-rise) * -0.5)); box-shadow: var(--elev-2); }
+
+/* Today header with a small horizon whose sun or moon follows the time of day. */
+.today-header { position: relative; isolation: isolate; }
+.daypart-sky { position: absolute; z-index: -1; top: -18px; right: 0; width: min(46%, 320px); height: 128px; opacity: .9; pointer-events: none; }
+.daypart-sky .sky-arc { fill: none; stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 5; }
+.daypart-sky .sky-body circle { fill: #e9b964; }
+.daypart-sky .sky-glow { fill: #f3d49a !important; opacity: .28; }
+.daypart-sky-dusk .sky-body circle { fill: #e79a7a; }
+.daypart-sky-dawn .sky-body circle { fill: #f0b48a; }
+.daypart-sky-night .sky-body circle { fill: #dfe4f5; }
+.daypart-sky-night .sky-moon-shadow { fill: var(--canvas) !important; }
+.daypart-sky .sky-star { fill: #c9d1ea !important; }
+.daypart-sky .sky-hill-back { fill: var(--sage, #7fa58a); opacity: .16; }
+.daypart-sky .sky-hill-front { fill: var(--sage, #7fa58a); opacity: .26; }
+.today-header > div, .today-header .today-header-actions { position: relative; }
+@media (max-width: 760px) { .daypart-sky { display: none; } }
+
+/* Entrances: a short settle, collapsed to nothing for reduced motion by the duration tokens. */
+@keyframes stillpoint-settle-in { from { opacity: 0; transform: translateY(var(--motion-rise)); } to { opacity: 1; transform: none; } }
+.today-grid > .card { animation: stillpoint-settle-in var(--motion-calm) var(--ease-settle) both; }
+.today-grid > .card + .card { animation-delay: var(--motion-quick); }
+.reduce-motion .today-grid > .card { animation: none; }
+@media (prefers-reduced-motion: reduce) { .today-grid > .card { animation: none; } }

@@ -54,7 +54,7 @@ describe('October 26, 2026 offline workbook snapshot', () => {
 
   it('deduplicates existing regional sample rows only when a workbook row has the same schedule', () => {
     expect(nonDuplicateRegionalMeetingListings).toHaveLength(39);
-    expect(meetingListings).toHaveLength(335 + 39 + 233 + nonDuplicateOnlineWorkbookListings.length);
+    expect(meetingListings).toHaveLength(335 + 39 + 233 + 39 + nonDuplicateOnlineWorkbookListings.length);
     expect(new Set(meetingListings.map((meeting) => meeting.id)).size).toBe(meetingListings.length);
   });
 });

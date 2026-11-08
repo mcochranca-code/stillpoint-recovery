@@ -1,12 +1,14 @@
 {
   "routes": [
-    { "path": "/", "title": "Today" },
+    { "path": "/", "title": "Home" },
     { "path": "/progress", "title": "Progress" },
-    { "path": "/charms", "title": "The Journey Collection" },
+    { "path": "/tokens", "title": "Current milestone token" },
     { "path": "/journal", "title": "Journal" },
     { "path": "/meditation", "title": "Meditation" },
     { "path": "/library", "title": "Library" },
-    { "path": "/meetings", "title": "Local meeting finder" },
+    { "path": "/library/na-step-guides", "title": "NA Step Working Guides" },
+    { "path": "/meetings", "title": "Stanislaus County Meetings" },
+    { "path": "/community", "title": "Community Notes" },
     { "path": "/settings", "title": "Settings" },
     { "path": "/reset", "title": "I Need a Moment" },
     { "path": "/garden", "title": "Living Garden" },

@@ -26,3 +26,13 @@ The committed PDF has 375 pages and SHA-256 checksum:
 ```text
 6200dae7680ba999a56717b1862e1a1550611c8c1d224baf15688ba9bed86203
 ```
+
+## NA Step Working Guides
+
+The in-app reader (Library → *NA Step Working Guides*) shows *The Narcotics Anonymous Step Working
+Guides*, Copyright © 1998, World Service Office, Inc. Reprinted by permission. All rights reserved.
+It is used by permission of NA World Services and is not covered by the MIT License. Source,
+permission status and every extraction fix are recorded in
+[`na-step-working-guides.md`](na-step-working-guides.md) and
+[`CONTENT_SOURCES.md`](../../CONTENT_SOURCES.md#na-step-working-guides-used-by-permission). The source
+PDF is not committed.

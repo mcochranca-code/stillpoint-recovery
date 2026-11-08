@@ -1,23 +1,28 @@
 import Dexie, { type Table } from 'dexie';
 import type {
   ActiveMeditationSession,
+  CommunityCommentCredential,
   DailyActivity,
   DailyReflection,
   EarnedCharm,
   FieldGuideNote,
   JournalDraft,
   JournalEntry,
+  MeetingReminder,
   MeditationSession,
   PersonalGoal,
   PersonalMilestone,
   RecoveryDateHistory,
+  ReaderProgress,
   RecoveryProfile,
   ResetRecord,
   ScriptureActivity,
+  StepWorkAnswer,
   UserPreferences,
 } from '../domain/types';
+import { normalizeTraditionPreference } from '../domain/traditions';
 
-export const CURRENT_SCHEMA_VERSION = 5;
+export const CURRENT_SCHEMA_VERSION = 7;
 
 export interface MilestoneRecord {
   id: string;
@@ -45,6 +50,10 @@ const databaseSchema = {
   fieldGuideNotes: 'id, kind, createdAt, updatedAt',
   resetRecords: 'id, feeling, practice, createdAt',
 };
+const reminderDatabaseSchema = { ...databaseSchema, meetingReminders: 'id, meetingId' };
+const communityDatabaseSchema = { ...reminderDatabaseSchema, communityCredentials: 'id, readingKey, createdAt' };
+// v7: private NA Step Working Guide answers and the reader's resume position (both local-only).
+const stepWorkDatabaseSchema = { ...communityDatabaseSchema, stepWorkAnswers: 'id, stepNumber, updatedAt', readerProgress: 'id' };
 
 export class StillpointDatabase extends Dexie {
   preferences!: Table<UserPreferences, string>;
@@ -63,9 +72,13 @@ export class StillpointDatabase extends Dexie {
   milestoneRecords!: Table<MilestoneRecord, string>;
   fieldGuideNotes!: Table<FieldGuideNote, string>;
   resetRecords!: Table<ResetRecord, string>;
+  meetingReminders!: Table<MeetingReminder, string>;
+  communityCredentials!: Table<CommunityCommentCredential, string>;
+  stepWorkAnswers!: Table<StepWorkAnswer, string>;
+  readerProgress!: Table<ReaderProgress, string>;
 
-  constructor() {
-    super('StillpointRecovery');
+  constructor(name = 'StillpointRecovery') {
+    super(name);
     this.version(1).stores(databaseSchema);
     this.version(2).stores(databaseSchema).upgrade(async (transaction) => {
       await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
@@ -76,10 +89,10 @@ export class StillpointDatabase extends Dexie {
     this.version(3).stores(databaseSchema).upgrade(async (transaction) => {
       await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
         preferences.supportResources ??= [];
-        preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
+        preferences.schemaVersion = 3;
       });
       await transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
-        profile.schemaVersion = CURRENT_SCHEMA_VERSION;
+        profile.schemaVersion = 3;
       });
     });
     this.version(4).stores(databaseSchema).upgrade(async (transaction) => {
@@ -92,11 +105,41 @@ export class StillpointDatabase extends Dexie {
         }),
       ]);
     });
-    this.version(5).stores(databaseSchema).upgrade(async (transaction) => {
-      await transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
-        preferences.meetingReminders ??= [];
-        preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
-      });
+    this.version(5).stores(communityDatabaseSchema).upgrade(async (transaction) => {
+      await Promise.all([
+        transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
+          preferences.meetingReminders ??= [];
+          preferences.schemaVersion = 5;
+        }),
+        transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
+          profile.schemaVersion = 5;
+        }),
+      ]);
+    });
+    // v6: daily readings can come from several traditions. Existing installs keep what they saw
+    // before: faith-based → Christian readings, faith-neutral → the reflective (non-religious) set.
+    this.version(6).stores(communityDatabaseSchema).upgrade(async (transaction) => {
+      await Promise.all([
+        transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
+          preferences.traditionPreference = normalizeTraditionPreference(preferences.traditionPreference, preferences.contentPreset);
+          preferences.schemaVersion = 6;
+        }),
+        transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
+          profile.schemaVersion = 6;
+        }),
+      ]);
+    });
+    // v7: adds two empty local tables (step-work answers, reader position). Existing records are untouched
+    // apart from the schema stamp on the two singleton records.
+    this.version(7).stores(stepWorkDatabaseSchema).upgrade(async (transaction) => {
+      await Promise.all([
+        transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
+          preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
+        }),
+        transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
+          profile.schemaVersion = CURRENT_SCHEMA_VERSION;
+        }),
+      ]);
     });
   }
 }

@@ -26,7 +26,7 @@ export function OdbResourcesCard() {
           Sources checked October 22, 2026. Stillpoint does not copy or fetch ODB readings. These links send no recovery profile, sobriety date, journal text, or page referrer from Stillpoint. The publisher may receive standard connection details; its own privacy, cookie, analytics, and terms practices apply.
         </p>
       </div>
-      <span className="odb-resource-mark" aria-hidden="true"><BookOpen size={25} /></span>
+      <span className="odb-resource-mark" aria-hidden="true"><BookOpen size={25} aria-hidden="true" /></span>
     </section>
   );
 }

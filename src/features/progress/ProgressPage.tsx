@@ -6,6 +6,8 @@ import { useAppContext } from '../../app/AppContext';
 import { CharmGallery } from '../../components/CharmGallery';
 import { MilestoneShareDialog, type MilestoneShareTarget } from '../../components/MilestoneShareDialog';
 import { db } from '../../db/database';
+import { shouldShowChristianExtras } from '../../domain/content-preset';
+import { describeDateChange } from '../../domain/engagement';
 import { elapsedParts, formatLocalDate, localDateKey, nextMilestone, periodStart } from '../../domain/time';
 import type { DailyActivity, PersonalGoal, PersonalMilestone } from '../../domain/types';
 
@@ -39,11 +41,12 @@ export function ProgressPage() {
   const personalMilestones = useLiveQuery(() => db.personalMilestones.orderBy('daysAfterStart').toArray(), []) ?? EMPTY_PERSONAL_MILESTONES;
   const duration = elapsedParts(profile?.startAt, now);
   const durationDays = duration?.days;
+  const showFaithContent = shouldShowChristianExtras(preferences);
   const next = nextMilestone(profile?.startAt ?? null, now);
   const meditationMinutes = sessions.reduce((sum, session) => sum + session.plannedMinutes, 0);
   const completedSessions = sessions.length;
   const reflectionCount = new Set(reflections.filter((item) => item.reflectedAt).map((item) => item.reflectionId)).size;
-  const scriptureCount = new Set(scripture.map((item) => item.scriptureId)).size;
+  const scriptureCount = showFaithContent ? new Set(scripture.map((item) => item.scriptureId)).size : 0;
   const chartRows = useMemo(() => {
     const count = period === 7 ? 7 : period === 30 ? 30 : 12;
     return Array.from({ length: count }, (_, index) => {
@@ -54,12 +57,13 @@ export function ProgressPage() {
       const matching = period === 365
         ? activities.filter((item) => item.localDate.startsWith(key))
         : activities.filter((item) => item.localDate === key);
-      const value = matching.reduce((sum, row) => sum + row.reflectionsCompleted + row.scriptureExplored + row.journalEntries + row.meditationMinutes, 0);
+      const value = matching.reduce((sum, row) => sum + row.reflectionsCompleted + (showFaithContent ? row.scriptureExplored : 0) + row.journalEntries + row.meditationMinutes, 0);
       const label = period === 365 ? date.toLocaleDateString(undefined, { month: 'short' }) : date.toLocaleDateString(undefined, { weekday: 'short' });
       return { key, label, value };
     });
-  }, [period, activities]);
+  }, [period, activities, showFaithContent]);
   const maxValue = Math.max(1, ...chartRows.map((row) => row.value));
+  const hasActivity = chartRows.some((row) => row.value > 0);
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
@@ -132,30 +136,35 @@ export function ProgressPage() {
 
   const timeline = [
     ...milestones.map((item) => ({ id: item.id, at: item.reachedAt, title: `${item.label} milestone`, description: 'A moment along the recovery-date timeline.', share: { id: item.id, label: item.label, dateLabel: formatLocalDate(item.reachedAt) } })),
-    ...changes.map((item) => ({ id: item.id, at: item.recordedAt, title: 'Recovery date updated', description: 'A date-change record you chose to keep locally.', share: undefined })),
+    ...changes.map((item) => ({ id: item.id, at: item.recordedAt, ...describeDateChange(item), share: undefined })),
     ...awards.map((item) => ({ id: item.id, at: item.earnedAt, title: `${item.charmId.replaceAll('-', ' ')} charm collected`, description: 'A recovery-supportive action or milestone.', share: undefined })),
     ...personalMilestones.filter((item) => item.achievedAt).map((item) => ({ id: item.id, at: item.achievedAt!, title: `${item.label} · personal milestone`, description: `A milestone you set for ${item.daysAfterStart} days.`, share: { id: item.id, label: item.label, dateLabel: formatLocalDate(item.achievedAt!) } })),
   ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 12);
 
   return (
     <div className="page-stack">
-      <header className="page-header"><div><p className="eyebrow">A view of the path you’ve walked</p><h1>Progress, in your own measure.</h1><p>Participation and time are different things. Neither defines your worth or predicts what comes next.</p></div><button className="button button-secondary" onClick={() => setShowCollection((value) => !value)}><Sprout size={16} /> {showCollection ? 'Back to overview' : 'The Journey Collection'}</button></header>
+      <header className="page-header"><div><p className="eyebrow">A view of the path you’ve walked</p><h1>Progress, in your own measure.</h1><p>Participation and time are different things. Neither defines your worth or predicts what comes next.</p></div><button className="button button-secondary" onClick={() => setShowCollection((value) => !value)}><Sprout size={16} aria-hidden="true" /> {showCollection ? 'Back to overview' : 'The Journey Collection'}</button></header>
       {showCollection ? <CharmGallery /> : <>
         <section className="metrics-grid" aria-label="Recovery and wellness summary">
-          <article className="card metric-card"><p className="eyebrow">{preferences?.discreetMode ? 'Personal timeline' : 'Selected recovery date'}</p><div className="metric-value" aria-label={preferences?.discreetMode ? 'Duration hidden in discreet mode' : undefined}>{preferences?.discreetMode ? 'Hidden' : duration ? `${duration.days}` : '—'}</div><span className="metric-label">{preferences?.discreetMode ? 'Details are hidden while discreet display is on' : duration ? `days · since ${formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}` : 'Set a date whenever it feels useful'}</span><Link to="/" className="inline-link">{preferences?.discreetMode ? 'Open Today' : duration ? 'Adjust date on Today' : 'Set date on Today'} <ArrowRight size={14} /></Link></article>
+          <article className="card metric-card"><p className="eyebrow">{preferences?.discreetMode ? 'Personal timeline' : 'Selected recovery date'}</p><div className="metric-value" aria-label={preferences?.discreetMode ? 'Duration hidden in discreet mode' : undefined}>{preferences?.discreetMode ? 'Hidden' : duration ? `${duration.days}` : '—'}</div><span className="metric-label">{preferences?.discreetMode ? 'Details are hidden while discreet display is on' : duration ? `days · since ${formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}` : 'Set a date whenever it feels useful'}</span><Link to="/" className="inline-link">{preferences?.discreetMode ? 'Open Today' : duration ? 'Adjust date on Today' : 'Set date on Today'} <ArrowRight size={14} aria-hidden="true" /></Link></article>
           <article className="card metric-card"><p className="eyebrow">Meditation</p><div className="metric-value">{meditationMinutes}<small> min</small></div><span className="metric-label">{completedSessions} completed {completedSessions === 1 ? 'session' : 'sessions'}</span></article>
           <article className="card metric-card"><p className="eyebrow">Journal</p><div className="metric-value">{journalCount}</div><span className="metric-label">entries saved on this device</span></article>
-          <article className="card metric-card"><p className="eyebrow">Reflections & scripture</p><div className="metric-value">{reflectionCount + scriptureCount}</div><span className="metric-label">{reflectionCount} reflections · {scriptureCount} scripture passages</span></article>
+          <article className="card metric-card"><p className="eyebrow">{showFaithContent ? 'Reflections & scripture' : 'Reflections'}</p><div className="metric-value">{showFaithContent ? reflectionCount + scriptureCount : reflectionCount}</div><span className="metric-label">{showFaithContent ? `${reflectionCount} reflections · ${scriptureCount} scripture passages` : `${reflectionCount} reflections saved`}</span></article>
         </section>
 
         <div className="two-column">
           <section className="card">
             <div className="card-header"><div><p className="eyebrow">Recorded activity, not a score</p><h2>Activity over time</h2><p>Counts reflect saved actions in your selected period.</p></div><div className="filter-row" role="group" aria-label="Activity chart period">{filters.map((item) => <button key={item.days} className={`filter-chip${period === item.days ? ' selected' : ''}`} onClick={() => setPeriod(item.days)}>{item.label}</button>)}</div></div>
-            <div className="activity-bars" role="img" aria-label={`${filters.find((item) => item.days === period)?.label} activity chart. ${chartRows.map((row) => `${row.label}: ${row.value}`).join(', ')}`}>
-              {chartRows.map((row) => <div className="activity-bar" key={row.key} title={`${row.label}: ${row.value} recorded activity units`}><div className="activity-bar-track"><span className="activity-bar-fill" style={{ height: `${Math.max(3, row.value / maxValue * 100)}%` }} /></div><small>{row.label}</small></div>)}
-            </div>
-            <p className="fine-print">Activity measures recorded participation only; it is not clinical evidence or a prediction of relapse.</p>
-            <div className="activity-legend"><span><i className="legend-dot legend-reflection" /> Reflections</span><span><i className="legend-dot legend-journal" /> Journal</span><span><i className="legend-dot legend-meditation" /> Meditation minutes</span></div>
+            {hasActivity ? <>
+              <div className="activity-bars" role="img" aria-label={`${filters.find((item) => item.days === period)?.label} activity chart. ${chartRows.map((row) => `${row.label}: ${row.value}`).join(', ')}`}>
+                {chartRows.map((row) => <div className="activity-bar" key={row.key} title={`${row.label}: ${row.value} recorded activity units`}><div className="activity-bar-track"><span className="activity-bar-fill" style={{ height: `${row.value ? Math.max(3, row.value / maxValue * 100) : 0}%` }} /></div><small>{row.label}</small></div>)}
+              </div>
+              <p className="fine-print">Activity measures recorded participation only; it is not clinical evidence or a prediction of relapse.</p>
+              <div className="activity-legend"><span><i className="legend-dot legend-reflection" /> Reflections</span><span><i className="legend-dot legend-journal" /> Journal</span><span><i className="legend-dot legend-meditation" /> Meditation minutes</span></div>
+            </> : <div className="activity-empty-state">
+              <p>No recorded activity in this period yet.</p>
+              <p>There is no score to meet. If it feels useful, you could <Link to="/library">browse a reflection</Link> or <Link to="/meditation">take a quiet pause</Link>.</p>
+            </div>}
           </section>
           <section className="card milestone-card">
             <div className="card-header"><div><p className="eyebrow">{preferences?.discreetMode ? 'Personal timeline' : 'Recovery timeline'}</p><h2>{preferences?.discreetMode ? 'A saved moment' : next ? `Next · ${next.label}` : 'A date you choose'}</h2></div><CalendarDays size={20} aria-hidden="true" /></div>
@@ -168,7 +177,7 @@ export function ProgressPage() {
         <div className="two-column">
           <section className="card personal-milestones-card">
             <div className="card-header"><div><p className="eyebrow">Choose a marker of your own</p><h2>Personal milestones</h2><p>Set a day-count marker that matters to you. It is separate from the standard timeline and never creates a penalty.</p></div></div>
-            <form className="goal-form" onSubmit={(event) => void addMilestone(event)}><label className="sr-only" htmlFor="personal-milestone-label">Milestone name</label><input id="personal-milestone-label" maxLength={120} placeholder="e.g. A month of choosing today" value={milestoneLabel} onChange={(event) => setMilestoneLabel(event.target.value)} /><div className="goal-fields"><label><span className="sr-only">Days after your chosen start date</span><input aria-label="Days after your chosen start date" type="number" min="1" max="100000" step="1" value={milestoneDays} onChange={(event) => setMilestoneDays(event.target.value)} /></label><span className="muted">days</span><button type="submit" className="icon-button" aria-label="Add personal milestone"><Plus size={18} /></button></div></form>
+            <form className="goal-form" onSubmit={(event) => void addMilestone(event)}><label className="sr-only" htmlFor="personal-milestone-label">Milestone name</label><input id="personal-milestone-label" maxLength={120} placeholder="e.g. A month of choosing today" value={milestoneLabel} onChange={(event) => setMilestoneLabel(event.target.value)} /><div className="goal-fields"><label><span className="sr-only">Days after your chosen start date</span><input aria-label="Days after your chosen start date" type="number" min="1" max="100000" step="1" value={milestoneDays} onChange={(event) => setMilestoneDays(event.target.value)} /></label><span className="muted">days</span><button type="submit" className="icon-button" aria-label="Add personal milestone"><Plus size={18} aria-hidden="true" /></button></div></form>
             {!profile?.startAt && <p className="fine-print">You can prepare a milestone now; its date will appear after you choose a recovery start date.</p>}
             {personalMilestones.length ? <div className="personal-milestone-list">{personalMilestones.map((item) => {
               const targetAt = profile?.startAt ? new Date(new Date(profile.startAt).getTime() + item.daysAfterStart * 86400000).toISOString() : null;
@@ -182,8 +191,8 @@ export function ProgressPage() {
           </section>
           <section className="card">
             <div className="card-header"><div><p className="eyebrow">A gentle intention</p><h2>Personal goals</h2><p>Small goals are yours to shape; missed days carry no penalty.</p></div></div>
-            <form className="goal-form" onSubmit={(event) => void addGoal(event)}><label className="sr-only" htmlFor="goal-title">Goal name</label><input id="goal-title" placeholder="e.g. Read before bed" value={goalTitle} onChange={(event) => setGoalTitle(event.target.value)} /><div className="goal-fields"><label><span className="sr-only">Target count</span><input aria-label="Target count" type="number" min="1" max="1000" value={goalTarget} onChange={(event) => setGoalTarget(event.target.value)} /></label><label><span className="sr-only">Goal unit</span><input aria-label="Goal unit" value={goalUnit} onChange={(event) => setGoalUnit(event.target.value)} /></label><button type="submit" className="icon-button" aria-label="Add personal goal"><Plus size={18} /></button></div></form>
-            {goals.length ? <div className="goal-list">{goals.map((goal) => <div className="goal-item" key={goal.id}><div><strong>{goal.title}</strong><small>{goal.current} / {goal.target} {goal.unit}</small><div className="goal-track"><span style={{ width: `${Math.min(100, goal.current / goal.target * 100)}%` }} /></div></div><div className="goal-actions"><button className="button button-small button-secondary" onClick={() => void advanceGoal(goal)} aria-label={`Record a step for ${goal.title}`}><CircleCheck size={14} /> Step</button><button className="button button-small button-quiet" onClick={() => void removeGoal(goal.id)} aria-label={`Remove goal ${goal.title}`}>Remove</button></div></div>)}</div> : <p className="fine-print">Add a goal if it helps. It is never required to maintain progress.</p>}
+            <form className="goal-form" onSubmit={(event) => void addGoal(event)}><label className="sr-only" htmlFor="goal-title">Goal name</label><input id="goal-title" placeholder="e.g. Read before bed" value={goalTitle} onChange={(event) => setGoalTitle(event.target.value)} /><div className="goal-fields"><label><span className="sr-only">Target count</span><input aria-label="Target count" type="number" min="1" max="1000" value={goalTarget} onChange={(event) => setGoalTarget(event.target.value)} /></label><label><span className="sr-only">Goal unit</span><input aria-label="Goal unit" value={goalUnit} onChange={(event) => setGoalUnit(event.target.value)} /></label><button type="submit" className="icon-button" aria-label="Add personal goal"><Plus size={18} aria-hidden="true" /></button></div></form>
+            {goals.length ? <div className="goal-list">{goals.map((goal) => <div className="goal-item" key={goal.id}><div><strong>{goal.title}</strong><small>{goal.current} / {goal.target} {goal.unit}</small><div className="goal-track"><span style={{ width: `${Math.min(100, goal.current / goal.target * 100)}%` }} /></div></div><div className="goal-actions"><button className="button button-small button-secondary" onClick={() => void advanceGoal(goal)} aria-label={`Record a step for ${goal.title}`}><CircleCheck size={14} aria-hidden="true" /> Step</button><button className="button button-small button-quiet" onClick={() => void removeGoal(goal.id)} aria-label={`Remove goal ${goal.title}`}>Remove</button></div></div>)}</div> : <p className="fine-print">Add a goal if it helps. It is never required to maintain progress.</p>}
           </section>
         </div>
       </>}

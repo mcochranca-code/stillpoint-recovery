@@ -42,6 +42,9 @@ jobs:
       - name: Run tests with V8 coverage
         run: pnpm test:coverage
 
+      - name: Enforce critical-module coverage floors
+        run: pnpm check:coverage
+
       - name: Add coverage summary to job
         shell: bash
         run: |

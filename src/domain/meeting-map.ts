@@ -15,7 +15,7 @@ export function buildMeetingMapLocations(listings: readonly MeetingListing[]): M
   const grouped = new Map<string, MeetingMapLocation>();
 
   for (const meeting of listings) {
-    if (meeting.mode !== 'in-person' && meeting.mode !== 'hybrid') continue;
+    if (meeting.mapEligible === false || (meeting.mode !== 'in-person' && meeting.mode !== 'hybrid')) continue;
     const coordinate = meetingVenueCoordinateFor(meeting);
     if (!coordinate) continue;
 
@@ -42,4 +42,21 @@ export function buildMeetingMapLocations(listings: readonly MeetingListing[]): M
       meetings: [...location.meetings].sort((a, b) => a.day - b.day || a.sortMinutes - b.sortMinutes || a.name.localeCompare(b.name)),
     }))
     .sort((a, b) => a.city.localeCompare(b.city) || a.address.localeCompare(b.address));
+}
+
+/**
+ * Great-circle distance in miles between two points. Used only on the device to
+ * order mapped venues after the person explicitly shares an approximate position.
+ */
+export function distanceInMiles(
+  from: { latitude: number; longitude: number },
+  to: { latitude: number; longitude: number },
+): number {
+  const earthRadiusMiles = 3958.8;
+  const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+  const deltaLatitude = toRadians(to.latitude - from.latitude);
+  const deltaLongitude = toRadians(to.longitude - from.longitude);
+  const a = Math.sin(deltaLatitude / 2) ** 2
+    + Math.cos(toRadians(from.latitude)) * Math.cos(toRadians(to.latitude)) * Math.sin(deltaLongitude / 2) ** 2;
+  return 2 * earthRadiusMiles * Math.asin(Math.min(1, Math.sqrt(a)));
 }
