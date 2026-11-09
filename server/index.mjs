@@ -7,7 +7,7 @@ let cleanupTimer;
 let server;
 async function start() {
   if (!pool) {
-    if (process.env.NODE_ENV === 'production') throw new Error('DATABASE_URL is required in production.');
+    if (process.env.NODE_ENV === 'production') throw new Error('Database settings (DATABASE_URL or DB_HOST, DB_USER, DB_PASSWORD, DB_NAME) are required in production.');
     console.info('No database configured; hosted community notes are unavailable in this local run.');
   } else {
     await migrateCommunitySchema();

@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "node scripts/generate-theme-assets.mjs && concurrently -k -n API,WEB \"APP_API_PORT=3001 node server/index.mjs\" \"vite --host 0.0.0.0\"",
     "build": "node scripts/generate-theme-assets.mjs && tsc -b && vite build && node scripts/create-precache-manifest.mjs",
@@ -13,7 +16,7 @@
     "check:coverage": "node scripts/check-coverage-summary.mjs",
     "preview": "vite preview",
     "start": "node server/index.mjs",
-    "check:server": "node --check server/index.mjs && node --check server/app.mjs && node --check server/serverless.mjs && node --check server/community-router.mjs && node --check server/community-policy.mjs && node --check server/database.mjs && node --check netlify/functions/community.mjs",
+    "check:server": "node --check server/index.mjs && node --check server/app.mjs && node --check server/serverless.mjs && node --check server/community-router.mjs && node --check server/community-policy.mjs && node --check server/database.mjs && node --check netlify/functions/community.mjs && node --check api/community.mjs && node --check server/db-config.mjs",
     "db:migrate": "node scripts/migrate-community.mjs",
     "test:coverage": "vitest run --coverage",
     "verify:pwa": "node scripts/check-pwa-artifact.mjs"

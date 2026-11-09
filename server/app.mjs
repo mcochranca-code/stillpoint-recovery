@@ -5,7 +5,7 @@ export const COMMUNITY_UNAVAILABLE_MESSAGE = 'Community notes are temporarily un
 
 /**
  * Build the community API app shared by the long-running server (server/index.mjs)
- * and the Netlify Function (netlify/functions/community.mjs).
+ * and the serverless functions (api/community.mjs on Vercel, netlify/functions/community.mjs).
  *
  * @param {{ pool: unknown, prepare?: () => Promise<void> }} options
  *   `pool` is a mysql2 pool or null when no database is configured.

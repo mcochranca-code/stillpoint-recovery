@@ -2,10 +2,13 @@
 
 // Apply the community schema migration (001_optional_reading_community) explicitly.
 // Usage: DATABASE_URL='mysql://…?ssl=…' pnpm db:migrate
-// The Netlify Function also runs it automatically once per cold start; this script is for
+//    or: DB_HOST=… DB_PORT=4000 DB_USER=… DB_PASSWORD='…' DB_NAME=stillpoint pnpm db:migrate
+// The Vercel and Netlify Functions also run it automatically once per cold start; this script is for
 // first-time setup or checking connectivity from a workstation.
-if (!process.env.DATABASE_URL) {
-  console.error('Set DATABASE_URL to the mysql:// URL (with its ssl query parameter) before running this script.');
+import { hasDatabaseConfig } from '../server/db-config.mjs';
+
+if (!hasDatabaseConfig(process.env)) {
+  console.error('Set DATABASE_URL (mysql:// URL with its ssl query parameter) or DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME before running this script.');
   process.exit(1);
 }
 

@@ -1,31 +1,9 @@
 import mysql from 'mysql2/promise';
+import { mysqlOptionsFromEnv } from './db-config.mjs';
 
-const DATABASE_URL = process.env.DATABASE_URL;
+const options = mysqlOptionsFromEnv(process.env);
 
-function mysqlOptionsFromUrl(connectionUrl) {
-  const url = new URL(connectionUrl);
-  if (!['mysql:', 'mysql2:'].includes(url.protocol)) throw new Error('DATABASE_URL must use a MySQL URL.');
-  const sslValue = url.searchParams.get('ssl');
-  if (!sslValue) throw new Error('The managed MySQL connection must provide its TLS settings.');
-  let ssl;
-  try { ssl = JSON.parse(sslValue); }
-  catch { throw new Error('The managed MySQL TLS configuration is invalid.'); }
-  if (!ssl || typeof ssl !== 'object' || Array.isArray(ssl)) throw new Error('The managed MySQL TLS configuration is invalid.');
-  return {
-    host: url.hostname,
-    port: Number(url.port || 3306),
-    user: decodeURIComponent(url.username),
-    password: decodeURIComponent(url.password),
-    database: decodeURIComponent(url.pathname.replace(/^\//, '')),
-    ssl,
-    timezone: 'Z',
-    waitForConnections: true,
-    connectionLimit: 5,
-    queueLimit: 0,
-  };
-}
-
-export const pool = DATABASE_URL ? mysql.createPool(mysqlOptionsFromUrl(DATABASE_URL)) : null;
+export const pool = options ? mysql.createPool(options) : null;
 
 const MIGRATION = '001_optional_reading_community';
 const MIGRATION_LOCK = 'stillpoint_community_schema_v1';

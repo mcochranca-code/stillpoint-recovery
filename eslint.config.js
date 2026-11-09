@@ -21,7 +21,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['server/**/*.mjs', 'netlify/**/*.mjs'],
+    files: ['server/**/*.mjs', 'netlify/**/*.mjs', 'api/**/*.mjs'],
     languageOptions: { globals: { ...globals.node, ...globals.es2022, fetch: 'readonly' } },
     rules: {
       'no-control-regex': 'off',
