@@ -173,7 +173,7 @@ export function TodayPage() {
       <header className="page-header today-header">
         <DaypartSky daypart={daypartFor(new Date(now))} />
         <div><p className="eyebrow">{discreet ? 'A private space' : new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p><h1>Home</h1><p>There’s no perfect way through—only the next kind step.</p></div>
-        <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} aria-hidden="true" /> Show private details</button>}<Link to="/reset" className="button button-secondary"><Wind size={16} aria-hidden="true" /> I need a moment</Link><Link to="/settings" className="icon-button" aria-label="Open settings" title="Settings and privacy"><Settings2 size={18} aria-hidden="true" /></Link></div>
+        <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} aria-hidden="true" /> Show private details</button>}<Link to="/reset" className="button button-secondary today-moment-button" title="I need a moment"><Wind size={16} aria-hidden="true" /> <span className="today-moment-label">I need a moment</span></Link><Link to="/settings" className="icon-button" aria-label="Open settings" title="Settings and privacy"><Settings2 size={18} aria-hidden="true" /></Link></div>
       </header>
 
       <WelcomeBack onCheckIn={focusCheckIn} />
@@ -190,7 +190,6 @@ export function TodayPage() {
             </div>
             <p className="timer-caption">Since {formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}. A measure of time—not a measure of your worth.</p>
           </> : <><div className="counter-placeholder"><strong>—</strong><span>days in recovery</span></div><p className="timer-caption">Your dashboard is ready without a date. Add one later, if a counter feels useful.</p></>}
-          <div className="action-row sobriety-actions"><button className="button button-secondary" onClick={openAdjustDate}><CalendarDays size={16} aria-hidden="true" /> {discreet ? 'Review private date' : parts ? 'Adjust recovery date' : 'Set a recovery date'}</button>{parts && !discreet && <button className="button button-quiet" onClick={openBeginAgain}><RotateCcw size={16} aria-hidden="true" /> Begin again today</button>}</div>
         </div>
         <div className="sobriety-progress">
           {discreet ? <div className="progress-ring" role="img" aria-label="Recovery timer and milestone details are hidden"><span aria-hidden="true"><EyeOff size={20} aria-hidden="true" /><small>hidden</small></span></div> : <>
@@ -206,6 +205,7 @@ export function TodayPage() {
           <div className="milestone-copy"><strong>{parts ? nextLabel : 'Your next step is enough'}</strong><small>{parts && next ? (nextDays ? `About ${nextDays}d ${nextRemainder}h to go` : `About ${nextHours}h to go`) : 'Set a date whenever it feels right'}</small></div>
           </>}
         </div>
+        <div className="action-row sobriety-actions"><button className="button button-secondary" onClick={openAdjustDate}><CalendarDays size={16} aria-hidden="true" /> {discreet ? 'Review private date' : parts ? 'Adjust date' : 'Set a date'}</button>{parts && !discreet && <button className="button button-quiet" onClick={openBeginAgain}><RotateCcw size={16} aria-hidden="true" /> Begin again</button>}</div>
       </section>
 
       <DailyCheckIn ref={checkInRef} daysInRecovery={parts?.days ?? 0} />

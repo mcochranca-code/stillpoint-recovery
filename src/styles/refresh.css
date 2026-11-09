@@ -1,0 +1,93 @@
+/*
+ * Visual refresh (November 2026).
+ *
+ * Loaded last so it can settle earlier rules without !important. Selectors repeat the
+ * `:root[data-color-theme]` prefix where an earlier palette rule uses it, so the narrow-screen
+ * layout wins for every palette.
+ */
+
+/* ---------------------------------------------------------------------------------------------
+ * 1. Today hero, header and the floating mobile Home button
+ * ------------------------------------------------------------------------------------------- */
+
+:root {
+  /* The floating Home button on phones, and the gap below it. */
+  --mobile-nav-height: 58px;
+  --mobile-nav-offset: 12px;
+  --mobile-nav-clearance: calc(var(--mobile-nav-height) + var(--mobile-nav-offset) + env(safe-area-inset-bottom, 0px));
+}
+
+/* The hero is three areas: the counter, the ring with the next milestone, and the actions. */
+:root[data-color-theme] .today-page .sobriety-hero,
+.today-page .sobriety-hero {
+  grid-template-columns: minmax(0, 1.35fr) minmax(150px, .65fr);
+  grid-template-areas: 'copy progress' 'actions progress';
+  row-gap: 4px;
+}
+.today-page .sobriety-hero .sobriety-copy { grid-area: copy; min-width: 0; }
+.today-page .sobriety-hero .sobriety-progress { grid-area: progress; min-width: 0; }
+.today-page .sobriety-hero .sobriety-actions { grid-area: actions; position: relative; z-index: 1; margin-top: 0; }
+.today-page .sobriety-hero .sobriety-actions .button { white-space: nowrap; }
+
+@media (max-width: 700px) {
+  :root[data-color-theme] .today-page .sobriety-hero,
+  .today-page .sobriety-hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'copy' 'progress' 'actions';
+    row-gap: 16px;
+  }
+  :root[data-color-theme] .today-page .sobriety-hero .sobriety-progress,
+  .today-page .sobriety-hero .sobriety-progress {
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start; align-items: center; gap: 14px;
+    padding-top: 14px; border-top: 1px solid var(--border);
+  }
+  :root[data-color-theme] .today-page .sobriety-hero .milestone-copy,
+  .today-page .sobriety-hero .milestone-copy { text-align: left; min-width: 0; }
+  .today-page .sobriety-hero .milestone-copy strong { overflow-wrap: break-word; }
+}
+
+@media (max-width: 480px) {
+  .today-page .sobriety-hero .sobriety-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+  .today-page .sobriety-hero .sobriety-actions .button { min-width: 0; padding-inline: 10px; }
+}
+
+/* The header pause button keeps its words on wide screens and becomes an icon on phones. */
+.today-header-actions .today-moment-button { white-space: nowrap; background: var(--surface); }
+.today-header-actions .icon-button { background: var(--surface); }
+@media (max-width: 700px) {
+  .today-page .today-header { flex-wrap: nowrap; align-items: flex-start; }
+  .today-page .today-header-actions { width: auto; flex: 0 0 auto; flex-wrap: nowrap; }
+  .today-page .today-header-actions .button { flex: 0 0 auto; }
+}
+@media (max-width: 480px) {
+  .today-header-actions .today-moment-button { width: var(--target-min); min-width: var(--target-min); height: var(--target-min); padding: 0; gap: 0; }
+  .today-header-actions .today-moment-button svg { width: 19px; height: 19px; }
+  /* Visually hidden, still the link's accessible name. */
+  .today-header-actions .today-moment-label {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .today-header-actions .icon-button { width: var(--target-min); height: var(--target-min); }
+}
+
+/* The sky drawing sits under the header text, clear of the buttons (its moon used to show through them). */
+.today-header .daypart-sky { top: auto; bottom: -4px; height: 76px; }
+.today-header .today-header-actions { z-index: 1; }
+
+/* Phones: reserve the Home button's space at the end of every page, and keep focused or
+   scrolled-to content clear of it and of the header. */
+@media (max-width: 700px) {
+  html {
+    scroll-padding-top: calc(72px + env(safe-area-inset-top, 0px));
+    scroll-padding-bottom: calc(var(--mobile-nav-clearance) + 16px);
+  }
+  .page-content { padding-bottom: calc(var(--mobile-nav-clearance) + 32px); }
+  .mobile-home-fab { width: var(--mobile-nav-height); height: var(--mobile-nav-height); bottom: calc(var(--mobile-nav-offset) + env(safe-area-inset-bottom, 0px)); }
+  .toast-region { bottom: calc(var(--mobile-nav-clearance) + 12px); }
+}
+@media (max-width: 700px) {
+  :root[data-color-theme] .today-page .sobriety-hero .progress-ring,
+  .today-page .sobriety-hero .progress-ring { width: 88px; height: 88px; }
+  .today-page .sobriety-hero .progress-ring::before { inset: 8px; }
+}
