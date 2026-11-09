@@ -184,3 +184,45 @@ describe('tradition accents meet WCAG AA on every palette', () => {
     }
   }
 });
+
+describe('landscape header band keeps header text at WCAG AA', () => {
+  const refresh = readFileSync(resolve(__dirname, './refresh.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const scrim = Number(refresh.match(/--band-scrim:\s*(\d+)%/)?.[1]) / 100;
+  const tints = [...refresh.matchAll(/(\.dark )?\.landscape-band-(dawn|dusk|night) \.landscape-band__tint \{ background: (rgba\([^)]*\))/g)]
+    .map((match) => ({ dark: Boolean(match[1]), color: parseColor(match[3]!) }));
+  const brightness = Number(refresh.match(/\.dark \.landscape-band__art \{ filter: brightness\(([\d.]+)\)/)?.[1] ?? 1);
+  const landscapes = ['sunrise-hills', 'still-lake', 'forest-path', 'ocean-dusk', 'soft-bokeh'];
+
+  it('reads a scrim, tints and a dark-mode dimming from refresh.css', () => {
+    expect(scrim).toBeGreaterThan(0.5);
+    expect(tints.length).toBeGreaterThanOrEqual(4);
+    expect(brightness).toBeLessThanOrEqual(1);
+  });
+
+  for (const landscape of landscapes) {
+    for (const dark of [false, true]) {
+      it(`${landscape} · ${dark ? 'dark' : 'light'}`, () => {
+        const svg = readFileSync(resolve(__dirname, `../../public/assets/backgrounds/${landscape}.svg`), 'utf8');
+        // Every colour the art paints, plus white (its blur/highlight layers can approach it).
+        const art = [...new Set([...svg.matchAll(/#[0-9a-f]{6}\b/gi)].map((match) => match[0].toLowerCase()))].map(parseColor).concat([[255, 255, 255, 1]]);
+        const failures: string[] = [];
+        for (const { id } of colorThemePresets) {
+          const palette = paletteFor(id, dark);
+          const canvas = parseColor(palette['--canvas']!);
+          for (const pixel of art) {
+            const dimmed: Rgba = dark ? [pixel[0] * brightness, pixel[1] * brightness, pixel[2] * brightness, 1] : pixel;
+            const washes = [dimmed, ...tints.filter((tint) => dark || !tint.dark).map((tint) => over(tint.color, dimmed))];
+            for (const washed of washes) {
+              const background = over([canvas[0], canvas[1], canvas[2], scrim], washed);
+              for (const name of ['--ink', '--muted', '--eyebrow-color']) {
+                const ratio = ratioOf(parseColor(palette[name]!), background);
+                if (ratio < 4.5) failures.push(`${id} ${name} over ${pixel.slice(0, 3).join(',')}: ${ratio.toFixed(2)}`);
+              }
+            }
+          }
+        }
+        expect([...new Set(failures)].slice(0, 12)).toEqual([]);
+      });
+    }
+  }
+});

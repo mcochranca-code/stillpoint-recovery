@@ -69,6 +69,10 @@ declining day (Quran 103), a dew-drop on a blade of grass (Uttarādhyayana X.2),
 hills, a promontory in the waves (Meditations IV.49). No crosses, crescents, Om, dharma wheels,
 Jain hands or other sacred symbols are used as decoration.
 
+The page-header landscapes on Today, Library and Meditation reuse the five existing background
+illustrations, chosen by today's tradition; the mapping, their provenance and the imagery rules are
+in [`docs/copyright/landscape-art.md`](docs/copyright/landscape-art.md).
+
 ## Existing content (unchanged)
 
 - The 90 original *Stillpoint reflections* (`src/data/reflections.ts`) are original text by the

@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CalendarDays, Check, Clock3, EyeOff, Heart, Leaf, RotateCcw, Settings2, Sprout, Volume2, Wind } from 'lucide-react';
 import { DailyReadingCard } from './DailyReadingCard';
-import { DaypartSky } from '../../components/DaypartSky';
+import { LandscapeBand } from '../../components/LandscapeBand';
 import { daypartFor } from '../../domain/daypart';
 import { useAppContext } from '../../app/AppContext';
 import { useDialogFocus } from '../../app/useDialogFocus';
@@ -170,8 +170,8 @@ export function TodayPage() {
 
   return (
     <div className="page-stack today-page">
-      <header className="page-header today-header">
-        <DaypartSky daypart={daypartFor(new Date(now))} />
+      <header className="page-header today-header has-landscape">
+        <LandscapeBand date={new Date(now)} daypart={daypartFor(new Date(now))} />
         <div><p className="eyebrow">{discreet ? 'A private space' : new Date(now).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p><h1>Home</h1><p>There’s no perfect way through—only the next kind step.</p></div>
         <div className="today-header-actions">{discreet && <button className="button button-secondary" onClick={() => void updatePreferences({ discreetMode: false })}><EyeOff size={15} aria-hidden="true" /> Show private details</button>}<Link to="/reset" className="button button-secondary today-moment-button" title="I need a moment"><Wind size={16} aria-hidden="true" /> <span className="today-moment-label">I need a moment</span></Link><Link to="/settings" className="icon-button" aria-label="Open settings" title="Settings and privacy"><Settings2 size={18} aria-hidden="true" /></Link></div>
       </header>

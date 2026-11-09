@@ -185,3 +185,62 @@
 .meeting-reminder-toggle strong,
 .meeting-reminder-toggle small,
 .meeting-reminder-unavailable { font-size: var(--text-label); }
+
+/* ---------------------------------------------------------------------------------------------
+ * 3. Landscape header band (Today, Library, Meditation)
+ *
+ * The art fills the space above the header text; the scrim reaches --band-scrim of the canvas
+ * colour before the first line of text (the eyebrow) begins, then fades fully into the canvas.
+ * src/styles/contrast.test.ts composites every colour in every landscape, with each time-of-day
+ * tint, under that scrim and checks the header text colours at 4.5:1 for all palettes.
+ * ------------------------------------------------------------------------------------------- */
+
+:root {
+  --band-scrim: 98%;
+  --band-bleed-top: 36px;
+  --band-bleed-x: clamp(24px, 4vw, 58px);
+  --band-reveal: clamp(84px, 10vw, 132px);
+}
+@media (min-width: 701px) and (max-width: 900px) { :root { --band-bleed-x: 25px; } }
+@media (max-width: 700px) {
+  :root { --band-bleed-top: calc(84px + env(safe-area-inset-top, 0px)); --band-bleed-x: 17px; --band-reveal: 92px; }
+}
+
+.page-header.has-landscape { position: relative; isolation: isolate; padding-top: var(--band-reveal); }
+.page-header > .landscape-band {
+  position: absolute; z-index: -1; pointer-events: none; overflow: hidden;
+  top: calc(-1 * var(--band-bleed-top)); left: calc(-1 * var(--band-bleed-x)); right: calc(-1 * var(--band-bleed-x)); bottom: -28px;
+}
+.landscape-band__art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 64%; }
+.landscape-soft-bokeh .landscape-band__art { object-position: center 40%; }
+.landscape-ocean-dusk .landscape-band__art, .landscape-still-lake .landscape-band__art { object-position: center 46%; }
+.landscape-band__tint, .landscape-band__scrim { position: absolute; inset: 0; }
+
+/* Time of day: a faint wash over the art (none by day). */
+.landscape-band-dawn .landscape-band__tint { background: rgba(250, 196, 150, .26); }
+.landscape-band-dusk .landscape-band__tint { background: rgba(214, 130, 140, .24); }
+.landscape-band-night .landscape-band__tint { background: rgba(90, 100, 170, .18); }
+.dark .landscape-band__art { filter: brightness(.5); }
+.dark .landscape-band-night .landscape-band__tint { background: rgba(10, 16, 40, .40); }
+
+.landscape-band__scrim {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--canvas) 0%, transparent) 0,
+    color-mix(in srgb, var(--canvas) 20%, transparent) calc(var(--band-bleed-top) + var(--band-reveal) * .45),
+    color-mix(in srgb, var(--canvas) var(--band-scrim), transparent) calc(var(--band-bleed-top) + var(--band-reveal) - 10px),
+    var(--canvas) 100%);
+}
+
+/* The sun or moon rides in the open sky above the text, never behind it. */
+.landscape-band .daypart-sky {
+  display: block; z-index: auto; top: calc(var(--band-bleed-top) * .35); right: 6%; left: auto; bottom: auto;
+  width: min(36%, 260px); height: calc(var(--band-bleed-top) * .65 + var(--band-reveal) * .7); opacity: .95;
+}
+.landscape-band .daypart-sky .sky-hill, .landscape-band .daypart-sky .sky-arc { display: none; }
+.landscape-band .daypart-sky-night .sky-moon-shadow { display: none; } /* a full moon: no crescent, which could read as a religious symbol */
+.landscape-band .daypart-sky-night .sky-body circle:first-child { fill: #f1f3fb; filter: drop-shadow(0 0 6px rgba(241, 243, 251, .8)); }
+@media (max-width: 760px) { .landscape-band .daypart-sky { display: block; } }
+
+/* High contrast: no art behind text at all. */
+.high-contrast .landscape-band { display: none; }
+.high-contrast .page-header.has-landscape { padding-top: 0; }
