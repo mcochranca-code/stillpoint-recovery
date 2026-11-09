@@ -6,7 +6,7 @@
   <p>
     <a href="https://stillpoint-mcvk9f6m.manus.space/"><strong>▶ Try the live demo</strong></a>
     &nbsp; · &nbsp;
-    <a href="https://stillpoint-recovery-demo.netlify.app/">Netlify demo</a>
+    <a href="https://stillpoint-recovery.vercel.app/"><strong>Live app (Vercel)</strong></a>
     &nbsp; · &nbsp;
     <a href="#screenshots">Screenshots</a>
     &nbsp; · &nbsp;
@@ -18,7 +18,7 @@
   <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
   <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/coverage.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/coverage.yml/badge.svg" alt="Test coverage workflow status"></a>
   <a href="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/accessibility.yml"><img src="https://github.com/mcochranca-code/stillpoint-recovery/actions/workflows/accessibility.yml/badge.svg" alt="Accessibility workflow status"></a>
-  <a href="https://app.netlify.com/sites/stillpoint-recovery-demo/deploys"><img src="https://api.netlify.com/api/v1/badges/2d9e377b-c6c6-424c-a374-30a4ab900295/deploy-status" alt="Netlify deploy status"></a>
+  <a href="https://stillpoint-recovery.vercel.app/"><img src="https://img.shields.io/github/deployments/mcochranca-code/stillpoint-recovery/production?label=vercel&logo=vercel" alt="Vercel production deployment status"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License"></a>
   <a href="docs/wiki/Home.md"><img src="https://img.shields.io/badge/project-wiki-blue.svg" alt="Project wiki"></a>
 </p>
@@ -232,7 +232,7 @@ CodeQL analysis and Dependabot also run on the repository.
   ```
 
   The `ssl` value decodes to `{"minVersion":"TLSv1.2","rejectUnauthorized":true}`; URL-encode any special characters in the password. If `DATABASE_URL` is set it wins over the `DB_*` variables. Never commit real values. Redeploy after changing them.
-- **Netlify (alternative).** [`netlify.toml`](netlify.toml) and [`netlify/functions/community.mjs`](netlify/functions/community.mjs) are kept and work the same way (build `pnpm install --frozen-lockfile && pnpm build`, publish `dist/`, `/api/community/*` rewritten to the function). Set the same database variables under **Site configuration → Environment variables** (scope: Functions).
+- **Netlify (fallback).** Production now runs on Vercel at <https://stillpoint-recovery.vercel.app/>; the Netlify setup is kept as a fallback. [`netlify.toml`](netlify.toml) and [`netlify/functions/community.mjs`](netlify/functions/community.mjs) are kept and work the same way (build `pnpm install --frozen-lockfile && pnpm build`, publish `dist/`, `/api/community/*` rewritten to the function). Set the same database variables under **Site configuration → Environment variables** (scope: Functions).
 - **Migrations.** Migration `001_optional_reading_community` runs automatically on the first community request after each function cold start. It is idempotent (`CREATE TABLE IF NOT EXISTS` plus a `stillpoint_schema_migrations` record) and serialized with `GET_LOCK`, so concurrent instances are safe. To apply it ahead of time from a workstation, run `DATABASE_URL='mysql://…' pnpm db:migrate` (or set the `DB_*` variables instead). Notes older than 90 days are removed opportunistically, at most every six hours per warm function instance, and are never returned after 90 days regardless.
 - **Without a database.** If no database settings are present, or they are incomplete or invalid, `/api/community/*` answers `503` JSON and the Community tab shows its unavailable message; the rest of the app is unaffected.
 - **Docker (standalone community API).** The [`Dockerfile`](Dockerfile) builds on `node:22-alpine` and runs `server/index.mjs` on port 3000. There, the same database settings are required when `NODE_ENV=production`; on start the server applies the migration and removes expired notes daily.
