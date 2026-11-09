@@ -91,3 +91,97 @@
   .today-page .sobriety-hero .progress-ring { width: 88px; height: 88px; }
   .today-page .sobriety-hero .progress-ring::before { inset: 8px; }
 }
+
+
+/* ---------------------------------------------------------------------------------------------
+ * 2. Type scale (tokens.css) applied: labels, titles, body and fine print
+ * ------------------------------------------------------------------------------------------- */
+
+.eyebrow,
+:root[data-color-theme] .sobriety-hero .eyebrow,
+:root[data-color-theme] .na-reader-copy .eyebrow { font-size: var(--text-label); letter-spacing: var(--tracking-label); line-height: 1.35; }
+
+.page-header h1 { font-family: var(--font-display); font-size: var(--step-4); font-optical-sizing: auto; }
+.page-header p { font-size: var(--step-0); }
+.card-header h2, .card h2 { font-family: var(--font-display); font-size: var(--step-2); }
+.card h3 { font-size: var(--step-0); }
+.card-header p:not(.eyebrow) { font-size: var(--step-0); }
+.card-header p.eyebrow, .card .eyebrow { font-size: var(--text-label); margin-top: 0; }
+.card .fine-print, .fine-print { font-size: var(--step--1); }
+
+/* Labels, captions and helper text: nothing smaller than 12px. */
+.pill,
+.metric-label,
+.activity-bar small,
+.charm-spin-hint,
+.charm-card small,
+.today-charm strong,
+.today-charm small,
+.sobriety-duration span,
+.milestone-copy small,
+.reflection-art span,
+.principle-callout span,
+.reflection-details strong,
+.content-integrity,
+.scripture-ref,
+.quick-action small,
+.inline-link,
+.activity-legend,
+.timeline li small,
+.filter-chip,
+.collection-count small,
+.charm-progress-wrap small,
+.charm-memory,
+.journal-entry-top small,
+.session-history-item small,
+.draft-saved,
+.prompt-row,
+.goal-item small,
+.storage-note,
+.signature-link strong,
+.signature-link small,
+.text-button,
+.phase-caption,
+.audio-toggle,
+.safety-note p,
+.session-history-item p,
+.duration-option span,
+.exercise-preview ol,
+.field-source-card small,
+.contact-card small,
+.personal-milestone-item small,
+.charm-memory > p strong,
+.charm-memory > p span,
+.reset-practice small,
+.contact-choice-panel p,
+.contact-choice-panel small,
+.reset-prayer small,
+.form-help,
+.garden-style-controls,
+.garden-stat span,
+.garden-charm-hint,
+.garden-seed,
+.palette-option small,
+.sobriety-hero .counter-subunits small,
+.na-reader-date,
+.na-reader-note,
+.na-reader-stamp > span,
+.na-reader-stamp small,
+.na-reader-link,
+:root[data-color-theme] .sobriety-hero .counter-subunits small,
+:root[data-color-theme] .na-reader-date,
+:root[data-color-theme] .na-reader-note,
+:root[data-color-theme] .na-reader-stamp > span,
+:root[data-color-theme] .na-reader-link,
+.today-quick-start__copy strong,
+.today-quick-start__copy small,
+.community-teaser,
+.community-disclosure p,
+.community-comment-meta,
+.community-comment-actions .text-button,
+.community-form-meta,
+.community-consent,
+.community-manage-item small,
+.meeting-reminder-toggle strong,
+.meeting-reminder-toggle small,
+.meeting-reminder-unavailable { font-size: var(--text-label); }

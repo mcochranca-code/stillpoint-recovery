@@ -12,6 +12,31 @@
  * motion, either through the operating system or Stillpoint's own setting,
  * so components that use the tokens never need their own override.
  */
+/*
+ * Self-hosted, SIL OFL 1.1 fonts (public/assets/fonts/, licenses beside them). Same-origin only:
+ * no font service is contacted, so the CSP (font-src 'self') is unchanged. Subset to Latin; any
+ * character outside the range falls back to the system stack below. Fraunces ships upright
+ * only: its italic's swash forms read poorly at body sizes, so italics are drawn as a gentle
+ * oblique (font-synthesis: style on :root). Precached for offline use
+ * by scripts/create-precache-manifest.mjs, which picks up every .woff2 under public/assets.
+ */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/assets/fonts/fraunces-latin-var-normal.woff2') format('woff2');
+  unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2022, U+2026, U+2032-2033, U+2039-203A, U+20AC, U+2122, U+2190-2193, U+2212;
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/assets/fonts/inter-latin-var-normal.woff2') format('woff2');
+  unicode-range: U+0020-007E, U+00A0-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2013-2014, U+2018-201A, U+201C-201E, U+2022, U+2026, U+2032-2033, U+2039-203A, U+20AC, U+2122, U+2190-2193, U+2212;
+}
+
 :root {
   /* Spacing — a 4px rhythm. */
   --space-0: 0;
@@ -32,23 +57,44 @@
   --radius-xl: 24px;
   --radius-pill: 999px;
 
-  /* Typography. */
+  /* Typography. Inter for reading and controls, Fraunces for titles and readings. */
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-serif: Georgia, "Times New Roman", serif;
-  --text-2xs: 0.625rem;
-  --text-xs: 0.6875rem;
-  --text-sm: 0.8125rem;
-  --text-md: 0.9375rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.3125rem;
-  --text-2xl: clamp(1.6875rem, 3vw, 2.25rem);
-  --text-3xl: clamp(2rem, 3.6vw, 2.75rem);
+  --font-serif: Fraunces, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --font-display: var(--font-serif);
+
+  /*
+   * A six-step fluid type scale (about 1.2 on phones, 1.25 on wide screens). Every step is
+   * rem-based, so Stillpoint's Text size setting scales the whole hierarchy evenly.
+   *   --step--1  fine print, captions, labels      13 → 14px
+   *   --step-0   body text                          15 → 17px
+   *   --step-1   card titles (small), lead text     18 → 21px
+   *   --step-2   card titles                        21 → 26px
+   *   --step-3   section and hero titles            25 → 34px
+   *   --step-4   page titles                        30 → 48px
+   */
+  --step--1: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-0: clamp(0.9375rem, 0.9rem + 0.19vw, 1.0625rem);
+  --step-1: clamp(1.125rem, 1.06rem + 0.32vw, 1.3125rem);
+  --step-2: clamp(1.3125rem, 1.19rem + 0.6vw, 1.625rem);
+  --step-3: clamp(1.5625rem, 1.33rem + 1.1vw, 2.125rem);
+  --step-4: clamp(1.875rem, 1.45rem + 2vw, 3rem);
+  /* Small uppercase labels ("eyebrows"): never below 12px, with modest tracking. */
+  --text-label: max(12px, 0.75rem);
+
+  /* Earlier size names, kept for existing rules and mapped onto the scale where they overlap. */
+  --text-2xs: 0.75rem;
+  --text-xs: 0.75rem;
+  --text-sm: var(--step--1);
+  --text-md: var(--step-0);
+  --text-lg: var(--step-1);
+  --text-xl: var(--step-2);
+  --text-2xl: var(--step-3);
+  --text-3xl: var(--step-4);
   /* Display sizes for page titles and featured readings. */
-  --text-display: clamp(2.125rem, 4.4vw, 3.25rem);
+  --text-display: var(--step-4);
   --text-reading: clamp(1.125rem, 1.7vw, 1.3125rem);
-  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
   --tracking-display: -.032em;
-  --tracking-label: .14em;
+  --tracking-label: .08em;
   --leading-display: 1.08;
   --leading-tight: 1.2;
   --leading-normal: 1.55;
