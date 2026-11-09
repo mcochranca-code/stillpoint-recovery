@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Bookmark, BookOpen, CalendarDays, Check, Clock3, EyeOff, Heart, Leaf, RotateCcw, Settings2, Sprout, Volume2, Wind } from 'lucide-react';
+import { ArrowRight, BookOpen, CalendarDays, Check, Clock3, EyeOff, Heart, Leaf, RotateCcw, Settings2, Sprout, Volume2, Wind } from 'lucide-react';
 import { DailyReadingCard } from './DailyReadingCard';
 import { DaypartSky } from '../../components/DaypartSky';
 import { daypartFor } from '../../domain/daypart';
@@ -116,7 +116,7 @@ export function TodayPage() {
   async function reflectToday() {
     const id = `reflection:${today}:${reflection.id}`;
     const existing = await db.dailyReflections.get(id);
-    await db.dailyReflections.put({ id, localDate: today, reflectionId: reflection.id, reflectedAt: existing?.reflectedAt ?? new Date().toISOString(), favorite: existing?.favorite ?? false, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
+    await db.dailyReflections.put({ id, localDate: today, reflectionId: reflection.id, reflectedAt: existing?.reflectedAt ?? new Date().toISOString(), favorite: existing?.favorite ?? false, favoriteKey: existing?.favorite ? 1 : 0, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
     if (!existing?.reflectedAt) await updateDailyActivity({ reflectionsCompleted: 1 }, true);
     await awardEligibleCharms(parts?.days ?? 0, await returnedAfterActivityBreak());
     notify('Reflection marked for today. You can return to it whenever you like.');
@@ -137,7 +137,8 @@ export function TodayPage() {
   async function toggleReflectionFavorite() {
     const id = `reflection:${today}:${reflection.id}`;
     const existing = await db.dailyReflections.get(id);
-    await db.dailyReflections.put({ id, localDate: today, reflectionId: reflection.id, favorite: !existing?.favorite, reflectedAt: existing?.reflectedAt, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
+    const favorite = !existing?.favorite;
+    await db.dailyReflections.put({ id, localDate: today, reflectionId: reflection.id, favorite, favoriteKey: favorite ? 1 : 0, reflectedAt: existing?.reflectedAt, exploredAt: existing?.exploredAt ?? new Date().toISOString() });
     notify(existing?.favorite ? 'Removed from saved reflections.' : 'Saved with your reflections.');
   }
 
@@ -216,7 +217,7 @@ export function TodayPage() {
 
       <div className="today-grid">
         <section className="card reflection-card" aria-labelledby="reflection-heading">
-          <div className="card-header"><div><p className="eyebrow">An original daily recovery reflection</p><h2 id="reflection-heading">TODAY’S STILLPOINT REFLECTION</h2></div><button className="icon-button" aria-label={reflectionActivity?.favorite ? 'Remove reflection from saved items' : 'Save reflection'} onClick={() => void toggleReflectionFavorite()}><Bookmark size={18} fill={reflectionActivity?.favorite ? 'currentColor' : 'none'} aria-hidden="true" /></button></div>
+          <div className="card-header"><div><p className="eyebrow">An original daily recovery reflection</p><h2 id="reflection-heading">TODAY’S STILLPOINT REFLECTION</h2></div><button className={`icon-button reflection-favorite${reflectionActivity?.favorite ? ' is-favorite' : ''}`} aria-label={reflectionActivity?.favorite ? 'Remove reflection from favorites' : 'Love this reflection'} aria-pressed={Boolean(reflectionActivity?.favorite)} title={reflectionActivity?.favorite ? 'Remove from favorites' : 'Add to favorites'} onClick={() => void toggleReflectionFavorite()}><Heart size={18} fill={reflectionActivity?.favorite ? 'currentColor' : 'none'} aria-hidden="true" /></button></div>
           <div className="reflection-art" aria-hidden="true"><img src="/assets/backgrounds/sunrise-hills.svg" alt="" /><span>{reflection.theme}</span></div>
           <h3 className="reflection-title">{reflection.title}</h3>
           <p id="original-reflection-reading" aria-hidden={!reflectionExpanded} className={`reflection-reading${reflectionExpanded ? '' : ' is-collapsed'}`}>{reflection.reading}</p>
@@ -239,7 +240,7 @@ export function TodayPage() {
       <section className="quick-actions" aria-label="Quick actions">
         <Link className="quick-action" to="/reset"><span className="quick-icon"><Wind size={20} aria-hidden="true" /></span><span><strong>I need a moment</strong><small>A short pause and a choice for what’s next</small></span><ArrowRight size={17} aria-hidden="true" /></Link>
         <Link className="quick-action" to="/journal"><span className="quick-icon"><BookOpen size={20} aria-hidden="true" /></span><span><strong>Write a few lines</strong><small>Your journal stays on this device</small></span><ArrowRight size={17} aria-hidden="true" /></Link>
-        <Link className="quick-action" to="/meditation"><span className="quick-icon"><Heart size={20} aria-hidden="true" /></span><span><strong>Take a quiet pause</strong><small>Gentle breathing and grounding</small></span><ArrowRight size={17} aria-hidden="true" /></Link>
+        <Link className="quick-action" to="/meditation"><span className="quick-icon"><img className="nav-breathing-orb" src="/assets/meditation/breathing-orb.svg" alt="" /></span><span><strong>Take a quiet pause</strong><small>Gentle breathing and grounding</small></span><ArrowRight size={17} aria-hidden="true" /></Link>
         <Link className="quick-action" to="/garden"><span className="quick-icon"><Leaf size={20} aria-hidden="true" /></span><span><strong>Visit your garden</strong><small>Growth without a streak</small></span><ArrowRight size={17} aria-hidden="true" /></Link>
         <Link className="quick-action" to="/progress"><span className="quick-icon"><Clock3 size={20} aria-hidden="true" /></span><span><strong>Notice your journey</strong><small>See activities and milestones</small></span><ArrowRight size={17} aria-hidden="true" /></Link>
       </section>

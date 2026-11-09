@@ -23,6 +23,7 @@ describe('Quick Find', () => {
 
   it('opens from the mobile navigation and shows grouped local suggestions', () => {
     renderNavigation();
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation menu' }));
     fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
 
     const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
@@ -52,6 +53,7 @@ describe('Quick Find', () => {
 
   it('finds the Home page and dedicated Community Notes destination', () => {
     renderNavigation('/', true);
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation menu' }));
     fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
     const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
     const search = within(dialog).getByRole('searchbox');
@@ -83,6 +85,7 @@ describe('Quick Find', () => {
 
   it('closes with Escape and restores focus to the launcher', () => {
     renderNavigation();
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation menu' }));
     const launcher = screen.getByRole('button', { name: 'Search Stillpoint' });
     launcher.focus();
     fireEvent.click(launcher);
@@ -95,6 +98,7 @@ describe('Quick Find', () => {
 
   it('navigates to a selected destination and closes the dialog', () => {
     renderNavigation();
+    fireEvent.click(screen.getByRole('button', { name: 'Open navigation menu' }));
     fireEvent.click(screen.getByRole('button', { name: 'Search Stillpoint' }));
     const dialog = screen.getByRole('dialog', { name: 'Quick Find' });
     fireEvent.click(within(dialog).getByRole('link', { name: /Find a meeting/ }));

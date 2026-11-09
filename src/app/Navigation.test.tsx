@@ -6,16 +6,21 @@ import Navigation from './Navigation';
 
 beforeEach(() => { window.localStorage.clear(); });
 
-describe('Navigation', () => {
-  it('keeps Home and pinned Settings present while showing enabled mobile destinations', () => {
-    render(<MemoryRouter><Navigation communityNotesEnabled /></MemoryRouter>);
-    const mobileNavigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
-    const mobileWrap = document.querySelector('.mobile-nav-wrap') as HTMLElement;
-    const routeLabels = ['Progress', 'Current milestone token', 'Journal', 'Meditation', 'Meetings', 'Community Notes', 'Library'];
+function openMobileMenu() {
+  fireEvent.click(screen.getByRole('button', { name: 'Open navigation menu' }));
+  return screen.getByRole('navigation', { name: 'Mobile primary navigation' });
+}
 
-    expect(within(mobileWrap).getByRole('link', { name: 'Home' })).toBeInTheDocument();
-    expect(within(mobileWrap).getByRole('link', { name: 'Settings and privacy (pinned)' })).toBeInTheDocument();
-    expect(within(mobileNavigation).getAllByRole('link')).toHaveLength(routeLabels.length);
+describe('Navigation', () => {
+  it('keeps a floating Home control, mobile header actions, and enabled destinations in the side menu', () => {
+    render(<MemoryRouter><Navigation communityNotesEnabled /></MemoryRouter>);
+    const mobileNavigation = openMobileMenu();
+
+    expect(document.querySelector('.mobile-home-fab')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Close navigation menu' })).toHaveLength(2);
+    expect(screen.getAllByRole('link', { name: 'Settings and privacy' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: 'Accessibility options' }).some((link) => link.getAttribute('href') === '/settings#appearance-accessibility')).toBe(true);
+    const routeLabels = ['Progress', 'Current milestone token', 'Journal', 'Meditation', 'Meetings', 'Community Notes', 'Library'];
     for (const label of routeLabels) expect(within(mobileNavigation).getByRole('link', { name: label })).toBeInTheDocument();
     expect(within(mobileNavigation).getByRole('button', { name: 'Search Stillpoint' })).toBeInTheDocument();
     expect(within(mobileNavigation).getByText('Meditate', { selector: 'span' })).toBeInTheDocument();
@@ -23,47 +28,31 @@ describe('Navigation', () => {
 
   it('keeps Community Notes out of navigation until the local opt-in is enabled', () => {
     render(<MemoryRouter><Navigation /></MemoryRouter>);
-    const mobileNavigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
+    const mobileNavigation = openMobileMenu();
     expect(within(mobileNavigation).queryByRole('link', { name: 'Community Notes' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Community Notes' })).toBeNull();
   });
 
-  it('keeps Home and Settings visible when destinations are hidden and restores links on Show', () => {
+  it('opens and closes the hamburger side menu and closes it with Escape', () => {
     render(<MemoryRouter><Navigation /></MemoryRouter>);
-    const mobileNavigation = screen.getByRole('navigation', { name: 'Mobile primary navigation' });
-    const mobileWrap = document.querySelector('.mobile-nav-wrap') as HTMLElement;
-
-    fireEvent.click(screen.getByRole('button', { name: 'Hide mobile navigation' }));
-    expect(mobileNavigation).toHaveAttribute('aria-hidden', 'true');
-    expect(mobileNavigation).toHaveAttribute('inert');
-    expect(screen.getByRole('button', { name: 'Show mobile navigation' })).toHaveAttribute('aria-expanded', 'false');
-    expect(within(mobileWrap).getByRole('link', { name: 'Home' })).toBeInTheDocument();
-    expect(within(mobileWrap).getByRole('link', { name: 'Settings and privacy (pinned)' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Show mobile navigation' }));
-    expect(mobileNavigation).toHaveAttribute('aria-hidden', 'false');
-    expect(mobileNavigation).not.toHaveAttribute('inert');
+    const mobileNavigation = openMobileMenu();
+    const drawer = document.querySelector('.mobile-side-drawer') as HTMLElement;
+    expect(drawer).toHaveAttribute('aria-hidden', 'false');
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.getByRole('button', { name: 'Open navigation menu' })).toHaveAttribute('aria-expanded', 'false');
+    expect(drawer).toHaveAttribute('aria-hidden', 'true');
+    expect(mobileNavigation).toHaveAttribute('aria-label', 'Mobile primary navigation');
   });
 
-  it('offers animated expand/close states for mobile navigation labels', () => {
+  it('hides the mobile header on downward scroll and shows it again on upward scroll', () => {
     render(<MemoryRouter><Navigation /></MemoryRouter>);
-    const wrapper = document.querySelector('.mobile-nav-wrap') as HTMLElement;
-    const toggle = screen.getByRole('button', { name: 'Expand mobile navigation' });
-
-    expect(toggle).toHaveAttribute('aria-expanded', 'false');
-    fireEvent.click(toggle);
-    expect(wrapper).toHaveClass('expanded');
-    expect(screen.getByRole('button', { name: 'Close expanded mobile navigation' })).toHaveAttribute('aria-expanded', 'true');
-    fireEvent.click(screen.getByRole('button', { name: 'Close expanded mobile navigation' }));
-    expect(wrapper).not.toHaveClass('expanded');
-  });
-
-  it('persists the hidden choice locally across navigation remounts', () => {
-    const first = render(<MemoryRouter><Navigation /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('button', { name: 'Hide mobile navigation' }));
-    expect(window.localStorage.getItem('stillpoint-mobile-nav-hidden-v1')).toBe('true');
-    first.unmount();
-    render(<MemoryRouter><Navigation /></MemoryRouter>);
-    expect(screen.getByRole('button', { name: 'Show mobile navigation' })).toBeInTheDocument();
+    const header = document.querySelector('.mobile-header') as HTMLElement;
+    Object.defineProperty(window, 'scrollY', { configurable: true, writable: true, value: 150 });
+    fireEvent.scroll(window);
+    expect(header).toHaveClass('is-hidden');
+    Object.defineProperty(window, 'scrollY', { configurable: true, writable: true, value: 115 });
+    fireEvent.scroll(window);
+    expect(header).not.toHaveClass('is-hidden');
   });
 
   it('provides an accessible desktop sidebar collapse toggle', () => {

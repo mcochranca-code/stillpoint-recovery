@@ -138,7 +138,7 @@ export function SettingsPage() {
     <div className="page-stack">
       <header className="page-header"><div><p className="eyebrow">Your space, your settings</p><h1>Settings & privacy.</h1><p>Adjust what appears, how the app feels, and what stays on this device.</p></div><ShieldCheck size={25} aria-hidden="true" /></header>
 
-      <section className="card"><div className="card-header"><div><p className="eyebrow">Make it comfortable</p><h2>Appearance & accessibility</h2></div></div>
+      <section className="card" id="appearance-accessibility"><div className="card-header"><div><p className="eyebrow">Make it comfortable</p><h2>Appearance & accessibility</h2></div></div>
         <div className="settings-grid">
           <label className="field-label" htmlFor="theme-setting">Appearance mode<select id="theme-setting" value={preferences.theme} onChange={(event) => void updatePreferences({ theme: event.target.value as ThemeMode })}><option value="system">Follow device</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
           <label className="field-label" htmlFor="counter-setting">Counter display<select id="counter-setting" value={preferences.counterStyle} onChange={(event) => void updatePreferences({ counterStyle: event.target.value as 'days' | 'full' })}><option value="full">Days, hours, minutes and seconds</option><option value="days">Days only</option></select></label>

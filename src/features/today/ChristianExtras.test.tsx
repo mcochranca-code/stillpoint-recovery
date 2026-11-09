@@ -1,10 +1,12 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axeViolations } from '../../../tests/axe';
 import { db } from '../../db/database';
 import { defaultPreferences, ensureDefaults } from '../../db/repository';
 import type { UserPreferences } from '../../domain/types';
+import { getDailyReflection, reflections } from '../../data/reflections';
+import { localDateKey } from '../../domain/time';
 
 const mocks = vi.hoisted(() => ({ context: {} as never }));
 vi.mock('../../app/AppContext', () => ({ useAppContext: () => mocks.context }));
@@ -64,5 +66,28 @@ describe('Christian extras are chosen, never shown by default', () => {
       expect(tabs.some((tab) => /Scripture/.test(tab.textContent ?? ''))).toBe(true);
     });
     expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('shows liked daily reflections in Favorites, including existing favorites without the index key', async () => {
+    const favorite = reflections[0]!;
+    await db.dailyReflections.put({
+      id: `reflection:legacy:${favorite.id}`, localDate: localDateKey(new Date()), reflectionId: favorite.id,
+      favorite: true, exploredAt: new Date().toISOString(),
+    });
+    render(<MemoryRouter><LibraryPage /></MemoryRouter>);
+    fireEvent.click(await screen.findByRole('tab', { name: 'Favorites' }));
+    expect(await screen.findByRole('heading', { name: favorite.title })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Remove reflection from favorites' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('saves the daily reflection heart choice to the favorite index', async () => {
+    const reading = getDailyReflection(new Date());
+    render(<MemoryRouter><TodayPage /></MemoryRouter>);
+    const favoriteButton = await screen.findByRole('button', { name: 'Love this reflection' });
+    fireEvent.click(favoriteButton);
+    await waitFor(async () => {
+      const record = await db.dailyReflections.get(`reflection:${localDateKey(new Date())}:${reading.id}`);
+      expect(record).toMatchObject({ favorite: true, favoriteKey: 1 });
+    });
   });
 });

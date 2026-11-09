@@ -1,30 +1,29 @@
 import { useCallback, useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Award, BookOpen, CalendarDays, ChartNoAxesColumnIncreasing, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Compass, Eye, EyeOff, Heart, Home, LockKeyhole, MessageCircle, Search, Settings, Wind, type LucideIcon } from 'lucide-react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Accessibility, Award, BookOpen, ChartNoAxesColumnIncreasing, ChevronLeft, ChevronRight, Compass, Handshake, Home, Menu, MessageCircle, Search, Settings, Wind, X, type LucideIcon } from 'lucide-react';
 import { QuickFindDialog } from '../components/QuickFindDialog';
 
-type NavigationItem = { to: string; label: string; mobileLabel?: string; accessibleLabel?: string; icon: LucideIcon; end?: boolean };
+type NavigationItem = { to: string; label: string; mobileLabel?: string; accessibleLabel?: string; icon: LucideIcon; end?: boolean; breathingOrb?: boolean };
 
 const items: NavigationItem[] = [
   { to: '/', label: 'Home', mobileLabel: 'Home', icon: Home, end: true },
   { to: '/progress', label: 'Progress', mobileLabel: 'Progress', icon: ChartNoAxesColumnIncreasing },
   { to: '/tokens', label: 'Tokens', mobileLabel: 'Tokens', accessibleLabel: 'Current milestone token', icon: Award },
   { to: '/journal', label: 'Journal', mobileLabel: 'Journal', icon: BookOpen },
-  { to: '/meditation', label: 'Meditation', mobileLabel: 'Meditate', icon: Heart },
-  { to: '/meetings', label: 'Meetings', mobileLabel: 'Meetings', icon: CalendarDays },
+  { to: '/meditation', label: 'Meditation', mobileLabel: 'Meditate', icon: Wind, breathingOrb: true },
+  { to: '/meetings', label: 'Meetings', mobileLabel: 'Meetings', icon: Handshake },
   { to: '/community', label: 'Community Notes', mobileLabel: 'Community', icon: MessageCircle },
   { to: '/library', label: 'Library', mobileLabel: 'Library', icon: Compass },
 ];
-const MOBILE_NAV_PREFERENCE = 'stillpoint-mobile-nav-expanded-v1';
-const MOBILE_NAV_HIDDEN_PREFERENCE = 'stillpoint-mobile-nav-hidden-v1';
 const DESKTOP_SIDEBAR_PREFERENCE = 'stillpoint-desktop-sidebar-collapsed-v1';
 
 /** Render primary navigation and route-aware page controls. */
 export default function Navigation({ communityNotesEnabled = false }: { communityNotesEnabled?: boolean }) {
   const [quickFindOpen, setQuickFindOpen] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState(false);
-  const [mobileHidden, setMobileHidden] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileHeaderHidden, setMobileHeaderHidden] = useState(false);
   const [desktopCollapsed, setDesktopCollapsed] = useState(false);
+  const location = useLocation();
   const openQuickFind = useCallback(() => setQuickFindOpen(true), []);
   const closeQuickFind = useCallback(() => setQuickFindOpen(false), []);
   const shortcutLabel = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform) ? '⌘ K' : 'Ctrl K';
@@ -32,23 +31,39 @@ export default function Navigation({ communityNotesEnabled = false }: { communit
   const mobileItems = visibleItems.filter((item) => item.to !== '/');
 
   useEffect(() => {
-    try { setMobileExpanded(window.localStorage.getItem(MOBILE_NAV_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
-    try { setMobileHidden(window.localStorage.getItem(MOBILE_NAV_HIDDEN_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
     try { setDesktopCollapsed(window.localStorage.getItem(DESKTOP_SIDEBAR_PREFERENCE) === 'true'); } catch { /* Storage is optional. */ }
   }, []);
   useEffect(() => {
-    document.documentElement.dataset.mobileNavExpanded = String(mobileExpanded);
-    try { window.localStorage.setItem(MOBILE_NAV_PREFERENCE, String(mobileExpanded)); } catch { /* Storage is optional. */ }
-    return () => { delete document.documentElement.dataset.mobileNavExpanded; };
-  }, [mobileExpanded]);
-  useEffect(() => {
-    document.documentElement.dataset.mobileNavHidden = String(mobileHidden);
-    try { window.localStorage.setItem(MOBILE_NAV_HIDDEN_PREFERENCE, String(mobileHidden)); } catch { /* Storage is optional. */ }
-    return () => { delete document.documentElement.dataset.mobileNavHidden; };
-  }, [mobileHidden]);
-  useEffect(() => {
     try { window.localStorage.setItem(DESKTOP_SIDEBAR_PREFERENCE, String(desktopCollapsed)); } catch { /* Storage is optional. */ }
   }, [desktopCollapsed]);
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setMobileHeaderHidden(false);
+  }, [location.pathname]);
+  useEffect(() => {
+    let previousY = Math.max(0, window.scrollY);
+    let lastDirectionChangeY = previousY;
+    const onScroll = () => {
+      const currentY = Math.max(0, window.scrollY);
+      const delta = currentY - previousY;
+      if (Math.abs(delta) >= 5) {
+        if (Math.abs(currentY - lastDirectionChangeY) >= 18 || delta < 0) {
+          setMobileHeaderHidden(currentY > 72 && delta > 0);
+          lastDirectionChangeY = currentY;
+        }
+        previousY = currentY;
+      }
+      if (currentY <= 24) setMobileHeaderHidden(false);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') setMobileMenuOpen(false); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [mobileMenuOpen]);
 
   return (
     <>
@@ -62,9 +77,9 @@ export default function Navigation({ communityNotesEnabled = false }: { communit
           <span>{desktopCollapsed ? 'Expand' : 'Collapse'}</span>
         </button>
         <nav id="desktop-primary-navigation" className="side-links" aria-label="Primary navigation">
-          {visibleItems.map(({ to, label, accessibleLabel, icon: Icon, end }) => (
+          {visibleItems.map(({ to, label, accessibleLabel, icon: Icon, end, breathingOrb }) => (
             <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}>
-              <Icon size={19} aria-hidden="true" /><span>{label}</span>
+              {breathingOrb ? <img className="nav-breathing-orb" src="/assets/meditation/breathing-orb.svg" alt="" /> : <Icon size={19} aria-hidden="true" />}<span>{label}</span>
             </NavLink>
           ))}
         </nav>
@@ -77,50 +92,37 @@ export default function Navigation({ communityNotesEnabled = false }: { communit
         </NavLink>
         <p className="sidebar-quote">“For this day, this moment, this breath.”</p>
       </aside>
-      <div className={`mobile-nav-wrap${mobileExpanded ? ' expanded' : ''}${mobileHidden ? ' is-hidden' : ''}`}>
-        <div className="mobile-nav-controls" aria-label="Mobile navigation controls">
-          <NavLink to="/" end aria-label="Home" title="Home" className={({ isActive }) => `mobile-home-link${isActive ? ' active' : ''}`}>
-            <Home size={19} aria-hidden="true" /><span>Home</span>
-          </NavLink>
-          <NavLink to="/settings" className="mobile-settings-lock" aria-label="Settings and privacy (pinned)" title="Settings and privacy — always available">
-            <Settings size={18} aria-hidden="true" /><LockKeyhole className="mobile-settings-lock-badge" size={10} aria-hidden="true" />
-          </NavLink>
-          <button
-            type="button"
-            className="mobile-nav-visibility-toggle"
-            aria-expanded={!mobileHidden}
-            aria-controls="mobile-primary-navigation"
-            aria-label={mobileHidden ? 'Show mobile navigation' : 'Hide mobile navigation'}
-            title={mobileHidden ? 'Show navigation' : 'Hide navigation'}
-            onClick={() => setMobileHidden((value) => !value)}
-          >
-            {mobileHidden ? <Eye size={17} aria-hidden="true" /> : <EyeOff size={17} aria-hidden="true" />}
-            <span className="mobile-nav-action-label">{mobileHidden ? 'Show' : 'Hide'}</span>
-          </button>
-          <button
-            type="button"
-            className="mobile-nav-toggle"
-            aria-expanded={mobileExpanded}
-            aria-controls="mobile-primary-navigation"
-            aria-label={mobileExpanded ? 'Close expanded mobile navigation' : 'Expand mobile navigation'}
-            title={mobileExpanded ? 'Close expanded navigation' : 'Expand navigation'}
-            onClick={() => setMobileExpanded((value) => !value)}
-          >
-            {mobileExpanded ? <ChevronDown size={17} aria-hidden="true" /> : <ChevronUp size={17} aria-hidden="true" />}
-            <span className="mobile-nav-action-label">{mobileExpanded ? 'Close' : 'Expand'}</span>
-          </button>
+
+      <header className={`mobile-header${mobileHeaderHidden && !mobileMenuOpen ? ' is-hidden' : ''}`}>
+        <button type="button" className="mobile-header-menu" aria-expanded={mobileMenuOpen} aria-controls="mobile-side-drawer" aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'} onClick={() => setMobileMenuOpen((open) => !open)}>
+          {mobileMenuOpen ? <X size={21} aria-hidden="true" /> : <Menu size={21} aria-hidden="true" />}
+        </button>
+        <span className="mobile-header-brand" aria-label="Stillpoint Recovery">Stillpoint</span>
+        <div className="mobile-header-actions">
+          <Link to="/settings#appearance-accessibility" className="mobile-header-action" aria-label="Accessibility options" title="Accessibility options"><Accessibility size={19} aria-hidden="true" /></Link>
+          <Link to="/settings" className="mobile-header-action" aria-label="Settings and privacy" title="Settings and privacy"><Settings size={19} aria-hidden="true" /></Link>
         </div>
-        <nav id="mobile-primary-navigation" className="mobile-nav" aria-label="Mobile primary navigation" aria-hidden={mobileHidden} ref={(element) => { if (element) element.toggleAttribute('inert', mobileHidden); }}>
-          {mobileItems.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end }) => (
-            <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `mobile-nav-item${isActive ? ' active' : ''}`}>
-              <Icon size={20} aria-hidden="true" /><span>{mobileLabel ?? label}</span>
+      </header>
+
+      <div className={`mobile-drawer-backdrop${mobileMenuOpen ? ' is-open' : ''}`} aria-hidden={!mobileMenuOpen} onClick={() => setMobileMenuOpen(false)} />
+      <aside id="mobile-side-drawer" className={`mobile-side-drawer${mobileMenuOpen ? ' is-open' : ''}`} aria-label="Mobile navigation menu" aria-hidden={!mobileMenuOpen} ref={(element) => { if (element) element.toggleAttribute('inert', !mobileMenuOpen); }}>
+        <div className="mobile-drawer-heading"><div><span className="eyebrow">Your recovery space</span><h2>Move through Stillpoint</h2></div><button type="button" className="mobile-drawer-close" aria-label="Close navigation menu" onClick={() => setMobileMenuOpen(false)}><X size={19} aria-hidden="true" /></button></div>
+        <nav className="mobile-drawer-links" aria-label="Mobile primary navigation">
+          {mobileItems.map(({ to, label, mobileLabel, accessibleLabel, icon: Icon, end, breathingOrb }) => (
+            <NavLink key={to} to={to} end={end} aria-label={accessibleLabel ?? label} title={accessibleLabel ?? label} className={({ isActive }) => `mobile-drawer-link${isActive ? ' active' : ''}`} onClick={() => setMobileMenuOpen(false)}>
+              {breathingOrb ? <img className="nav-breathing-orb" src="/assets/meditation/breathing-orb.svg" alt="" /> : <Icon size={20} aria-hidden="true" />}<span>{mobileLabel ?? label}</span>
             </NavLink>
           ))}
-          <button type="button" className="quick-find-trigger quick-find-trigger--mobile mobile-nav-item" aria-label="Search Stillpoint" title={`Quick Find (${shortcutLabel})`} onClick={openQuickFind}>
-            <Search aria-hidden="true" /><span>Search</span>
-          </button>
+          <button type="button" className="mobile-drawer-link" aria-label="Search Stillpoint" onClick={() => { setMobileMenuOpen(false); openQuickFind(); }}><Search size={20} aria-hidden="true" /><span>Search</span></button>
         </nav>
-      </div>
+        <div className="mobile-drawer-footer">
+          <NavLink to="/settings" className="mobile-drawer-link" onClick={() => setMobileMenuOpen(false)}><Settings size={19} aria-hidden="true" /><span>Settings &amp; privacy</span></NavLink>
+          <Link to="/settings#appearance-accessibility" className="mobile-drawer-link" onClick={() => setMobileMenuOpen(false)}><Accessibility size={19} aria-hidden="true" /><span>Accessibility options</span></Link>
+          <Link to="/reset" className="mobile-drawer-link" onClick={() => setMobileMenuOpen(false)}><Wind size={19} aria-hidden="true" /><span>I need a moment</span></Link>
+        </div>
+      </aside>
+
+      <NavLink to="/" end className={({ isActive }) => `mobile-home-fab${isActive ? ' active' : ''}`} aria-label="Home" title="Home"><Home size={22} aria-hidden="true" /></NavLink>
       <QuickFindDialog open={quickFindOpen} onOpen={openQuickFind} onClose={closeQuickFind} communityNotesEnabled={communityNotesEnabled} />
     </>
   );
