@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { BookOpen, Download, EyeOff, FileUp, HeartHandshake, ShieldCheck, Trash2 } from 'lucide-react';
-import { NA_STEP_GUIDES_CREDIT, NA_STEP_GUIDES_PATH, NA_STEP_GUIDES_TITLE } from '../../data/na-step-guides/meta';
+import { isNaStepGuidesEnabled, NA_STEP_GUIDES_CREDIT, NA_STEP_GUIDES_PATH, NA_STEP_GUIDES_SETTING_ANCHOR, NA_STEP_GUIDES_TITLE } from '../../data/na-step-guides/meta';
 import { useAppContext } from '../../app/AppContext';
 import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText, inspectBackupText, MAX_BACKUP_FILE_BYTES } from '../../db/backup';
 import { db } from '../../db/database';
@@ -36,6 +36,14 @@ export function SettingsPage() {
   const [busy, setBusy] = useState(false);
   const [lastBackupAt, setLastBackupAt] = useState(() => readLocalSignal('lastBackupAt'));
   const inputRef = useRef<HTMLInputElement>(null);
+  const { hash } = useLocation();
+  const hasPreferences = Boolean(preferences);
+
+  // The reader's off screen links to #na-step-guides-setting; bring that switch into view.
+  useEffect(() => {
+    if (!hasPreferences || hash !== `#${NA_STEP_GUIDES_SETTING_ANCHOR}`) return;
+    try { document.getElementById(NA_STEP_GUIDES_SETTING_ANCHOR)?.scrollIntoView?.({ block: 'start' }); } catch { /* jsdom */ }
+  }, [hash, hasPreferences]);
 
   useEffect(() => {
     setContactsText((preferences?.trustedContacts ?? []).join('\n'));
@@ -57,6 +65,7 @@ export function SettingsPage() {
   }, []);
 
   if (!preferences) return <div className="empty-state">Loading settings…</div>;
+  const naStepGuidesOn = isNaStepGuidesEnabled(preferences);
 
   async function enableReminder(enabled: boolean) {
     if (!enabled) { await updatePreferences({ reminderEnabled: false }); notify('Reminders are turned off.'); return; }
@@ -171,6 +180,10 @@ export function SettingsPage() {
       <section className="card" aria-labelledby="community-notes-setting-heading"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2 id="community-notes-setting-heading">Community Notes</h2><p>Keep the optional hosted notes feature off unless you want to read or share short public notes.</p></div></div>
         <label className="toggle-row"><span><strong>Show Community Notes</strong><small>Off by default. When enabled, adds a Community Notes destination and the daily notes section. Opening or posting is always your choice; private recovery data is never sent.</small></span><input type="checkbox" checked={preferences.communityNotesEnabled === true} onChange={(event) => { const on = event.target.checked; void updatePreferences({ communityNotesEnabled: on }).then(() => notify(on ? 'Community Notes are available on this device.' : 'Community Notes are hidden on this device.')); }} /></label>
       </section>
+      <section className="card" id={NA_STEP_GUIDES_SETTING_ANCHOR} aria-labelledby="na-step-guides-setting-heading"><div className="card-header"><div><p className="eyebrow">Only if you choose · this device only</p><h2 id="na-step-guides-setting-heading">{NA_STEP_GUIDES_TITLE}</h2><p>An optional reader for the NA Step Working Guides. It stays hidden unless you turn it on here.</p></div><BookOpen size={20} aria-hidden="true" /></div>
+        <label className="toggle-row"><span><strong>Show NA Step Working Guides (personal use on this device)</strong><small id="na-step-guides-setting-detail">Off by default. The guide text is © NA World Services and shown by permission for personal use only. It stays on this device, and your answers are never uploaded or shared. Turning this off hides the reader but keeps any answers you saved.</small></span><input type="checkbox" aria-describedby="na-step-guides-setting-detail" checked={naStepGuidesOn} onChange={(event) => { const on = event.target.checked; void updatePreferences({ naStepGuidesEnabled: on }).then(() => notify(on ? 'The NA Step Working Guides reader is on for this device.' : 'The NA Step Working Guides reader is hidden. Your saved answers are kept on this device.')); }} /></label>
+        {naStepGuidesOn && <Link to={NA_STEP_GUIDES_PATH} className="button button-secondary button-small">Open {NA_STEP_GUIDES_TITLE}</Link>}
+      </section>
       <section className="card"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Gentle reminders</h2><p>Neutral wording. No guilt or recovery details in notifications.</p></div></div>
         <label className="toggle-row"><span><strong>Daily reminder</strong><small>{notificationPermission === 'unsupported' ? 'Not available on this browser or mobile host.' : 'Optional. While Stillpoint is open; reliable closed-app delivery varies by browser and device.'}</small></span><input type="checkbox" checked={preferences.reminderEnabled} disabled={notificationPermission === 'unsupported'} onChange={(event) => void enableReminder(event.target.checked)} /></label>
         <label className="field-label" htmlFor="reminder-time">Daily reminder time</label><input id="reminder-time" type="time" value={preferences.reminderTime} onChange={(event) => void updatePreferences({ reminderTime: event.target.value })} />
@@ -197,8 +210,7 @@ export function SettingsPage() {
       <section className="card" id="about" aria-labelledby="about-heading"><div className="card-header"><div><p className="eyebrow">Sources and credits</p><h2 id="about-heading">About Stillpoint</h2><p>Stillpoint’s own code and original writing are MIT-licensed. Some reading material is used by permission and keeps its own copyright.</p></div><BookOpen size={20} aria-hidden="true" /></div>
         <h3 className="about-credit-heading">{NA_STEP_GUIDES_TITLE}</h3>
         <p className="fine-print"><strong>{NA_STEP_GUIDES_CREDIT.approved}</strong> {NA_STEP_GUIDES_CREDIT.copyright}</p>
-        <p className="fine-print">{NA_STEP_GUIDES_CREDIT.disclaimer} This text is excluded from Stillpoint’s MIT license. Your step-work answers stay on this device.</p>
-        <Link to={NA_STEP_GUIDES_PATH} className="button button-secondary button-small">Open {NA_STEP_GUIDES_TITLE}</Link>
+        <p className="fine-print">{NA_STEP_GUIDES_CREDIT.disclaimer} This text is excluded from Stillpoint’s MIT license. The reader is opt-in, off by default, and for personal use on this device only; your step-work answers stay on this device.</p>
       </section>
       <p className="fine-print">Stillpoint is a personal recovery companion, not a clinical monitoring system or emergency service. Prayer and meditation do not replace medical care, professional treatment or peer support.</p>
     </div>

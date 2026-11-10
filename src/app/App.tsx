@@ -21,7 +21,8 @@ const CommunityNotesPage = lazy(() => import('../features/community/CommunityNot
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage').then((page) => ({ default: page.SettingsPage })));
 const ResetPage = lazy(() => import('../features/reset/ResetPage').then((page) => ({ default: page.ResetPage })));
 const GardenPage = lazy(() => import('../features/garden/GardenPage').then((page) => ({ default: page.GardenPage })));
-const NaStepGuidesPage = lazy(() => import('../features/na-step-guides/NaStepGuidesPage').then((page) => ({ default: page.NaStepGuidesPage })));
+// Opt-in gate only: the guide text is a further lazy chunk that loads after the person turns the reader on.
+const NaStepGuidesRoute = lazy(() => import('../features/na-step-guides/NaStepGuidesRoute').then((page) => ({ default: page.NaStepGuidesRoute })));
 const FieldGuidePage = lazy(() => import('../features/field-guide/FieldGuidePage').then((page) => ({ default: page.FieldGuidePage })));
 
 function AppRoutes() {
@@ -51,8 +52,8 @@ function AppRoutes() {
           <Route path="/journal" element={<JournalPage />} />
           <Route path="/meditation" element={<MeditationPage />} />
           <Route path="/library" element={<LibraryPage />} />
-          <Route path="/library/na-step-guides" element={<NaStepGuidesPage />} />
-          <Route path="/library/na-step-guides/:chapterId" element={<NaStepGuidesPage />} />
+          <Route path="/library/na-step-guides" element={<NaStepGuidesRoute />} />
+          <Route path="/library/na-step-guides/:chapterId" element={<NaStepGuidesRoute />} />
           <Route path="/meetings" element={<MeetingsPage />} />
           <Route path="/community" element={<CommunityNotesPage />} />
           <Route path="/settings" element={<SettingsPage />} />

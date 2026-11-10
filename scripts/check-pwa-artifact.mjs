@@ -1,7 +1,8 @@
 /* global console */
 
-import { readFile } from 'node:fs/promises';
+import { readdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
+import { NA_TEXT_CHUNK_NAME, naStepGuideFiles, naTextFingerprint } from './na-step-guides-chunk.mjs';
 
 const dist = resolve('dist');
 const requiredFiles = ['index.html', 'manifest.webmanifest', 'sw.js', 'precache-manifest.json', 'manus-routes.json', 'assets/branding/theme-presets.css'];
@@ -48,6 +49,36 @@ if (precache.assets.some((asset) => asset.startsWith('/assets/reference/'))) {
 if (precache.assets.some((asset) => asset.startsWith('/media/'))) {
   throw new Error('Walkthrough video files (/media/) are streamed on demand and must not be in the offline precache');
 }
+
+// NA Step Working Guides: opt-in, personal use on this device only. Never precached, never shipped as PDFs.
+const viteManifest = JSON.parse(await readFile(resolve(dist, '.vite/manifest.json'), 'utf8'));
+const naFiles = naStepGuideFiles(viteManifest);
+if (![...naFiles].some((file) => file.includes(`${NA_TEXT_CHUNK_NAME}-`))) {
+  throw new Error(`Could not find the ${NA_TEXT_CHUNK_NAME} chunk in the build; the NA precache check cannot run`);
+}
+const precachedNa = precache.assets.filter((asset) => naFiles.has(asset.slice(1)) || asset.includes(NA_TEXT_CHUNK_NAME));
+if (precachedNa.length > 0) {
+  throw new Error(`The opt-in NA Step Working Guides files must not be in the offline precache: ${precachedNa.join(', ')}`);
+}
+// Only the reader page may import the text statically; everything else reaches it through the lazy route.
+const staticNaImporters = Object.entries(viteManifest)
+  .filter(([, entry]) => !naFiles.has(entry.file) && (entry.imports ?? []).some((key) => key.includes(NA_TEXT_CHUNK_NAME)))
+  .map(([key]) => key);
+if (staticNaImporters.length > 0) throw new Error(`The NA guide text must load only after opt-in, but is statically imported by: ${staticNaImporters.join(', ')}`);
+const indexHtml = await readFile(resolve(dist, 'index.html'), 'utf8');
+if (indexHtml.includes(NA_TEXT_CHUNK_NAME)) throw new Error('index.html must not preload the NA guide text');
+const naFingerprint = await naTextFingerprint(resolve('.'));
+for (const asset of precache.assets.filter((item) => /\.(?:js|css|json|html)$/.test(item))) {
+  const contents = await readFile(resolve(dist, asset.slice(1)), 'utf8');
+  if (contents.includes(naFingerprint)) throw new Error(`Precached file carries the NA Step Working Guides text: ${asset}`);
+}
+async function listFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const nested = await Promise.all(entries.map((entry) => (entry.isDirectory() ? listFiles(resolve(directory, entry.name)) : [resolve(directory, entry.name)])));
+  return nested.flat();
+}
+const shippedPdfs = (await Promise.all([listFiles(dist), listFiles(resolve('public'))])).flat().filter((file) => /\.pdf$/i.test(file));
+if (shippedPdfs.length > 0) throw new Error(`PDFs must not ship in public/ or dist/ (the NA source PDFs stay in docs/copyright): ${shippedPdfs.join(', ')}`);
 
 const themePresets = JSON.parse(await readFile(resolve('src/data/theme-presets.json'), 'utf8'));
 if (!Array.isArray(themePresets) || themePresets.length !== 15) throw new Error('Expected fifteen theme presets.');

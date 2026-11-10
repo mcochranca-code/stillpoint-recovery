@@ -6,7 +6,6 @@
     { "path": "/journal", "title": "Journal" },
     { "path": "/meditation", "title": "Meditation" },
     { "path": "/library", "title": "Library" },
-    { "path": "/library/na-step-guides", "title": "NA Step Working Guides" },
     { "path": "/meetings", "title": "Stanislaus County Meetings" },
     { "path": "/community", "title": "Community Notes" },
     { "path": "/settings", "title": "Settings" },

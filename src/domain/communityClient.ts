@@ -9,6 +9,14 @@ export interface PublicCommunityComment {
 
 export const COMMUNITY_NOTES_BOARD_KEY = 'stillpoint:community-notes';
 
+/**
+ * The NA Step Working Guides reader is for personal use on this device only: its text and answers are
+ * never sent to the hosted board. Any key that names the reader is refused before a request is made.
+ */
+export function isLocalOnlyReadingKey(readingKey: string): boolean {
+  return /na-step-guides|na-step-working/i.test(readingKey);
+}
+
 export class CommunityResponseError extends Error {
   constructor(message: string, readonly status: number) { super(message); }
 }
@@ -63,6 +71,7 @@ export async function deleteCommunityComment(credential: CommunityCommentCredent
 }
 
 export async function fetchReadingComments(readingKey: string): Promise<PublicCommunityComment[]> {
+  if (isLocalOnlyReadingKey(readingKey)) return [];
   const response = await fetch(`/api/community/comments/${encodeURIComponent(readingKey)}`, {
     credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer', headers: { Accept: 'application/json' },
   });
@@ -78,6 +87,7 @@ export async function submitReadingComment(input: {
   browserToken: string;
   deletionToken: string;
 }): Promise<PublicCommunityComment> {
+  if (isLocalOnlyReadingKey(input.readingKey)) throw new CommunityResponseError('The NA Step Working Guides stay on this device and cannot be shared.', 400);
   const response = await fetch('/api/community/comments', {
     method: 'POST',
     credentials: 'omit',

@@ -103,6 +103,12 @@ export interface UserPreferences {
   christianExtras?: boolean;
   /** Community Notes stays off until the person explicitly enables the optional hosted feature. */
   communityNotesEnabled?: boolean;
+  /**
+   * Opt-in for the NA Step Working Guides reader (© NA World Services, shown by permission for
+   * personal use on this device only). Off for new installs and for every existing install: absent
+   * or anything but `true` means off. Turning it off hides the reader but keeps saved answers.
+   */
+  naStepGuidesEnabled?: boolean;
   onboardingComplete: boolean;
   theme: ThemeMode;
   colorTheme: ColorTheme;

@@ -84,7 +84,7 @@ in [`docs/copyright/landscape-art.md`](docs/copyright/landscape-art.md).
 ## NA Step Working Guides (used by permission)
 
 Library → *NA Step Working Guides* (`src/data/na-step-guides/guide.json`, read by
-`src/features/na-step-guides/`).
+`src/features/na-step-guides/`). **Opt-in, off by default, personal use on this device only.**
 
 | | |
 | --- | --- |
@@ -93,11 +93,14 @@ Library → *NA Step Working Guides* (`src/data/na-step-guides/guide.json`, read
 | Status | This is NA Fellowship-approved literature. |
 | License basis | **Not MIT-licensed and not public domain.** Used by permission of NA World Services (NAWS). Permission was given verbally to the project owner on 2026-11-07, per the owner; **written confirmation is pending**. Record the written permission here (date, scope, contact) when it arrives. |
 | Affiliation | Stillpoint is not affiliated with, and is not endorsed by, Narcotics Anonymous or NA World Services. |
-| Source file | A 96-page PDF supplied by the project owner. The PDF is **not** committed. |
+| Use in the app | Opt-in and off by default for new and existing installs (Settings → *Show NA Step Working Guides (personal use on this device)*). While off, nothing links to the reader and the text is never downloaded. The text is a separate lazy chunk kept **out of** the service-worker precache (`pnpm verify:pwa` fails if it is precached or if any PDF ships in `public/` or `dist/`); after opt-in it is runtime-cached on the device for offline reading. No share, copy-link or export-to-social controls. |
+| Source file | A 96-page PDF supplied by the project owner. The PDF is **not** committed and is never shipped in `public/` or `dist/`. |
 | Wording | Verbatim. Only extraction artefacts were cleaned (glyph errors, OCR letter swaps, em dashes rendered as hyphens, three layout glitches); every change is listed in [`docs/copyright/na-step-working-guides.md`](docs/copyright/na-step-working-guides.md). `src/data/na-step-guides/content.test.ts` checks the structure and question counts. |
 
-The required credit is shown on the reader's title screen, in every chapter, on the Library card,
-and in Settings → About. Answers people write stay in their own browser and are never sent anywhere.
+The required credit is shown on the reader's title screen, in every chapter, on the Library card
+(once opted in), and in Settings → About. Answers people write stay in their own browser, are never
+uploaded or shared (the community board refuses anything keyed to the reader), are included in the
+local backup and in delete-all, and are kept when the reader is turned off.
 
 If the written permission is not granted, or its scope differs (for example, no in-app answer
 boxes, or no offline copy), remove or change this feature before release.

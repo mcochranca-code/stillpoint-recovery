@@ -60,7 +60,7 @@ Screens use illustrative sample values. No personal recovery information is show
 ## Cost
 
 - **Free** to use, with no accounts, subscriptions, or per-seat fees.
-- **Open source** under the [MIT License](../../LICENSE). Programs may run their own copy. (The NA Step Working Guides text inside the app is used by permission of NA World Services and is excluded from the MIT License; see the README.)
+- **Open source** under the [MIT License](../../LICENSE). Programs may run their own copy. (The app also includes an optional NA Step Working Guides reader. It is opt-in, off by default, and for personal use on each person's own device only; the text is © NA World Services, shown by permission, and excluded from the MIT License. Answers stay on the device and are never uploaded or shared. See the README.)
 - **Nothing to procure or administer:** no participant accounts and no participant data to store.
 
 ## How to pilot it

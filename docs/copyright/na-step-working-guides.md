@@ -8,6 +8,21 @@ written confirmation pending — see [`CONTENT_SOURCES.md`](../../CONTENT_SOURCE
 This text is **not** covered by the repository's MIT License. Stillpoint is not affiliated with,
 and is not endorsed by, Narcotics Anonymous or NA World Services.
 
+## How the app uses it
+
+- **Opt-in, off by default** for new and existing installs. Settings → *Show NA Step Working Guides
+  (personal use on this device)* turns it on; the switch explains that the text is © NA World
+  Services, shown by permission for personal use only, and that answers are never uploaded or shared.
+- While it is off: no Library card, link, Quick Find result, Today mention or nudge; the route shows
+  "This reader is turned off. Turn it on in Settings."; the chunk holding the text is never fetched.
+- **Personal use on this device only.** The text (`src/data/na-step-guides/index.ts` + `guide.json`)
+  is built into its own `na-step-guides-text` chunk, which `scripts/create-precache-manifest.mjs`
+  leaves out of the offline precache and `scripts/check-pwa-artifact.mjs` refuses to see there. After
+  opt-in the service worker runtime-caches it, so the reader keeps working offline.
+- No share, copy-link or export-to-social controls. Answers live in IndexedDB only, are in the local
+  JSON backup and delete-all, and are kept when the reader is turned off.
+- The source PDF is never committed, and no PDF ships in `public/` or `dist/`.
+
 ## How the content was produced
 
 The source is a 96-page PDF supplied by the project owner (not committed). The scripts in
