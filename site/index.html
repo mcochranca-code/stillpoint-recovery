@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stillpoint Recovery</title>
+    <meta name="description" content="Stillpoint Recovery: a free, private, faith-friendly recovery companion. No account, works offline, and your journal stays on your phone." />
+    <meta property="og:title" content="Stillpoint Recovery" />
+    <meta property="og:description" content="A quiet daily companion for recovery. Private by design, faith-friendly by choice." />
+    <meta property="og:image" content="hero.jpg" />
+    <link rel="icon" href="logo.png" />
+    <style>
+      @font-face { font-family: "Inter"; src: url("fonts/inter-latin-var-normal.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+      @font-face { font-family: "Fraunces"; src: url("fonts/fraunces-latin-var-normal.woff2") format("woff2"); font-weight: 100 900; font-display: swap; }
+      :root { --sans: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+      h1, h2 { font-family: "Fraunces", Georgia, serif; }
+    </style>
+    <link rel="stylesheet" href="hark.css" />
+    <link rel="stylesheet" href="hark-hero.css" />
+    <style>
+      .x-logo { width: 64px; height: 64px; border-radius: var(--r-s); margin-bottom: 12px; }
+      .hero__copy .links { margin-top: 16px; }
+      .x-gap { margin-top: 24px; }
+      .x-tour { margin: 0 auto; max-width: 320px; text-align: center; }
+      .x-tour img { display: block; width: 100%; height: auto; border-radius: var(--r-l); border: 1px solid var(--stroke-secondary); }
+      .x-tour figcaption { font-size: var(--size-caption); color: var(--text-secondary); padding: 12px 4px 0; text-wrap: balance; }
+      .x-tour-note { text-align: center; margin: 16px auto 0; max-width: 52ch; }
+      .x-screens { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 16px; margin: 0; padding: 0; list-style: none; }
+      .x-screens figure { margin: 0; }
+      .x-screens img { display: block; width: 100%; max-width: 260px; height: auto; margin: 0 auto; border-radius: var(--r-m); border: 1px solid var(--stroke-secondary); }
+      .x-screens figcaption { font-size: var(--size-caption); color: var(--text-secondary); padding: 10px 4px 0; text-align: center; text-wrap: balance; }
+      @media (max-width: 899px) { .x-screens { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    </style>
+  </head>
+  <body>
+    <div class="page" id="top">
+      <header class="nav glass" data-auto></header>
+      <main class="main">
+        <section class="hero">
+          <img class="hero__img" src="hero.jpg" alt="Soft hills under a sunrise, the app's landscape art" />
+          <div class="hero__copy">
+            <img class="x-logo" src="logo.png" alt="Stillpoint Recovery logo" />
+            <h1>Stillpoint Recovery</h1>
+            <p class="hero__sub">A quiet daily companion for recovery. Private by design, faith-friendly by choice.</p>
+            <p class="hero__meta">Free · Open source (MIT) · No account · Works offline</p>
+            <div class="links">
+              <a class="btn" href="https://stillpoint-recovery.vercel.app" target="_blank" rel="noopener">Open the app</a>
+              <a class="btn" href="https://github.com/mcochranca-code/stillpoint-recovery" target="_blank" rel="noopener">View on GitHub</a>
+            </div>
+          </div>
+          <p class="hero__credit">Art: the app's own sunrise hills</p>
+        </section>
+
+        <section class="section" id="tour" data-nav="Tour">
+          <div class="head">
+            <h2>See it in motion.</h2>
+            <p class="head__sub">No account, and your journal and dates stay on your phone.</p>
+          </div>
+          <figure class="x-tour">
+            <img src="walkthrough.webp" width="300" height="650" alt="Animated phone tour of Stillpoint with sample data" />
+            <figcaption>A 30-second tour with sample data: Today, the day's reflection, Meditation, the Progress path and charms, the private Journal, and dark mode.</figcaption>
+          </figure>
+          <p class="fineprint x-tour-note">The same tour plays in the app on the welcome screen and under Settings → Take the tour. It's served by Stillpoint itself, not a video site.</p>
+        </section>
+
+        <section class="section" id="why" data-nav="Why">
+          <div class="head">
+            <p class="head__eyebrow">Why Stillpoint</p>
+            <h2>Built to be gentle, and to keep your story yours.</h2>
+          </div>
+          <div class="cards">
+            <div>
+              <h3>Your data stays on your device</h3>
+              <p>Journals, dates, readings, meditation sessions and charms live in your browser. No account, no cloud sync, no ads, no analytics.</p>
+            </div>
+            <div>
+              <h3>Readings you choose</h3>
+              <p>Seven traditions: Christian, Buddhist, Hindu, Muslim, Jain, Red Road (Native wellbriety) and Spiritual but not religious. Nothing is preselected.</p>
+            </div>
+            <div>
+              <h3>No streak pressure</h3>
+              <p>Missing a day never breaks anything. Progress is a gentle path to your next milestone.</p>
+            </div>
+            <div>
+              <h3>Milestone charms</h3>
+              <p>Twelve illustrated charms, from First Light to Year of Growth.</p>
+            </div>
+            <div>
+              <h3>“I need a moment”</h3>
+              <p>One tap opens a 90-second pause to breathe, ground yourself, write a few words, or see trusted people you saved. A pause, not an emergency service.</p>
+            </div>
+            <div>
+              <h3>Meditation studio</h3>
+              <p>Ten gentle practices in 2, 5, 10 or 20 minute sessions, silent by default, with three bundled soundscapes.</p>
+            </div>
+            <div>
+              <h3>Works offline</h3>
+              <p>Installs like an app (PWA) and keeps working without a connection.</p>
+            </div>
+            <div>
+              <h3>Accessible by design</h3>
+              <p>Reduced motion, high contrast, text size 85%–130%, discreet mode, full keyboard and screen-reader support, with automated axe, contrast and Lighthouse checks.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="screens" data-nav="Screens">
+          <div class="head"><h2>A look at each screen.</h2></div>
+          <ul class="x-screens">
+            <li><figure><img src="01-today.png" width="780" height="1688" alt="Today screen showing the day count and next milestone" /><figcaption>Today: your day count and the next milestone</figcaption></figure></li>
+            <li><figure><img src="02-reflection.png" width="780" height="1688" alt="Daily reflection screen" loading="lazy" /><figcaption>Your reading, from the traditions you choose</figcaption></figure></li>
+            <li><figure><img src="03-meditation.png" width="780" height="1688" alt="Meditation studio screen" loading="lazy" /><figcaption>Meditation studio</figcaption></figure></li>
+            <li><figure><img src="04-progress.png" width="780" height="1688" alt="Progress path with earned charms" loading="lazy" /><figcaption>A gentle path, with charms you've earned</figcaption></figure></li>
+            <li><figure><img src="05-privacy.png" width="780" height="1688" alt="Private journal screen" loading="lazy" /><figcaption>A private journal, stored on this device</figcaption></figure></li>
+            <li><figure><img src="06-dark.png" width="780" height="1688" alt="Stillpoint in dark mode" loading="lazy" /><figcaption>Designed dark mode</figcaption></figure></li>
+          </ul>
+        </section>
+
+        <section class="section" id="who" data-nav="Who it's for">
+          <div class="head"><h2>For anyone walking a recovery path, and those who walk beside them.</h2></div>
+          <div class="cards">
+            <div>
+              <h3>People in recovery</h3>
+              <p>A quiet place for each day: your count, a reading, a pause when you need one.</p>
+            </div>
+            <div>
+              <h3>Peer support specialists</h3>
+              <p>Nothing to ask of a person: no account, no email.</p>
+            </div>
+            <div>
+              <h3>Counselors and clinicians</h3>
+              <p>A between-session tool that collects no client data.</p>
+            </div>
+            <div>
+              <h3>12-step and peer fellowships</h3>
+              <p>A link to the daily NA reading, and Central Valley AA/NA/FA meeting samples.</p>
+            </div>
+            <div>
+              <h3>Faith communities</h3>
+              <p>Readings from many traditions, or none.</p>
+            </div>
+            <div>
+              <h3>Recovery programs</h3>
+              <p>Free, open source, nothing to procure.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="install" data-nav="Install">
+          <div class="head"><h2>Install it on your phone in a minute.</h2></div>
+          <div class="steps">
+            <article class="step">
+              <div class="step__intro"><p class="step__num">01</p><p class="step__eyebrow">Any phone</p></div>
+              <div>
+                <h3>Open the app</h3>
+                <p>Go to <a class="link" href="https://stillpoint-recovery.vercel.app" target="_blank" rel="noopener">stillpoint-recovery.vercel.app</a>.</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">02</p><p class="step__eyebrow">iPhone or iPad</p></div>
+              <div>
+                <h3>Safari: Share, then Add to Home Screen</h3>
+                <p>Tap Share, then Add to Home Screen.</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">03</p><p class="step__eyebrow">Android</p></div>
+              <div>
+                <h3>Chrome: ⋮ menu, then Install app</h3>
+                <p>Tap the ⋮ menu, then Install app.</p>
+              </div>
+            </article>
+            <article class="step">
+              <div class="step__intro"><p class="step__num">04</p><p class="step__eyebrow">After installing</p></div>
+              <div>
+                <h3>Use it anywhere, offline</h3>
+                <ul class="step__pills"><li>Today</li><li>I need a moment</li><li>Living Garden</li></ul>
+                <p>The installed app works offline and has shortcuts to these three. Data stays on that device; use Settings → backup to keep a copy.</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="section" id="privacy" data-nav="Privacy">
+          <div class="head">
+            <p class="head__eyebrow">Our privacy promise</p>
+            <h2>Exactly what leaves your phone, and when.</h2>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th scope="col">What</th><th scope="col">When</th><th scope="col">What is sent</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Loading the app</th>
+                  <td>Opening or updating</td>
+                  <td>Ordinary requests for app files, no recovery data <small>Host: Vercel</small></td>
+                </tr>
+                <tr>
+                  <th scope="row">Community notes <small>Off by default</small></th>
+                  <td>Only after you turn them on and open the board</td>
+                  <td>A note of 120 characters or fewer, plus the day's reading key <small>Notes are public and kept up to 90 days</small></td>
+                </tr>
+                <tr>
+                  <th scope="row">Meeting map</th>
+                  <td>Only when you open it</td>
+                  <td>Map tile requests to OpenStreetMap</td>
+                </tr>
+                <tr>
+                  <th scope="row">“Show my approximate position”</th>
+                  <td>Only when you press it</td>
+                  <td>Nothing: your position stays in memory on that page and is never sent to Stillpoint</td>
+                </tr>
+                <tr>
+                  <th scope="row">Outside links</th>
+                  <td>Only when you click</td>
+                  <td>A normal visit to that site</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="aside x-gap">
+            <h3>Honest limits</h3>
+            <p class="fineprint">Browser storage and backups are not encrypted, and clearing site data can erase what you saved.</p>
+          </div>
+        </section>
+
+        <section class="section" id="programs" data-nav="Contribute">
+          <div class="head"><h2>For programs and contributors.</h2></div>
+          <div class="prose">
+            <p>Stillpoint is free and MIT-licensed, with no participant data to manage. Programs can pilot it today and open an issue to share what participants need.</p>
+            <p>Designers, writers, developers, accessibility testers and people with lived experience are welcome to contribute on GitHub.</p>
+          </div>
+          <div class="links x-gap">
+            <a class="btn" href="https://github.com/mcochranca-code/stillpoint-recovery/issues" target="_blank" rel="noopener">Open an issue</a>
+          </div>
+        </section>
+
+        <section class="section" id="start">
+          <aside class="callout" aria-label="Get started">
+            <p class="callout__head"><span class="hark-mark" data-size="16"></span> Get started</p>
+            <p class="callout__lead"><strong>Start with one quiet day.</strong> Free, no account, and it stays on your phone.</p>
+            <div class="links">
+              <a class="btn" href="https://stillpoint-recovery.vercel.app" target="_blank" rel="noopener">Open the app</a>
+              <a class="btn" href="https://github.com/mcochranca-code/stillpoint-recovery" target="_blank" rel="noopener">View on GitHub</a>
+            </div>
+          </aside>
+        </section>
+      </main>
+      <footer class="foot">
+        <p>Stillpoint is a personal reflection companion, not medical care, treatment, or an emergency service. If you're in crisis in the US, call or text 988.</p>
+        <p>Not affiliated with or endorsed by NA or AA. MIT License; some bundled content (such as the NA Step Working Guides, shown by permission) is excluded from the MIT license.</p>
+        <nav aria-label="Back to sections" data-auto></nav>
+        <a class="badge" href="https://hark.com/" target="_blank" rel="noopener"><span class="hark-mark"></span><span>built by hark</span></a>
+      </footer>
+    </div>
+    <script src="hark.js"></script>
+  </body>
+</html>
