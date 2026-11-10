@@ -21,6 +21,7 @@ import { PageSkeleton } from '../components/PageSkeleton';
 import { LibraryPage } from '../features/library/LibraryPage';
 import { MeetingsPage } from '../features/meetings/MeetingsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
+import { RecentlyEarnedCharms } from '../features/progress/RecentlyEarnedCharms';
 
 beforeEach(() => {
   mocks.context = {
@@ -60,6 +61,19 @@ describe('axe: key screens have no detectable accessibility violations', () => {
     const ring = await screen.findByRole('progressbar', { name: 'Progress toward your next milestone' });
     expect(ring.getAttribute('aria-valuetext')).toMatch(/^\d+% of the way to /);
     expect(screen.getByText(/days?, \d+ hours? and \d+ minutes? in recovery/)).toHaveClass('sr-only');
+    const nextCharm = container.querySelector('.today-next-charm')!;
+    expect(nextCharm.querySelector('.charm-medallion')).toHaveAttribute('aria-hidden', 'true');
+    expect(nextCharm.querySelector('button')).toBeNull();
+    expect(await axeViolations(container)).toEqual([]);
+  });
+
+  it('progress “Recently earned” strip', async () => {
+    const awards = [
+      { id: 'a', charmId: 'quiet-mind', earnedAt: '2026-11-01T10:00:00.000Z' },
+      { id: 'b', charmId: 'seven-day-oak', earnedAt: '2026-11-05T10:00:00.000Z' },
+    ];
+    const { container } = render(<MemoryRouter><RecentlyEarnedCharms awards={awards} /></MemoryRouter>);
+    expect(screen.getByRole('heading', { name: 'Recently earned' })).toBeInTheDocument();
     expect(await axeViolations(container)).toEqual([]);
   });
 

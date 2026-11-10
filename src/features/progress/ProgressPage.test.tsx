@@ -83,3 +83,26 @@ describe('ProgressPage gentle path', () => {
     expect(week.textContent).not.toMatch(/miss|broke/i);
   });
 });
+
+describe('ProgressPage recently earned charms', () => {
+  const awards = [
+    { id: 'a1', charmId: 'quiet-mind', earnedAt: '2026-11-01T10:00:00.000Z' },
+    { id: 'a2', charmId: 'seven-day-oak', earnedAt: '2026-11-05T10:00:00.000Z' },
+  ];
+  beforeEach(() => {
+    mocks.useLiveQuery.mockReset().mockImplementation((query: () => unknown) => (String(query).includes('earnedCharms') ? awards : undefined));
+  });
+
+  it('shows the strip with the newest charm first', () => {
+    mocks.context = { profile: undefined, preferences: defaultPreferences(), notify: mocks.notify } as never;
+    render(<MemoryRouter><ProgressPage /></MemoryRouter>);
+    const strip = screen.getByRole('region', { name: 'Recently earned' });
+    expect(strip.querySelector('li strong')?.textContent).toBe('Seven-Day Oak');
+  });
+
+  it('hides the strip while discreet display is on', () => {
+    mocks.context = { profile: undefined, preferences: { ...defaultPreferences(), discreetMode: true }, notify: mocks.notify } as never;
+    render(<MemoryRouter><ProgressPage /></MemoryRouter>);
+    expect(screen.queryByRole('region', { name: 'Recently earned' })).not.toBeInTheDocument();
+  });
+});

@@ -3,11 +3,17 @@ import { useEffect, useState } from 'react';
 type CharmMedallionProps = {
   name: string;
   image: string;
-  size?: 'gallery' | 'garden';
+  size?: 'gallery' | 'garden' | 'hero' | 'strip';
   locked?: boolean;
+  /**
+   * Render a still, non-interactive medallion (no spin button) for previews such as the Today hero.
+   * With `label` it is announced as one image; without it, it is hidden from assistive technology.
+   */
+  still?: boolean;
+  label?: string;
 };
 
-export function CharmMedallion({ name, image, size = 'gallery', locked = false }: CharmMedallionProps) {
+export function CharmMedallion({ name, image, size = 'gallery', locked = false, still = false, label }: CharmMedallionProps) {
   const [spinning, setSpinning] = useState(false);
 
   useEffect(() => {
@@ -15,6 +21,19 @@ export function CharmMedallion({ name, image, size = 'gallery', locked = false }
     const timeout = window.setTimeout(() => setSpinning(false), 1000);
     return () => window.clearTimeout(timeout);
   }, [spinning]);
+
+  if (still) {
+    const a11y = label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true as const };
+    return (
+      <span className={`charm-medallion charm-medallion--${size} is-still${locked ? ' locked' : ''}`} {...a11y}>
+        <span className="charm-medallion__coin">
+          <span className="charm-medallion__face charm-medallion__front" aria-hidden="true">
+            <img src={image} alt="" loading="lazy" draggable={false} />
+          </span>
+        </span>
+      </span>
+    );
+  }
 
   return (
     <button

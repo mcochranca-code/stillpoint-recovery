@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useAppContext } from '../../app/AppContext';
 import { CharmGallery } from '../../components/CharmGallery';
 import { ProgressPath } from './ProgressPath';
+import { RecentlyEarnedCharms } from './RecentlyEarnedCharms';
 import { MilestoneShareDialog, type MilestoneShareTarget } from '../../components/MilestoneShareDialog';
 import { db } from '../../db/database';
 import { shouldShowChristianExtras } from '../../domain/content-preset';
@@ -156,6 +157,8 @@ export function ProgressPage() {
           totals={{ meditationMinutes, journalEntries: journalCount, reflections: showFaithContent ? reflectionCount + scriptureCount : reflectionCount }}
           now={now}
         />
+
+        {!preferences?.discreetMode && <RecentlyEarnedCharms awards={awards} />}
 
         <div className="two-column">
           <section className="card">

@@ -300,3 +300,30 @@
   .progress-path-empty { grid-template-columns: 1fr; }
   .progress-path-empty__art { max-width: 220px; }
 }
+
+/* ---------- Charms up front: a dimmed next charm on Today, recently earned on Progress ----------
+   Stillpoint's own Journey Collection art only; no fellowship keytag colours or marks. */
+.charm-medallion--hero { --medallion-size: 56px; }
+.charm-medallion--strip { --medallion-size: 52px; }
+.charm-medallion.is-still { cursor: default; pointer-events: none; }
+.charm-medallion.is-still:hover { filter: none; }
+
+.today-next-charm { display: flex; align-items: center; gap: var(--space-3); padding-top: var(--space-2); border-top: 1px solid var(--border); }
+.today-next-charm .charm-medallion { opacity: .6; }
+.today-next-charm p { display: grid; gap: 2px; margin: 0; }
+.today-next-charm small { color: var(--muted); font-size: var(--text-label); }
+.today-next-charm strong { font-size: var(--step--1); }
+.dark .today-next-charm .charm-medallion { opacity: .5; }
+.high-contrast .today-next-charm .charm-medallion { opacity: 1; }
+
+.recent-charms .card-header { align-items: center; }
+.recent-charms__all { display: inline-flex; align-items: center; gap: 4px; }
+.recent-charms__list { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.recent-charms__item { display: flex; align-items: center; gap: var(--space-3); min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--ink); text-decoration: none; transition: background-color 160ms ease, border-color 160ms ease; }
+.recent-charms__item:hover { background: var(--primary-soft); }
+.recent-charms__item span { display: grid; gap: 2px; }
+.recent-charms__item strong { font-size: var(--step--1); }
+.recent-charms__item small { color: var(--muted); font-size: var(--text-label); }
+
+.reduce-motion .recent-charms__item { transition: none; }
+@media (prefers-reduced-motion: reduce) { .recent-charms__item { transition: none; } }

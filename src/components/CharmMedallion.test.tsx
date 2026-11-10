@@ -33,3 +33,16 @@ describe('CharmMedallion', () => {
     expect(button.classList.contains('is-spinning')).toBe(true);
   });
 });
+
+describe('CharmMedallion still previews', () => {
+  it('renders no button and hides itself when decorative', () => {
+    const { container } = render(<CharmMedallion still locked name="Deep Roots" image="/assets/charms/deep-roots.svg" />);
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(container.firstElementChild).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('announces a concise label when one is given', () => {
+    render(<CharmMedallion still name="Deep Roots" image="/assets/charms/deep-roots.svg" label="Next charm: 30 days" />);
+    expect(screen.getByRole('img', { name: 'Next charm: 30 days' })).toBeInTheDocument();
+  });
+});

@@ -18,6 +18,8 @@ import { TodayNudge } from './TodayNudge';
 import { WelcomeBack } from './WelcomeBack';
 import { TodayQuickStart } from '../../components/TodayQuickStart';
 import { previousStretchDays } from '../../domain/engagement';
+import { milestoneCharmLabel, nextMilestoneCharm } from '../../domain/achievements';
+import { CharmMedallion } from '../../components/CharmMedallion';
 import './retention.css';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
@@ -80,6 +82,7 @@ export function TodayPage() {
   const nextHours = Math.floor(nextIn / 3600000);
   const nextDays = Math.floor(nextHours / 24);
   const nextRemainder = nextHours % 24;
+  const nextCharm = parts ? nextMilestoneCharm(parts.days) : null;
 
   async function saveRecoveryDate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -203,6 +206,10 @@ export function TodayPage() {
             <span aria-hidden="true"><strong>{parts ? `${progress}%` : '—'}</strong><small>to milestone</small></span>
           </div>
           <div className="milestone-copy"><strong>{parts ? nextLabel : 'Your next step is enough'}</strong><small>{parts && next ? (nextDays ? `About ${nextDays}d ${nextRemainder}h to go` : `About ${nextHours}h to go`) : 'Set a date whenever it feels right'}</small></div>
+          {nextCharm && <div className="today-next-charm">
+            <CharmMedallion still locked size="hero" name={nextCharm.name} image={nextCharm.image} />
+            <p><small>Next charm</small><strong>{nextCharm.name}</strong><small>at {milestoneCharmLabel(nextCharm.milestoneDays)}</small></p>
+          </div>}
           </>}
         </div>
         <div className="action-row sobriety-actions"><button className="button button-secondary" onClick={openAdjustDate}><CalendarDays size={16} aria-hidden="true" /> {discreet ? 'Review private date' : parts ? 'Adjust date' : 'Set a date'}</button>{parts && !discreet && <button className="button button-quiet" onClick={openBeginAgain}><RotateCcw size={16} aria-hidden="true" /> Begin again</button>}</div>

@@ -226,3 +226,13 @@ describe('landscape header band keeps header text at WCAG AA', () => {
     }
   }
 });
+
+describe('charm previews in refresh.css', () => {
+  const css = readFileSync(resolve(__dirname, './refresh.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  it('dims the next charm, keeps captions at label size, and drops transitions when motion is reduced', () => {
+    expect(css).toMatch(/\.today-next-charm \.charm-medallion \{ opacity: \.\d+; \}/);
+    expect(css).toMatch(/\.today-next-charm small \{[^}]*font-size: var\(--text-label\)/);
+    expect(css).toMatch(/\.reduce-motion \.recent-charms__item \{ transition: none; \}/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ \.recent-charms__item \{ transition: none; \} \}/);
+  });
+});
