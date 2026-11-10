@@ -14,6 +14,8 @@ import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository'
 import type { ThemeMode } from '../../domain/types';
 import { clearAllLocalSignals, readLocalSignal, requestPersistentStorage, writeLocalSignal } from '../../platform/localSignals';
 import { formatLocalDate } from '../../domain/time';
+import { clearDiagnostics } from '../../platform/diagnostics';
+import { DataHealthSection } from './DataHealthSection';
 import { getNotificationPermission, requestNotificationPermission, type NotificationPermissionStatus } from '../../platform/notificationPermissions';
 
 function formatBytes(value: number): string {
@@ -136,6 +138,7 @@ export function SettingsPage() {
     try {
       await clearAllLocalData();
       clearAllLocalSignals();
+      clearDiagnostics();
       setLastBackupAt(null);
       await db.preferences.put(defaultPreferences());
       await db.recoveryProfiles.put(defaultRecoveryProfile());
@@ -204,6 +207,8 @@ export function SettingsPage() {
         <p className="fine-print">Date-only recovery dates are interpreted as local midnight on the date selected. Travel and time-zone changes may affect the local clock display; the saved start instant remains the source for elapsed time.</p>
         <p className="storage-note"><ShieldCheck size={16} aria-hidden="true" /> Stored in this browser profile on this device · {storageUse} · not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it.</p>
       </section>
+
+      <DataHealthSection notify={notify} disabled={busy} />
 
       <section className="card danger-zone"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Delete local Stillpoint data</h2><p>Remove this app’s saved information from this browser. It cannot be recovered unless you have a backup.</p></div></div><button className="button button-danger" disabled={busy} onClick={() => void deleteAll()}><Trash2 size={16} aria-hidden="true" /> Permanently delete all data</button></section>
       <section className="card" id="take-the-tour" aria-labelledby="take-the-tour-heading"><div className="card-header"><div><p className="eyebrow">See it in motion</p><h2 id="take-the-tour-heading">Take the tour</h2><p>A short, silent walkthrough of Today, readings, meditation, progress, the journal and dark mode, using sample data. The video is served by Stillpoint itself, with no outside player or tracking.</p></div></div><WalkthroughVideo reducedMotion={preferences.reducedMotion} /></section>

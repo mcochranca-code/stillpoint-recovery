@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, BookOpen, HeartHandshake, Leaf, ShieldCheck } from 'lucide-react';
 import { CURRENT_SCHEMA_VERSION, db } from '../db/database';
 import { defaultPreferences } from '../db/repository';
+import { safeWrite } from '../db/storageHealth';
 import { colorThemePresets } from '../data/themes';
 import { dateOnlyToTimestamp, localDateKey } from '../domain/time';
 import type { ColorTheme, ThemeMode, TraditionPreference } from '../domain/types';
@@ -95,23 +96,26 @@ export default function Onboarding() {
         startAt = dateOnlyToTimestamp(startDate, selectedTime);
         selectedDate = startDate;
       }
-      await db.recoveryProfiles.put({
-        id: 'recovery-profile', schemaVersion: CURRENT_SCHEMA_VERSION, startAt, localStartDate: selectedDate,
-        localStartTime: selectedTime, startTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        focus: configureDate ? (focus === 'custom' ? customFocus.trim() : focus) : (profile?.focus ?? ''),
-        intention: configureDate ? intention.trim() : (profile?.intention ?? ''), updatedAt: new Date().toISOString(),
-      });
-      const current = preferences ?? defaultPreferences();
-      // Comfort choices (contrast, motion, appearance) apply even when the rest of setup is skipped.
-      await db.preferences.put({
-        ...current, onboardingComplete: true, theme, colorTheme, liveCounter, highContrast, reducedMotion,
-        // Only a choice the person made is saved; otherwise readings stay neutral and Today offers the picker.
-        ...(readingChoice ? { traditionPreference: readingChoice, traditionChoicePending: false } : {}),
-        updatedAt: new Date().toISOString(),
-      });
-      if (configureDate && intention.trim()) {
-        await db.earnedCharms.put({ id: 'charm:first-light', charmId: 'first-light', earnedAt: new Date().toISOString() });
-      }
+      // Profile, preferences and the first charm are saved together, or not at all.
+      await safeWrite('onboarding', [db.recoveryProfiles, db.preferences, db.earnedCharms], async () => {
+        await db.recoveryProfiles.put({
+          id: 'recovery-profile', schemaVersion: CURRENT_SCHEMA_VERSION, startAt, localStartDate: selectedDate,
+          localStartTime: selectedTime, startTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          focus: configureDate ? (focus === 'custom' ? customFocus.trim() : focus) : (profile?.focus ?? ''),
+          intention: configureDate ? intention.trim() : (profile?.intention ?? ''), updatedAt: new Date().toISOString(),
+        });
+        const current = preferences ?? defaultPreferences();
+        // Comfort choices (contrast, motion, appearance) apply even when the rest of setup is skipped.
+        await db.preferences.put({
+          ...current, onboardingComplete: true, theme, colorTheme, liveCounter, highContrast, reducedMotion,
+          // Only a choice the person made is saved; otherwise readings stay neutral and Today offers the picker.
+          ...(readingChoice ? { traditionPreference: readingChoice, traditionChoicePending: false } : {}),
+          updatedAt: new Date().toISOString(),
+        });
+        if (configureDate && intention.trim()) {
+          await db.earnedCharms.put({ id: 'charm:first-light', charmId: 'first-light', earnedAt: new Date().toISOString() });
+        }
+      }, 'Your settings could not be saved. Please try again.');
       clearLocalSignal('onboardingDraft');
       notify(configureDate && startDate ? 'Your recovery date is saved on this device. Your path is yours to shape.' : 'Welcome. Everything else can wait until you’re ready.');
     } catch (error) {

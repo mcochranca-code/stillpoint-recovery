@@ -1,7 +1,8 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../db/database';
-import { ensureDefaults } from '../db/repository';
+import { classifyStorageError, describeStorageFailure, openLocalDatabase, retryOpenLocalDatabase, type StorageFailure } from '../db/storageHealth';
+import { logDiagnostic } from '../platform/diagnostics';
 import { getNextDailyReminderAt, getNextMeetingReminder, isDailyReminderDue } from '../domain/reminders';
 import { localDateKey } from '../domain/time';
 import { daypartFor } from '../domain/daypart';
@@ -12,7 +13,12 @@ interface AppContextValue {
   preferences: UserPreferences | undefined;
   profile: RecoveryProfile | undefined;
   ready: boolean;
+  /** Person-facing explanation when local storage could not be opened; null when it is healthy. */
   storageError: string | null;
+  /** Category and error name of a storage-open failure, for the recovery screen. */
+  storageFailure?: StorageFailure | null;
+  /** Close any failed connection and try opening local storage again. Never clears records. */
+  retryStorage?: () => void;
   updatePreferences: (updates: Partial<UserPreferences>) => Promise<void>;
   updateProfile: (updates: Partial<RecoveryProfile>) => Promise<void>;
   notify: (message: string) => void;
@@ -51,30 +57,77 @@ async function showLocalReminder(body: string, tag: string, path: ReminderPath):
   } catch { return false; }
 }
 
+type StorageStatus = 'opening' | 'open' | 'failed';
+
+/**
+ * Opens local storage before any screen reads it. If opening fails, the app shows a recovery screen
+ * instead of crashing; retrying remounts the live data layer so every query starts fresh.
+ */
 export function AppProvider({ children }: { children: ReactNode }) {
-  const preferences = useLiveQuery(() => db.preferences.get('preferences'), []);
-  const profile = useLiveQuery(() => db.recoveryProfiles.get('recovery-profile'), []);
-  const meetingReminders = useLiveQuery(() => db.meetingReminders.toArray(), []);
-  const [initialized, setInitialized] = useState(false);
-  const [storageError, setStorageError] = useState<string | null>(null);
+  const [status, setStatus] = useState<StorageStatus>('opening');
+  const [failure, setFailure] = useState<StorageFailure | null>(null);
+  const [generation, setGeneration] = useState(0);
   const [notice, setNotice] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    setStatus('opening');
+    (generation === 0 ? openLocalDatabase() : retryOpenLocalDatabase()).then(() => {
+      if (!alive) return;
+      setFailure(null);
+      setStatus('open');
+    }).catch((error: unknown) => {
+      if (!alive) return;
+      const classified = classifyStorageError(error);
+      logDiagnostic({ level: 'error', event: 'storage-open-failed', error: classified.errorName });
+      setFailure(classified);
+      setStatus('failed');
+    });
+    return () => { alive = false; };
+  }, [generation]);
+
+  useEffect(() => {
+    if (!notice) return;
+    const timer = window.setTimeout(() => setNotice(''), 4200);
+    return () => window.clearTimeout(timer);
+  }, [notice]);
+
+  const retryStorage = useCallback(() => setGeneration((value) => value + 1), []);
+
+  return (
+    <LiveDataProvider key={generation} status={status} failure={failure} retryStorage={retryStorage} notify={setNotice}>
+      {children}
+      <div className="toast-region" role="status" aria-live="polite" aria-atomic="true">{notice && <div className="toast">{notice}</div>}</div>
+    </LiveDataProvider>
+  );
+}
+
+interface LiveDataProviderProps {
+  children: ReactNode;
+  status: StorageStatus;
+  failure: StorageFailure | null;
+  retryStorage: () => void;
+  notify: (message: string) => void;
+}
+
+/** Reads only after storage has opened; a read that fails resolves to nothing rather than crashing the shell. */
+function readSafely<T>(enabled: boolean, read: () => Promise<T>): Promise<T | undefined> | undefined {
+  if (!enabled) return undefined;
+  return read().catch((error: unknown) => {
+    logDiagnostic({ level: 'warning', event: 'storage-read-failed', error });
+    return undefined;
+  });
+}
+
+function LiveDataProvider({ children, status, failure, retryStorage, notify }: LiveDataProviderProps) {
+  const open = status === 'open';
+  const preferences = useLiveQuery(() => readSafely(open, () => db.preferences.get('preferences')), [open]);
+  const profile = useLiveQuery(() => readSafely(open, () => db.recoveryProfiles.get('recovery-profile')), [open]);
+  const meetingReminders = useLiveQuery(() => readSafely(open, () => db.meetingReminders.toArray()), [open]);
 
   useEffect(() => {
     if (preferences?.colorTheme) applyThemeIdentity(preferences.colorTheme);
   }, [preferences?.colorTheme]);
-
-  useEffect(() => {
-    let alive = true;
-    ensureDefaults().then(() => {
-      if (alive) setInitialized(true);
-    }).catch(() => {
-      if (alive) {
-        setStorageError('Local storage could not be initialized. The browser may be out of space, storage may be disabled, or local data may be unreadable. Stillpoint has not cleared or replaced your records.');
-        setInitialized(true);
-      }
-    });
-    return () => { alive = false; };
-  }, []);
 
   useEffect(() => {
     if (!preferences) return;
@@ -173,32 +226,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, [preferences?.reminderEnabled, preferences?.reminderTime, meetingReminders]);
 
-  useEffect(() => {
-    if (!notice) return;
-    const timer = window.setTimeout(() => setNotice(''), 4200);
-    return () => window.clearTimeout(timer);
-  }, [notice]);
-
   const value = useMemo<AppContextValue>(() => ({
     preferences,
     profile,
-    ready: initialized && Boolean(preferences) && Boolean(profile),
-    storageError,
+    ready: open && Boolean(preferences) && Boolean(profile),
+    storageError: failure ? describeStorageFailure(failure.kind) : null,
+    storageFailure: failure,
+    retryStorage,
     updatePreferences: async (updates) => {
       await db.preferences.update('preferences', { ...updates, updatedAt: new Date().toISOString() });
     },
     updateProfile: async (updates) => {
       await db.recoveryProfiles.update('recovery-profile', { ...updates, updatedAt: new Date().toISOString() });
     },
-    notify: (message) => setNotice(message),
-  }), [preferences, profile, initialized, storageError]);
+    notify,
+  }), [preferences, profile, open, failure, retryStorage, notify]);
 
-  return (
-    <AppContext.Provider value={value}>
-      {children}
-      <div className="toast-region" role="status" aria-live="polite" aria-atomic="true">{notice && <div className="toast">{notice}</div>}</div>
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export function useAppContext(): AppContextValue {

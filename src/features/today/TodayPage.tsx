@@ -24,6 +24,7 @@ import './retention.css';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { syncReachedMilestones } from '../../db/milestones';
+import { saveRecoveryDateChange } from '../../db/recoveryDate';
 import { returnedAfterActivityBreak, updateDailyActivity } from '../../db/repository';
 import { getDailyReflection } from '../../data/reflections';
 import { dateOnlyToTimestamp, elapsedParts, formatLocalDate, localDateKey, nextMilestone } from '../../domain/time';
@@ -92,22 +93,18 @@ export function TodayPage() {
     try {
       const nextStart = dateOnlyToTimestamp(editDate, editTime || '00:00');
       const previousStart = profile?.startAt ?? null;
-      if (keepHistory && previousStart) {
-        await db.recoveryDateHistory.add({
-          id: `date-change:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
-          previousStartAt: previousStart, nextStartAt: nextStart, recordedAt: new Date().toISOString(),
-          ...(beginAgain ? { note: 'began-again' } : {}),
-        });
-      }
-      await db.recoveryProfiles.put({
+      await saveRecoveryDateChange({
         id: 'recovery-profile', schemaVersion: 1, startAt: nextStart,
         localStartDate: editDate, localStartTime: editTime || '00:00',
         startTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         focus: profile?.focus ?? '', intention: profile?.intention ?? '', updatedAt: new Date().toISOString(),
-      });
+      }, keepHistory && previousStart ? {
+        id: `date-change:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`,
+        previousStartAt: previousStart, nextStartAt: nextStart, recordedAt: new Date().toISOString(),
+        ...(beginAgain ? { note: 'began-again' } : {}),
+      } : undefined);
       const duration = elapsedParts(nextStart);
       const awards = await awardEligibleCharms(duration?.days ?? 0);
-      await syncReachedMilestones(nextStart);
       setDateDialog(false);
       if (previousStart && previousStart !== nextStart) setComebackOpen(true);
       notify(beginAgain ? 'Today is a new beginning. Everything you saved is still yours.' : awards.length ? 'Your date is updated. The Journey Collection and your saved history remain yours.' : 'Your recovery date is updated. Your saved entries, sessions and charms remain yours.');

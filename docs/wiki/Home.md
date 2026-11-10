@@ -8,6 +8,7 @@ Stillpoint Recovery is a local-first, privacy-focused, faith-centered sobriety a
 - [Architecture](Architecture.md) — understand the app shell, routes, domain layer, and IndexedDB boundary.
 - [Architecture decision records](../adr/README.md) — review accepted decisions for local storage, backups, and module boundaries.
 - [Data and Privacy](Data-and-Privacy.md) — learn what stays on-device, how backups work, and what is not promised.
+- [Data recovery](../data-recovery.md) — support guide for unreadable data: the recovery screen, repair and quarantine, resetting, and the diagnostics log.
 - [PWA and Offline Behavior](PWA-and-Offline.md) — understand installation, caching, shortcuts, and network boundaries.
 - [Testing and CI](Testing-and-CI.md) — run checks locally and understand the GitHub Actions workflow.
 - [Accessibility validation](Accessibility-Validation.md) — follow the automated and manual accessibility regression checklist.
