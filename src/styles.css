@@ -1237,3 +1237,15 @@ textarea { resize: vertical; line-height: 1.65; }
 .reflection-favorite.is-favorite { color: #a94c57; border-color: rgba(169,76,87,.28); background: rgba(169,76,87,.07); }
 .reflection-favorite:hover { color: #a94c57; }
 @media (max-width: 700px) { .mobile-home-fab { -webkit-tap-highlight-color: transparent; } }
+
+/* Data recovery: storage-open recovery screen and per-screen error fallback. */
+.recovery-screen h1:focus, .recovery-reset h2:focus { outline: none; }
+.recovery-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.recovery-reset { text-align: left; max-width: 520px; }
+.recovery-reset h2 { margin: 0 0 6px; }
+.recovery-reset input[type="text"] { width: 100%; }
+.recovery-status:empty { display: none; }
+.data-error { max-width: 640px; margin: 24px auto; }
+.data-error h1 { font: 400 1.5rem var(--font-serif); margin: 0 0 8px; }
+.data-health-summary { list-style: none; padding: 0; margin: 12px 0; display: grid; gap: 6px; }
+.data-health-log { max-height: 240px; overflow: auto; white-space: pre-wrap; font-size: 0.75rem; background: var(--canvas); border: 1px solid var(--border); border-radius: 10px; padding: 10px; }

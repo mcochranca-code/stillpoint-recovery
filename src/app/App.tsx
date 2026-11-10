@@ -4,10 +4,11 @@ import { MotionConfig } from 'framer-motion';
 import { AppProvider, useAppContext } from './AppContext';
 import Navigation from './Navigation';
 import Onboarding from './Onboarding';
-import { Leaf } from 'lucide-react';
 import { LoadingScreen } from '../components/LoadingScreen';
 import { PageSkeleton } from '../components/PageSkeleton';
 import { RouteFocusManager } from './RouteFocusManager';
+import { RecoveryScreen } from '../features/recovery/RecoveryScreen';
+import { DataErrorBoundary } from '../components/DataErrorBoundary';
 
 const TodayPage = lazy(() => import('../features/today/TodayPage').then((page) => ({ default: page.TodayPage })));
 const ProgressPage = lazy(() => import('../features/progress/ProgressPage').then((page) => ({ default: page.ProgressPage })));
@@ -25,11 +26,9 @@ const NaStepGuidesPage = lazy(() => import('../features/na-step-guides/NaStepGui
 const FieldGuidePage = lazy(() => import('../features/field-guide/FieldGuidePage').then((page) => ({ default: page.FieldGuidePage })));
 
 function AppRoutes() {
-  const { ready, preferences, storageError } = useAppContext();
+  const { ready, preferences, storageFailure, retryStorage } = useAppContext();
   const { pathname } = useLocation();
-  if (storageError) {
-    return <main className="storage-error"><Leaf size={34} aria-hidden="true" /><h1>Your local space is unavailable</h1><p>{storageError}</p><p>Do not clear site data or reinstall while trying to recover. Close other Stillpoint tabs, reload once, and check available browser storage. If you have a backup, keep it unchanged and restore it from a working browser profile. Stillpoint cannot retrieve local records from a server; do not send journal text or backup files to support.</p><p>See the Data and Privacy guide in the Stillpoint source repository for general recovery steps.</p></main>;
-  }
+  if (storageFailure && retryStorage) return <RecoveryScreen failure={storageFailure} onRetry={retryStorage} />;
   if (!ready) {
     return <LoadingScreen />;
   }
@@ -41,6 +40,7 @@ function AppRoutes() {
       <Navigation communityNotesEnabled={preferences?.communityNotesEnabled === true} />
       <main className="page-content" id="main-content" tabIndex={-1}>
         <RouteFocusManager />
+        <DataErrorBoundary resetKey={pathname}>
         <Suspense fallback={<PageSkeleton />}>
         <div className="route-transition" key={pathname}>
         <Routes>
@@ -63,6 +63,7 @@ function AppRoutes() {
         </Routes>
         </div>
         </Suspense>
+        </DataErrorBoundary>
       </main>
     </div>
     </MotionConfig>
