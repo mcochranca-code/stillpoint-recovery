@@ -304,6 +304,8 @@ Community Notes are disabled on new installs. Turning them on is a local prefere
 
 **Feedback survey.** Optional feedback goes to a [Jotform survey](https://form.jotform.com/262961231783057), which is subject to Jotform's own privacy practices.
 
+**When data can't be read.** If local storage won't open, Stillpoint shows a recovery screen (try again, download what can be read, restore, or a typed-confirmation reset) instead of a blank page. Settings → Data health checks records, repairs or quarantines them only after you confirm, and keeps a small local diagnostics log with no journal text. See the [data recovery guide](docs/data-recovery.md).
+
 More detail: [Data and Privacy guide](docs/wiki/Data-and-Privacy.md) · [ADR 0001: local-first storage](docs/adr/0001-local-first-storage.md).
 
 ## NA Step Working Guides: excluded from the MIT License
