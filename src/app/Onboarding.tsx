@@ -6,6 +6,7 @@ import { colorThemePresets } from '../data/themes';
 import { dateOnlyToTimestamp, localDateKey } from '../domain/time';
 import type { ColorTheme, ThemeMode, TraditionPreference } from '../domain/types';
 import { TraditionPicker } from '../components/TraditionPicker';
+import { WalkthroughVideo } from '../components/WalkthroughVideo';
 import { hasChosenTradition, isTraditionPreference, normalizeTraditionPreference } from '../domain/traditions';
 import { clearLocalSignal, readLocalSignal, writeLocalSignal } from '../platform/localSignals';
 import { useAppContext } from './AppContext';
@@ -143,6 +144,7 @@ export default function Onboarding() {
           <p className="lead">Stillpoint is a private space for reflection, recovery practices and the progress that matters to you. Setup takes under a minute, and every question is optional.</p>
           <div className="privacy-note"><ShieldCheck size={20} aria-hidden="true" /><p><strong>Your recovery stays in this browser profile on this device.</strong><br />No account, cloud sync, ads or analytics. Storage is not encrypted. Clearing site data, removing the browser profile, or uninstalling may erase it—download a private backup in Settings to keep a copy.</p></div>
           {comfortSettings}
+          <WalkthroughVideo size="compact" reducedMotion={reducedMotion} />
           <button className="button button-primary button-wide" onClick={() => setStep(1)}>Make this space yours <ArrowRight size={17} aria-hidden="true" /></button>
           <button className="button button-secondary button-wide" disabled={busy} onClick={() => void finish(false)}>Explore first, set up later</button>
         </div>}

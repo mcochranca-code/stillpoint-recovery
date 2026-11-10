@@ -24,6 +24,7 @@ It is a personal reflection companion. It is **not** medical care, treatment, di
 - **Private journal** with search, drafts, and editing.
 - **Meeting samples:** an offline, source-linked, partial sample of public AA/NA meetings in Stanislaus, Fresno, Mariposa, and Merced counties, with an optional map.
 - **Works offline** once installed, and supports on-device backup and restore.
+- **A built-in walkthrough:** a short, silent, self-hosted tour on the welcome screen and in Settings, with a text description and Play/Pause control.
 
 ## Privacy
 
@@ -37,6 +38,12 @@ Full detail: [Our privacy promise](../../README.md#our-privacy-promise) and the 
 ## Accessibility
 
 Reduced motion, high contrast, adjustable text size (85% to 130%), dark appearance, discreet mode, full keyboard access, and labelled controls with text equivalents for visuals, so it works with screen readers. Automated accessibility (axe) and color-contrast checks run with the test suite, and a Lighthouse accessibility check runs in CI on every pull request and on pushes to main.
+
+## See it in motion
+
+<a href="https://stillpoint-recovery.vercel.app/"><img src="../media/walkthrough.webp" alt="A 30-second silent tour of Stillpoint with sample data: Today, the day's reflection, Meditation, the Progress path and charms, the private Journal, and dark mode" width="240"></a>
+
+A 30-second silent walkthrough is also built into the app (welcome screen, and Settings → Take the tour), so staff can show participants around without a video site. It is served by Stillpoint itself, with no YouTube embed, no tracking, and a text description of each step. It never plays by itself when Reduced motion is on.
 
 ## Screenshots
 
