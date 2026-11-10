@@ -1,14 +1,18 @@
 <div align="center">
   <img src="public/assets/branding/app-icon.svg" alt="Stillpoint Recovery mark" width="76" height="76">
   <h1>Stillpoint Recovery</h1>
-  <p><strong>A quieter place to meet this day.</strong></p>
-  <p>A private, local-first companion for recovery: pause, reflect, notice your progress, and choose one kind next step. No account, required recovery date, or streak pressure.</p>
+  <p><strong>A private, faith-friendly recovery companion. No account. Your data stays on your phone.</strong></p>
+  <p>Daily readings you choose, gentle meditation, a private journal, and local meeting samples, all kept in your own browser. No streak pressure. One day at a time.</p>
   <p>
-    <a href="https://stillpoint-mcvk9f6m.manus.space/"><strong>▶ Open the Manus app</strong></a>
+    <a href="https://stillpoint-recovery.vercel.app/"><strong>▶ Open the live app</strong></a>
     &nbsp; · &nbsp;
-    <a href="https://stillpoint-recovery.vercel.app/"><strong>Vercel deployment</strong></a>
+    <a href="https://stillpoint-mcvk9f6m.manus.space/">Manus app</a>
     &nbsp; · &nbsp;
-    <a href="#screenshots">Screenshots</a>
+    <a href="#install-on-your-phone">Install on your phone</a>
+    &nbsp; · &nbsp;
+    <a href="#our-privacy-promise">Privacy promise</a>
+    &nbsp; · &nbsp;
+    <a href="docs/marketing/one-pager.md">One-pager for programs</a>
     &nbsp; · &nbsp;
     <a href="#quick-start">Run it locally</a>
   </p>
@@ -23,62 +27,42 @@
   <a href="docs/wiki/Home.md"><img src="https://img.shields.io/badge/project-wiki-blue.svg" alt="Project wiki"></a>
 </p>
 
-<p align="center">
-  <img src="docs/media/hero-still.png" alt="Stillpoint app preview with a calm recovery dashboard, progress ring, daily reflection and quiet-practice card" width="100%">
-</p>
-<p align="center"><sub>Screens use illustrative sample values. No personal recovery information is shown.</sub></p>
-
----
-
-## Recovery, without the scorecard
-
-Recovery is personal, and it rarely moves in a straight line. Stillpoint is designed to feel less like a scoreboard and more like a steady place to return: a daily reflection, a quiet practice, a private journal, a meeting finder, and a record of the progress that matters to you. Start without an account or even a recovery date. There are no leaderboards, guilt loops, or penalties for missed days.
-
-- **Your story stays yours.** Journals, recovery dates, preferences, and activity are stored locally in your browser. Stillpoint does not require an account, run ads, or send private journal content to an AI service.
-- **Ready for offline moments.** Install the PWA and use its app shell and bundled recovery content without a connection. Maps and explicitly enabled community notes are optional online features.
-- **A pace that respects you.** Gentle visual design, reduced-motion settings, text scaling, high contrast, and a discreet display help make the app easier to use in your own way.
-- **Faith content is optional.** Choose the Faith-neutral preset to hide Scripture-specific and Christian-extra sections without deleting saved data or removing other recovery tools.
-
-## Small practices, thoughtfully brought together
-
-- **A steady Today page** — an adjustable, hideable recovery counter, one of 90 original daily reflections, optional scripture, the official NA *Just for Today* link, and quick ways into meditation, meetings, or your journal.
-- **Reflections worth returning to** — love a reading with the heart control and find your saved favorites in a dedicated Library tab. Reflections are original to Stillpoint, selected by local calendar day, and never presented as fellowship literature.
-- **A private place to write** — capture gratitude, emotions, triggers, coping strategies, prayers, milestones, or free writing. Search and edit entries, recover drafts, and keep writing on this device.
-- **Meditation at your pace** — ten gentle practices in 2, 5, 10, or 20 minutes, with pause/resume and bundled rain, woodland, and shoreline soundscapes. Box Breathing uses a calm breathing-orb visual in phase with its cues; ambient volume is adjustable.
-- **Tools for difficult moments** — a short 90-second grounding flow, a Living Garden that never withers when you miss a day, and a Recovery Field Guide built from the support strategies you choose.
-- **Progress without pressure** — explore activity and personal milestones, plus interactive virtual AA-style medallion and NA-style keytag designs for your latest reached recovery milestone. These are illustrative, not official fellowship-issued tokens; changing a recovery date does not erase your journals, sessions, or earned charms.
-- **Local meeting references** — browse an offline, source-linked sample of AA/NA meetings in Stanislaus, Fresno, Mariposa, and Merced counties, alongside one Fresno Food Addicts (FA) listing. Coverage is partial; check [meeting sources](docs/meeting-sources.md) and confirm details with official directories.
-- **A space that feels like yours** — choose from 15 palettes (Stillpoint, Catppuccin, Monokai, Obsidian, Lucide, Ocean Calm, Lavender Haze, Terra Cotta, Meadow, Morning Dawn, Midnight Blue, Rosewater, Alpine Air, Golden Hour, and Slate), accessibility controls, and matching browser/install icons.
-- **Easy wayfinding** — keep a circular Home button within reach; the mobile header gets out of the way as you scroll and returns when you scroll up. Open the side menu from the left; Settings and accessibility stay at the top-right.
-- **Backups you control** — export and restore versioned JSON backups on-device, and preview any milestone share before choosing to share it.
-- **Community, only if you opt in** — account-free Community Notes are off by default, live on a separate board, load only after you open it, and require a separate choice before posting. See [Data and privacy](#data-and-privacy).
-
 ## Screenshots
 
 <table>
   <tr>
-    <td width="50%" valign="top">
-      <a href="docs/media/today.webp"><img src="docs/media/today.webp" alt="Today screen with a visual recovery counter, NA Just for Today link, original daily reflection and scripture" width="100%"></a>
-      <p><strong>Today</strong> — one moment at a time.</p>
+    <td align="center" valign="top">
+      <img src="docs/media/01-today.png" alt="Today screen: a day counter reading 97 days in recovery, a ring showing 53 percent of the way to the next milestone, and the next charm, Year of Growth" width="240">
+      <p><strong>Today</strong><br><sub>Time you have chosen for yourself.</sub></p>
     </td>
-    <td width="50%" valign="top">
-      <a href="docs/media/progress.webp"><img src="docs/media/progress.webp" alt="Progress screen with activity over time, recovery milestones and a personal goal area" width="100%"></a>
-      <p><strong>Progress</strong> — your own measure, not a judgment.</p>
+    <td align="center" valign="top">
+      <img src="docs/media/02-reflection.png" alt="A daily reading from the Christian tradition with a scripture passage, a short reflection, something to carry with you, and a note explaining why this reading was chosen" width="240">
+      <p><strong>Your reading</strong><br><sub>From the traditions you choose.</sub></p>
+    </td>
+    <td align="center" valign="top">
+      <img src="docs/media/03-meditation.png" alt="Meditation studio with 2, 5, 10 and 20 minute lengths and a list of practices starting with Calm Breathing and Box Breathing" width="240">
+      <p><strong>Meditation studio</strong><br><sub>Stop, pause, or return any time.</sub></p>
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
-      <a href="docs/media/meditation.webp"><img src="docs/media/meditation.webp" alt="Meditation studio with selectable 2, 5, 10 and 20 minute sessions" width="100%"></a>
-      <p><strong>Meditation</strong> — gentle by design.</p>
+    <td align="center" valign="top">
+      <img src="docs/media/04-progress.png" alt="Progress path from the start date to the six-month milestone, a week of practice shown as dots, and recently earned charms" width="240">
+      <p><strong>Your path</strong><br><sub>Quiet days are part of the path too.</sub></p>
     </td>
-    <td width="50%" valign="top">
-      <a href="docs/media/library.webp"><img src="docs/media/library.webp" alt="Library with the official NA link, original reflections, scripture, principles, meditation and collection tabs" width="100%"></a>
-      <p><strong>Library</strong> — return to what helps.</p>
+    <td align="center" valign="top">
+      <img src="docs/media/05-privacy.png" alt="Journal labelled private writing space, stored on this device, with search, an export button and one emotional check-in entry" width="240">
+      <p><strong>Private journal</strong><br><sub>Stored on this device.</sub></p>
+    </td>
+    <td align="center" valign="top">
+      <img src="docs/media/06-dark.png" alt="The Today screen in the dark appearance" width="240">
+      <p><strong>Dark appearance</strong><br><sub>Easy on the eyes at night.</sub></p>
     </td>
   </tr>
 </table>
 
-  <p align="center"><a href="docs/media/settings.webp"><img src="docs/media/settings.webp" alt="Settings screen with color palette and accessibility controls" width="720"></a></p>
+<p align="center"><sub>Screens use illustrative sample values from a fresh test profile. No personal recovery information is shown. Captured with <code>pnpm screenshots</code>.</sub></p>
+
+<p align="center"><sub>More screens: <a href="docs/media/library.webp">Library</a> · <a href="docs/media/settings.webp">Settings, palettes, and accessibility</a></sub></p>
 
 <details>
 <summary><strong>Optional motion previews</strong> (slow, soft, non-flashing)</summary>
@@ -87,14 +71,76 @@ Recovery is personal, and it rarely moves in a straight line. Stillpoint is desi
 <p>Both are rendered from source-controlled HTML and CSS in <a href=".github/readme-media/">.github/readme-media/</a>.</p>
 </details>
 
+---
+
+## Why Stillpoint
+
+Recovery is personal. A lot of apps turn it into a score. Stillpoint makes room for reflection and steady routines instead: no leaderboard, no guilt loop, no forced streak, and no need to share your story. The core app works without an account and without a recovery date.
+
+- **Your data stays on your device.** Journals, dates, readings, meditation sessions, and charms are stored in your browser's IndexedDB. There is no account, no cloud sync, no ads, and no analytics. See [Our privacy promise](#our-privacy-promise) for exactly what can leave the device, and when.
+- **Readings you choose, from seven traditions.** Christian, Buddhist, Hindu, Muslim, Jain, Red Road (Native wellbriety), and Spiritual but not religious. Pick one, a few that take turns, or rotate through all of them. Nothing is preselected for you, and a Faith-neutral preset hides Scripture-specific sections without deleting anything.
+- **No streak pressure.** Missing a day never breaks anything. Progress is a gentle path from your start date to the next milestone, with a week of practice shown as simple dots. A quiet day is just a quiet day, and changing your date redraws the path without erasing journals, sessions, or earned charms.
+- **Milestone charms.** Twelve illustrated charms, from First Light to Year of Growth. Today shows the next one ahead, Progress shows the ones you have earned, and the whole collection has its own page.
+- **"I need a moment."** One tap from the menu (and an install shortcut) opens a 90-second pause: name what you feel if that helps, then breathe, ground yourself, write a few words, read a short prayer, or see the trusted people you saved. It is honest about what it is: a pause, not a promise, and not an emergency service.
+- **Meditation studio.** Ten gentle practices in 2, 5, 10, or 20 minute sessions, with pause and resume and three bundled soundscapes. Silent by default.
+- **Works offline, installs like an app.** It is a PWA: add it to your home screen and the app shell and bundled content are cached on your device. Maps and explicitly enabled community notes are optional online features.
+- **Accessible by design.** Reduced motion, high contrast, an adjustable text size (85% to 130%), discreet mode, full keyboard access, and screen-reader support through labelled controls and text equivalents for every visual. Automated axe and contrast checks run in the test suite, and Lighthouse runs in CI.
+
+## Key features
+
+- **Today** — a live, adjustable (or hideable) day counter, an original daily reflection, optional scripture, and a link to the official NA *Just for Today* reading, plus quick shortcuts to a quiet practice, meetings, and the journal.
+- **90 original daily reflections** — each with a principle, a small practice, and a question to carry. Written for Stillpoint; not presented as fellowship literature. Love a reflection with the heart control and find it again in the Library **Favorites** tab.
+- **Private journal** — gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing, with editing, search, and recoverable drafts.
+- **Meditation Studio** — ten gentle practices in 2, 5, 10, or 20 minute sessions, pause and resume, and three bundled soundscapes (rain, woodland, shoreline) with a working volume control. Box Breathing follows a highlighted sphere in phase with the cues.
+- **90-second Reset, Living Garden, and Field Guide** — a brief grounding flow, non-punitive visual growth, and user-built coping notes.
+- **Progress and Journey Collection** — a gentle path to the next milestone, a week of practice, activity, meditation time, personal goals, the charm collection, and a dedicated Tokens tab with interactive AA medallion/NA keytag virtual 3D designs for only the latest reached milestone. These are not official fellowship issuances; editing your recovery date never erases journals, sessions, or earned charms.
+- **Meetings** — an offline, source-linked sample of public AA/NA schedules for Stanislaus, Fresno, Mariposa, and Merced counties, plus one Fresno Food Addicts (FA) listing, with on-device filters and an optional map. Coverage is partial; see [meeting sources](docs/meeting-sources.md) and confirm with official directories.
+- **Make it yours** — fifteen palettes (Stillpoint, Catppuccin, Monokai, Obsidian, Lucide, Ocean Calm, Lavender Haze, Terra Cotta, Meadow, Morning Dawn, Midnight Blue, Rosewater, Alpine Air, Golden Hour, and Slate), accessibility controls, and a matching browser/app icon for the selected theme when saving or installing.
+- **Wayfinding** — on mobile, a circular Home button stays within reach, the header gets out of the way as you scroll down and returns when you scroll up, the side menu opens from the left, and Settings and accessibility options stay at the top right. Mobile destinations can be shown/hidden or expanded/collapsed with motion-aware controls.
+- **Backups you control** — export and restore versioned JSON backups on-device, and opt-in milestone sharing that you preview first.
+- **Optional community notes** — off by default; enable them in Settings if you want a first-class, account-free navigation destination with a separate shared board. Notes are fetched only after you explicitly open the board, and posting is a separate choice (see [Our privacy promise](#our-privacy-promise)).
+
 ## Who it's for
 
 - **People in recovery** who want a quiet daily companion that keeps their reflections private and works without signing up.
-- **People of faith**, especially Christians, who want optional scripture and devotional links alongside recovery practice.
+- **Peer support specialists** who want something simple to recommend that asks a person for nothing: no account, no email, no data handed over.
+- **Counselors and clinicians** looking for a between-sessions tool for reflection and grounding that does not collect client data.
 - **Members of 12-step and peer fellowships** looking for a link to the daily NA reading and local AA/NA/FA meeting samples in California's Central Valley.
-- **Peer supporters and contributors** who value privacy-respecting, accessible, open-source recovery tools.
+- **Faith communities** of many traditions, including recovery ministries, who want readings that respect a person's own faith, or none.
+- **Recovery programs** that want a free, open-source companion to offer participants, with partial Central Valley meeting samples built in.
 
 Stillpoint is a personal reflection companion, **not** medical care, treatment, diagnosis, or an emergency service. Spiritual content and meditation are optional encouragement, never a replacement for professional or peer support.
+
+## Install on your phone
+
+Open **<https://stillpoint-recovery.vercel.app/>**, then:
+
+- **iPhone or iPad (Safari):** tap **Share**, then **Add to Home Screen**.
+- **Android (Chrome):** tap the **⋮** menu, then **Install app** (some versions say **Add to Home screen**).
+
+The installed app opens on its own, works offline, and offers shortcuts for **Today**, **I need a moment**, and **Living Garden**. Your data stays in that browser on that device; nothing syncs between devices, so use **Settings → backup** to move or keep a copy.
+
+## Our privacy promise
+
+Stillpoint has no account, no cloud sync, no ads, and no analytics. Your recovery date, journal, readings, meditation sessions, charms, contacts, and settings are stored only in this browser on this device. Here is everything that can leave it, and when:
+
+| What | When | What is sent | To whom |
+| --- | --- | --- | --- |
+| Loading the app | Opening or updating the app | Ordinary web requests for the app files. No recovery data. | The host (Vercel) |
+| Community notes (**off by default**) | Only after you turn them on in Settings **and** open the board | Reading: the day's reading key. Posting: your note (120 characters or fewer), the reading key, and random keys this browser makes for rate limits and deletion (the server stores only their hashes). Reporting or deleting a note sends that note's ID and the matching key. | Stillpoint's community API |
+| Meeting map | Only after you open the optional map | Map tile requests, which reveal the area you are viewing | OpenStreetMap |
+| "Show my approximate position" | Only when you press that button on the map | Your browser asks your permission. The position stays in memory on that page, is never saved, and is never sent to Stillpoint. The tiles loaded for that area can reveal it approximately to OpenStreetMap. | OpenStreetMap (tiles only) |
+| Outside links (NA, Our Daily Bread, meeting directories, feedback survey) | Only when you click them | A normal page visit in a new tab, with no recovery data attached | That site, under its own privacy practices |
+
+Community notes are public and kept for up to 90 days. They never include your recovery profile, sobriety date, journal, meetings, location, or meditation data.
+
+Two honest limits: browser storage and exported backups are **not encrypted**, and clearing site data or uninstalling can erase what you saved. Export a backup and keep it somewhere private. Full detail is in [Data and privacy](#data-and-privacy) below.
+
+## For programs and contributors
+
+- **Recovery programs, peer support teams, and faith communities:** Stillpoint is free, MIT-licensed, and needs no accounts, so there is nothing to procure and no participant data to manage. Read the [one-pager](docs/marketing/one-pager.md) for how to pilot it, then [open an issue](https://github.com/mcochranca-code/stillpoint-recovery/issues) to share what your participants need.
+- **Contributors:** designers, writers, developers, accessibility testers, and people with lived experience are all welcome. Start with [Contributing](#contributing) and the [project wiki](docs/wiki/Home.md).
+
 
 ---
 
@@ -246,9 +292,6 @@ The production build creates `dist/`, a web app manifest, a service worker, and 
 
 **Local-first.** Recovery dates, preferences, journals, reflections, scripture activity, meditation sessions, charms, and notes are stored in this browser's IndexedDB. There is no account, cloud sync, or analytics pipeline in the core app, and journal content is never uploaded.
 
-**Excluded from the MIT License: the NA Step Working Guides text.** The guide content in [`src/data/na-step-guides/guide.json`](src/data/na-step-guides/guide.json) (and anything derived from it) is *The Narcotics Anonymous Step Working Guides*, Copyright © 1998, World Service Office, Inc. Reprinted by permission. All rights reserved. It is NA Fellowship-approved literature, used in Stillpoint by permission of NA World Services and **not** licensed to you under MIT. Do not copy, adapt, or redistribute it outside this app without your own permission from NAWS. Permission status and sources are recorded in [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md#na-step-working-guides-used-by-permission).
-
-## Built with
 **Local is not encrypted or permanent.** Stillpoint does not encrypt browser storage or exported backups. Clearing site data, removing the browser profile, or uninstalling the PWA may erase saved information. Export a backup regularly and keep it somewhere private. Maintainers cannot recover lost records; only a valid backup can.
 
 **Backups and restore.** Backups are versioned JSON files. Restore previews counts and merges records locally; the profile and preferences replace saved values, duplicate IDs are skipped, and nothing syncs automatically between devices.
@@ -257,11 +300,15 @@ The production build creates `dist/`, a web app manifest, a service worker, and 
 
 Community Notes are disabled on new installs. Turning them on is a local preference stored in IndexedDB; turning them off removes the destination and daily discussion without deleting private recovery records. The mobile navigation keeps a pinned Settings control visible even when the hamburger menu is closed.
 
-**External links and maps.** NA, Our Daily Bread, and meeting-directory links open only when you click them, in a new tab, with no recovery data attached. The meeting map loads OpenStreetMap tiles only after you open it; tile requests reveal the viewed area, not your filters, search text, recovery data, or device location.
+**External links and maps.** NA, Our Daily Bread, and meeting-directory links open only when you click them, in a new tab, with no recovery data attached. The meeting map loads OpenStreetMap tiles only after you open it; tile requests reveal the viewed area, not your filters, search text, recovery data, or device location. The map's optional **Show my approximate position** button asks the browser for your location only when you press it; the position stays in memory on that page, is never saved or sent to Stillpoint, and is cleared when the map closes, though tiles loaded for that area can reveal it approximately to OpenStreetMap.
 
 **Feedback survey.** Optional feedback goes to a [Jotform survey](https://form.jotform.com/262961231783057), which is subject to Jotform's own privacy practices.
 
 More detail: [Data and Privacy guide](docs/wiki/Data-and-Privacy.md) · [ADR 0001: local-first storage](docs/adr/0001-local-first-storage.md).
+
+## NA Step Working Guides: excluded from the MIT License
+
+**Excluded from the MIT License: the NA Step Working Guides text.** The guide content in [`src/data/na-step-guides/guide.json`](src/data/na-step-guides/guide.json) (and anything derived from it) is *The Narcotics Anonymous Step Working Guides*, Copyright © 1998, World Service Office, Inc. Reprinted by permission. All rights reserved. It is NA Fellowship-approved literature, used in Stillpoint by permission of NA World Services and **not** licensed to you under MIT. Do not copy, adapt, or redistribute it outside this app without your own permission from NAWS. Permission status and sources are recorded in [`CONTENT_SOURCES.md`](CONTENT_SOURCES.md#na-step-working-guides-used-by-permission).
 
 ## Content and attribution
 

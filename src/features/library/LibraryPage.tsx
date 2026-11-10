@@ -1,3 +1,4 @@
+import { LandscapeBand } from '../../components/LandscapeBand';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -112,7 +113,7 @@ export function LibraryPage() {
 
   return (
     <div className="page-stack">
-      <header className="page-header"><div><p className="eyebrow">Read, practice, and return</p><h1>Library & tools.</h1><p>Stillpoint reflections and local practices stay on this device; the official NA reading opens at NA.org.</p></div><Compass size={26} aria-hidden="true" /></header>
+      <header className="page-header has-landscape"><LandscapeBand /><div><p className="eyebrow">Read, practice, and return</p><h1>Library & tools.</h1><p>Stillpoint reflections and local practices stay on this device; the official NA reading opens at NA.org.</p></div><Compass size={26} aria-hidden="true" /></header>
       <NaDailyReadingCard />
       <NaStepGuidesCard />
       <div className="signature-links" aria-label="Stillpoint signature tools">

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
@@ -103,7 +103,7 @@ describe('TodayPage reflection and date actions', () => {
 
   it('asks for a date that is set and not in the future, and closes the editor on cancel', async () => {
     renderToday();
-    fireEvent.click(screen.getByRole('button', { name: 'Adjust recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Adjust date' }));
     const dateInput = screen.getByLabelText('Start date');
 
     fireEvent.change(dateInput, { target: { value: '' } });
@@ -122,12 +122,15 @@ describe('TodayPage reflection and date actions', () => {
 
   it('begins again today, keeps a note of the stretch behind, and offers a next step', async () => {
     renderToday();
-    fireEvent.click(screen.getByRole('button', { name: /Begin again/ }));
-    expect(screen.getByRole('heading', { name: 'Begin again today' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Begin again' }));
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByRole('heading', { name: 'Begin again today' })).toBeInTheDocument();
+    // The page's Begin again button stays rendered behind the dialog, so the dialog's submit is scoped to the dialog.
+    expect(screen.getAllByRole('button', { name: 'Begin again' })).toHaveLength(2);
     expect(screen.getByText(/behind you still happened and still count/)).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText('Optional start time'), { target: { value: '00:00' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Begin again' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Begin again' }));
     await waitFor(() => expect(mocks.notify).toHaveBeenCalledWith('Today is a new beginning. Everything you saved is still yours.'));
     const [history] = await db.recoveryDateHistory.toArray();
     expect(history).toMatchObject({ note: 'began-again' });
@@ -148,7 +151,7 @@ describe('TodayPage reflection and date actions', () => {
     renderToday();
     expect(screen.getByText('A date, if and when it helps')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'No recovery date set yet' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Set a recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Set a date' }));
     expect(screen.getByLabelText('Start date')).toHaveValue(localDateKey(new Date()));
   });
 });

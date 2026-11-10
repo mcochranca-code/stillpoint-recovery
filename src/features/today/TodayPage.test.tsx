@@ -54,7 +54,7 @@ describe('TodayPage recovery-date changes', () => {
   it('updates the chosen date, records history only by choice, and preserves journal data', async () => {
     render(<MemoryRouter><TodayPage /></MemoryRouter>);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Adjust recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Adjust date' }));
     fireEvent.change(screen.getByLabelText('Start date'), { target: { value: '2026-11-01' } });
     fireEvent.click(screen.getByRole('checkbox', { name: /Keep a local date-change record/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Save date' }));

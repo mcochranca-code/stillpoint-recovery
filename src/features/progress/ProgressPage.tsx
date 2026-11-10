@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { ArrowRight, CalendarDays, CircleCheck, Plus, Share2, Sprout } from 'lucide-react';
+import { CalendarDays, CircleCheck, Plus, Share2, Sprout } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAppContext } from '../../app/AppContext';
 import { CharmGallery } from '../../components/CharmGallery';
+import { ProgressPath } from './ProgressPath';
+import { RecentlyEarnedCharms } from './RecentlyEarnedCharms';
 import { MilestoneShareDialog, type MilestoneShareTarget } from '../../components/MilestoneShareDialog';
 import { db } from '../../db/database';
 import { shouldShowChristianExtras } from '../../domain/content-preset';
@@ -39,12 +41,13 @@ export function ProgressPage() {
   const changes = useLiveQuery(() => db.recoveryDateHistory.orderBy('recordedAt').toArray(), []) ?? [];
   const goals = useLiveQuery(() => db.personalGoals.toArray(), []) ?? [];
   const personalMilestones = useLiveQuery(() => db.personalMilestones.orderBy('daysAfterStart').toArray(), []) ?? EMPTY_PERSONAL_MILESTONES;
+  const weekSince = localDateKey(new Date(new Date(now).getFullYear(), new Date(now).getMonth(), new Date(now).getDate() - 6));
+  const weekActivities = useLiveQuery(() => db.dailyActivity.where('localDate').aboveOrEqual(weekSince).toArray(), [weekSince]) ?? EMPTY_ACTIVITIES;
   const duration = elapsedParts(profile?.startAt, now);
   const durationDays = duration?.days;
   const showFaithContent = shouldShowChristianExtras(preferences);
   const next = nextMilestone(profile?.startAt ?? null, now);
   const meditationMinutes = sessions.reduce((sum, session) => sum + session.plannedMinutes, 0);
-  const completedSessions = sessions.length;
   const reflectionCount = new Set(reflections.filter((item) => item.reflectedAt).map((item) => item.reflectionId)).size;
   const scriptureCount = showFaithContent ? new Set(scripture.map((item) => item.scriptureId)).size : 0;
   const chartRows = useMemo(() => {
@@ -145,12 +148,17 @@ export function ProgressPage() {
     <div className="page-stack">
       <header className="page-header"><div><p className="eyebrow">A view of the path you’ve walked</p><h1>Progress, in your own measure.</h1><p>Participation and time are different things. Neither defines your worth or predicts what comes next.</p></div><button className="button button-secondary" onClick={() => setShowCollection((value) => !value)}><Sprout size={16} aria-hidden="true" /> {showCollection ? 'Back to overview' : 'The Journey Collection'}</button></header>
       {showCollection ? <CharmGallery /> : <>
-        <section className="metrics-grid" aria-label="Recovery and wellness summary">
-          <article className="card metric-card"><p className="eyebrow">{preferences?.discreetMode ? 'Personal timeline' : 'Selected recovery date'}</p><div className="metric-value" aria-label={preferences?.discreetMode ? 'Duration hidden in discreet mode' : undefined}>{preferences?.discreetMode ? 'Hidden' : duration ? `${duration.days}` : '—'}</div><span className="metric-label">{preferences?.discreetMode ? 'Details are hidden while discreet display is on' : duration ? `days · since ${formatLocalDate(profile?.localStartDate ?? profile?.startAt ?? '')}` : 'Set a date whenever it feels useful'}</span><Link to="/" className="inline-link">{preferences?.discreetMode ? 'Open Today' : duration ? 'Adjust date on Today' : 'Set date on Today'} <ArrowRight size={14} aria-hidden="true" /></Link></article>
-          <article className="card metric-card"><p className="eyebrow">Meditation</p><div className="metric-value">{meditationMinutes}<small> min</small></div><span className="metric-label">{completedSessions} completed {completedSessions === 1 ? 'session' : 'sessions'}</span></article>
-          <article className="card metric-card"><p className="eyebrow">Journal</p><div className="metric-value">{journalCount}</div><span className="metric-label">entries saved on this device</span></article>
-          <article className="card metric-card"><p className="eyebrow">{showFaithContent ? 'Reflections & scripture' : 'Reflections'}</p><div className="metric-value">{showFaithContent ? reflectionCount + scriptureCount : reflectionCount}</div><span className="metric-label">{showFaithContent ? `${reflectionCount} reflections · ${scriptureCount} scripture passages` : `${reflectionCount} reflections saved`}</span></article>
-        </section>
+        <ProgressPath
+          startAt={profile?.startAt}
+          localStartDate={profile?.localStartDate}
+          discreet={preferences?.discreetMode ?? false}
+          weekActivities={weekActivities}
+          includeScripture={showFaithContent}
+          totals={{ meditationMinutes, journalEntries: journalCount, reflections: showFaithContent ? reflectionCount + scriptureCount : reflectionCount }}
+          now={now}
+        />
+
+        {!preferences?.discreetMode && <RecentlyEarnedCharms awards={awards} />}
 
         <div className="two-column">
           <section className="card">
