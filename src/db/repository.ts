@@ -11,7 +11,7 @@ import { NEUTRAL_TRADITION_PREFERENCE, isTraditionPreference, normalizeTradition
 export const defaultPreferences = (): UserPreferences => {
   const now = new Date().toISOString();
   return {
-    id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: DEFAULT_CONTENT_PRESET, traditionPreference: { ...NEUTRAL_TRADITION_PREFERENCE, traditions: [...NEUTRAL_TRADITION_PREFERENCE.traditions] }, traditionChoicePending: true, christianExtras: false, communityNotesEnabled: false, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
+    id: 'preferences', schemaVersion: CURRENT_SCHEMA_VERSION, contentPreset: DEFAULT_CONTENT_PRESET, traditionPreference: { ...NEUTRAL_TRADITION_PREFERENCE, traditions: [...NEUTRAL_TRADITION_PREFERENCE.traditions] }, traditionChoicePending: true, christianExtras: false, communityNotesEnabled: false, naStepGuidesEnabled: false, onboardingComplete: false, theme: 'system', colorTheme: 'stillpoint',
     highContrast: false, reducedMotion: false, hideMeditationVisual: false, textScale: 1,
     timeFormat: '12h', counterStyle: 'full', liveCounter: true, reminderEnabled: false,
     reminderTime: '19:00', meetingReminderLeadMinutes: 30, meetingReminders: [], trustedContacts: [], supportResources: [], discreetMode: false, gardenStyle: 'woodland',
@@ -31,7 +31,7 @@ export async function ensureDefaults(): Promise<void> {
     const preferences = await db.preferences.get('preferences');
     if (!preferences) {
       await db.preferences.add(defaultPreferences());
-    } else if (preferences.schemaVersion !== CURRENT_SCHEMA_VERSION || !isContentPreset(preferences.contentPreset) || !isTraditionPreference(preferences.traditionPreference) || typeof preferences.communityNotesEnabled !== 'boolean') {
+    } else if (preferences.schemaVersion !== CURRENT_SCHEMA_VERSION || !isContentPreset(preferences.contentPreset) || !isTraditionPreference(preferences.traditionPreference) || typeof preferences.communityNotesEnabled !== 'boolean' || typeof preferences.naStepGuidesEnabled !== 'boolean') {
       const contentPreset = isContentPreset(preferences.contentPreset) ? preferences.contentPreset : DEFAULT_CONTENT_PRESET;
       await db.preferences.put({
         ...preferences,
@@ -39,6 +39,8 @@ export async function ensureDefaults(): Promise<void> {
         contentPreset,
         traditionPreference: normalizeTraditionPreference(preferences.traditionPreference, contentPreset),
         communityNotesEnabled: preferences.communityNotesEnabled === true,
+        // Opt-in only: existing installs start with the NA reader off, whatever they had before.
+        naStepGuidesEnabled: preferences.naStepGuidesEnabled === true,
         supportResources: Array.isArray(preferences.supportResources) ? preferences.supportResources : [],
         meetingReminders: Array.isArray(preferences.meetingReminders) ? preferences.meetingReminders : [],
         colorTheme: preferences.colorTheme ?? 'stillpoint',

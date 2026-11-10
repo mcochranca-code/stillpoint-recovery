@@ -1,12 +1,17 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { naStepGuideFiles } from './na-step-guides-chunk.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const viteManifestPath = path.join(dist, '.vite', 'manifest.json');
 const viteManifest = JSON.parse(await readFile(viteManifestPath, 'utf8'));
-const generatedFiles = Object.values(viteManifest).flatMap((entry) => [entry.file, ...(entry.css ?? []), ...(entry.assets ?? [])]);
+// The opt-in NA Step Working Guides reader and its text are never precached; see na-step-guides-chunk.mjs.
+const naFiles = naStepGuideFiles(viteManifest);
+const generatedFiles = Object.values(viteManifest)
+  .flatMap((entry) => [entry.file, ...(entry.css ?? []), ...(entry.assets ?? [])])
+  .filter((file) => file && !naFiles.has(file));
 
 async function walk(directory) {
   const result = [];

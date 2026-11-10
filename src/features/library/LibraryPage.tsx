@@ -7,6 +7,7 @@ import { useAppContext } from '../../app/AppContext';
 import { CharmGallery } from '../../components/CharmGallery';
 import { NaDailyReadingCard } from '../today/NaDailyReadingCard';
 import { NaStepGuidesCard } from '../na-step-guides/NaStepGuidesCard';
+import { isNaStepGuidesEnabled } from '../../data/na-step-guides/meta';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
 import { updateDailyActivity } from '../../db/repository';
@@ -115,7 +116,7 @@ export function LibraryPage() {
     <div className="page-stack">
       <header className="page-header has-landscape"><LandscapeBand /><div><p className="eyebrow">Read, practice, and return</p><h1>Library & tools.</h1><p>Stillpoint reflections and local practices stay on this device; the official NA reading opens at NA.org.</p></div><Compass size={26} aria-hidden="true" /></header>
       <NaDailyReadingCard />
-      <NaStepGuidesCard />
+      {isNaStepGuidesEnabled(preferences) && <NaStepGuidesCard />}
       <div className="signature-links" aria-label="Stillpoint signature tools">
         <Link to="/reset" className="signature-link"><span><Wind size={19} aria-hidden="true" /></span><strong>I need a moment<small>90-second reset</small></strong></Link>
         <Link to="/garden" className="signature-link"><span><Leaf size={19} aria-hidden="true" /></span><strong>Living Garden<small>Growth without streaks</small></strong></Link>

@@ -22,3 +22,14 @@ export function naChapterTitle(chapterId: string): string | null {
   const name = match ? STEP_NAMES[Number(match[1]) - 1] : undefined;
   return name ? `Step ${name}` : null;
 }
+
+/** Where the opt-in switch lives in Settings. */
+export const NA_STEP_GUIDES_SETTING_ANCHOR = 'na-step-guides-setting';
+
+/**
+ * The reader is opt-in and for personal use on this device only. It is off unless the person turned
+ * it on in Settings: a missing or non-boolean value (new installs, older installs, older backups) is off.
+ */
+export function isNaStepGuidesEnabled(preferences: { naStepGuidesEnabled?: unknown } | null | undefined): boolean {
+  return preferences?.naStepGuidesEnabled === true;
+}

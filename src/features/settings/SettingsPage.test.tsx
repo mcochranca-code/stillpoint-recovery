@@ -35,7 +35,9 @@ describe('SettingsPage content preferences', () => {
     expect(about).toHaveTextContent('Copyright © 1998, World Service Office, Inc. Reprinted by permission. All rights reserved.');
     expect(about).toHaveTextContent(/not affiliated with, and is not endorsed by, Narcotics Anonymous/);
     expect(about).toHaveTextContent(/excluded from Stillpoint’s MIT license/);
-    expect(screen.getByRole('link', { name: 'Open NA Step Working Guides' })).toHaveAttribute('href', '/library/na-step-guides');
+    expect(about).toHaveTextContent(/opt-in, off by default, and for personal use on this device only/);
+    // The reader is off by default, so Settings offers no way into it until it is turned on.
+    expect(screen.queryByRole('link', { name: 'Open NA Step Working Guides' })).toBeNull();
   });
 
   it('keeps Christian extras out of view for a new install that has not chosen Christian', () => {
