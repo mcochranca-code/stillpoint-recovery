@@ -45,6 +45,10 @@ if (precache.assets.some((asset) => asset.startsWith('/assets/reference/'))) {
   throw new Error('Reference-only assets must not be included in the offline precache');
 }
 
+if (precache.assets.some((asset) => asset.startsWith('/media/'))) {
+  throw new Error('Walkthrough video files (/media/) are streamed on demand and must not be in the offline precache');
+}
+
 const themePresets = JSON.parse(await readFile(resolve('src/data/theme-presets.json'), 'utf8'));
 if (!Array.isArray(themePresets) || themePresets.length !== 15) throw new Error('Expected fifteen theme presets.');
 for (const preset of themePresets) {

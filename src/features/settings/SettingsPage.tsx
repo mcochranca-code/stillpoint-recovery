@@ -7,6 +7,7 @@ import { clearAllLocalData, createBackup, downloadJsonBackup, importBackupText, 
 import { db } from '../../db/database';
 import { colorThemePresets } from '../../data/themes';
 import { TraditionPicker } from '../../components/TraditionPicker';
+import { WalkthroughVideo } from '../../components/WalkthroughVideo';
 import { hasChosenTradition, normalizeTraditionPreference } from '../../domain/traditions';
 import { hasChosenChristianTradition, shouldShowChristianExtras } from '../../domain/content-preset';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
@@ -197,6 +198,7 @@ export function SettingsPage() {
       <DataHealthSection notify={notify} disabled={busy} />
 
       <section className="card danger-zone"><div className="card-header"><div><p className="eyebrow">Only if you choose</p><h2>Delete local Stillpoint data</h2><p>Remove this app’s saved information from this browser. It cannot be recovered unless you have a backup.</p></div></div><button className="button button-danger" disabled={busy} onClick={() => void deleteAll()}><Trash2 size={16} aria-hidden="true" /> Permanently delete all data</button></section>
+      <section className="card" id="take-the-tour" aria-labelledby="take-the-tour-heading"><div className="card-header"><div><p className="eyebrow">See it in motion</p><h2 id="take-the-tour-heading">Take the tour</h2><p>A short, silent walkthrough of Today, readings, meditation, progress, the journal and dark mode, using sample data. The video is served by Stillpoint itself, with no outside player or tracking.</p></div></div><WalkthroughVideo reducedMotion={preferences.reducedMotion} /></section>
       <section className="card" id="about" aria-labelledby="about-heading"><div className="card-header"><div><p className="eyebrow">Sources and credits</p><h2 id="about-heading">About Stillpoint</h2><p>Stillpoint’s own code and original writing are MIT-licensed. Some reading material is used by permission and keeps its own copyright.</p></div><BookOpen size={20} aria-hidden="true" /></div>
         <h3 className="about-credit-heading">{NA_STEP_GUIDES_TITLE}</h3>
         <p className="fine-print"><strong>{NA_STEP_GUIDES_CREDIT.approved}</strong> {NA_STEP_GUIDES_CREDIT.copyright}</p>

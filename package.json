@@ -20,7 +20,8 @@
     "db:migrate": "node scripts/migrate-community.mjs",
     "test:coverage": "vitest run --coverage",
     "verify:pwa": "node scripts/check-pwa-artifact.mjs",
-    "screenshots": "node scripts/capture-screenshots.mjs"
+    "screenshots": "node scripts/capture-screenshots.mjs",
+    "walkthrough": "node scripts/capture-walkthrough.mjs"
   },
   "dependencies": {
     "dexie": "4.0.10",
