@@ -244,3 +244,59 @@
 /* High contrast: no art behind text at all. */
 .high-contrast .landscape-band { display: none; }
 .high-contrast .page-header.has-landscape { padding-top: 0; }
+
+/* ---------------------------------------------------------------------------------------------
+ * 4. Gentle progress: a path to the next milestone and a week of practice-presence dots
+ * ------------------------------------------------------------------------------------------- */
+
+:root { --practice-meditation: var(--primary); --practice-journal: #a56f1f; --practice-reflection: #5d62a8; }
+.dark { --practice-journal: #e0b468; --practice-reflection: #aab0f0; }
+
+.progress-path-card { display: grid; gap: var(--space-5); }
+.progress-path-card .card-header { margin-bottom: 0; }
+.progress-path { --path-today: 0%; position: relative; height: 64px; margin: var(--space-2) 14px 0; }
+.progress-path__track, .progress-path__walked { position: absolute; top: 30px; left: 0; height: 6px; border-radius: var(--radius-pill); }
+.progress-path__track { right: 0; background: repeating-linear-gradient(90deg, var(--border) 0 10px, transparent 10px 16px); background-color: transparent; border: 0; }
+.progress-path__track::after { content: ''; position: absolute; inset: 2px 0; border-radius: inherit; background: var(--primary-soft); }
+.progress-path__walked { width: var(--path-today); background: linear-gradient(90deg, var(--sage, #7fa58a), var(--primary)); transform-origin: left center; animation: stillpoint-path-walk var(--motion-slow) var(--ease-out-soft) both; }
+.progress-path__milestone { position: absolute; top: 28px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--surface); border: 2px solid var(--primary); }
+.progress-path__today { position: absolute; top: 21px; left: var(--path-today); width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 6px var(--primary-soft); }
+.progress-path__today > span { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--ink); font-size: var(--text-label); font-weight: 650; }
+.progress-path__goal { position: absolute; top: 23px; right: -10px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--primary); background: var(--surface); }
+.progress-path__ends { display: flex; justify-content: space-between; gap: var(--space-4); margin-top: -6px; color: var(--muted); font-size: var(--text-label); }
+.progress-path__ends span:last-child { text-align: right; }
+@keyframes stillpoint-path-walk { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.reduce-motion .progress-path__walked { animation: none; }
+@media (prefers-reduced-motion: reduce) { .progress-path__walked { animation: none; } }
+/* Keep the "Today" label inside the card near either end. */
+.progress-path.is-near-start .progress-path__today > span { left: -6px; transform: none; }
+.progress-path.is-near-end .progress-path__today > span { left: auto; right: -6px; transform: none; }
+
+.practice-week-wrap { display: grid; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+.practice-week-wrap h3 { margin: 0; font-size: var(--step-0); }
+.practice-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.practice-week li { display: grid; justify-items: center; gap: 6px; padding: 10px 2px; border-radius: var(--radius-md); }
+.practice-week li.is-today { background: var(--primary-soft); }
+.practice-week__dots { display: grid; gap: 5px; }
+.practice-week__day { color: var(--muted); font-size: var(--text-label); }
+.practice-week li.is-today .practice-week__day { color: var(--ink); font-weight: 650; }
+.practice-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--border); background: transparent; }
+.practice-dot.is-present { border-color: transparent; }
+.practice-dot--meditation.is-present { background: var(--practice-meditation); }
+.practice-dot--journal.is-present { background: var(--practice-journal); }
+.practice-dot--reflection.is-present { background: var(--practice-reflection); }
+.practice-legend { display: flex; flex-wrap: wrap; gap: var(--space-4); margin: 0; color: var(--muted); font-size: var(--text-label); }
+.practice-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.high-contrast .practice-dot { border-color: currentColor; }
+
+.progress-path-empty { grid-template-columns: minmax(140px, 240px) minmax(0, 1fr); align-items: center; gap: var(--space-6); }
+.progress-path-empty h2 { margin: 0 0 var(--space-2); }
+.progress-path-empty .muted { margin: 0 0 var(--space-4); max-width: 52ch; }
+.progress-path-empty__art { width: 100%; height: auto; }
+.progress-path-empty__art .trail { fill: none; stroke: var(--sage, #7fa58a); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 10; }
+.progress-path-empty__art .trail-start { fill: var(--primary); }
+.progress-path-empty__art .trail-dot { fill: var(--surface); stroke: var(--sage, #7fa58a); stroke-width: 2; }
+@media (max-width: 600px) {
+  .progress-path-empty { grid-template-columns: 1fr; }
+  .progress-path-empty__art { max-width: 220px; }
+}
