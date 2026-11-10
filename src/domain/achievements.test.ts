@@ -49,3 +49,26 @@ describe('compassionate Journey Collection eligibility', () => {
     expect(eligibleCharms(snapshot({ journalEntries: [journalEntry('trigger-with-coping', 'trigger', 'Call a friend.')] }))).toContain('courageous-step');
   });
 });
+
+describe('milestone charm helpers', () => {
+  it('finds the next time-based charm and words its day count', async () => {
+    const { nextMilestoneCharm, milestoneCharmLabel } = await import('./achievements');
+    expect(nextMilestoneCharm(0)?.id).toBe('seven-day-oak');
+    expect(nextMilestoneCharm(7)?.id).toBe('deep-roots');
+    expect(nextMilestoneCharm(100)?.id).toBe('year-of-growth');
+    expect(nextMilestoneCharm(365)).toBeNull();
+    expect(milestoneCharmLabel(30)).toBe('30 days');
+    expect(milestoneCharmLabel(365)).toBe('1 year');
+  });
+
+  it('returns at most the requested number of earned charms, newest first', async () => {
+    const { recentlyEarnedCharms } = await import('./achievements');
+    const earned = [
+      { id: '1', charmId: 'quiet-mind', earnedAt: '2026-01-01T00:00:00.000Z' },
+      { id: '2', charmId: 'open-heart', earnedAt: '2026-03-01T00:00:00.000Z' },
+      { id: '3', charmId: 'unknown', earnedAt: '2026-04-01T00:00:00.000Z' },
+    ];
+    expect(recentlyEarnedCharms(earned, 1).map((item) => item.charm.id)).toEqual(['open-heart']);
+    expect(recentlyEarnedCharms(earned).map((item) => item.charm.id)).toEqual(['open-heart', 'quiet-mind']);
+  });
+});

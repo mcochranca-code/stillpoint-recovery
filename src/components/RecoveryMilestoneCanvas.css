@@ -63,7 +63,7 @@
 }
 
 .recovery-token-static-fallback strong {
-  font-family: Georgia, serif;
+  font-family: var(--font-serif);
   font-size: clamp(1.6rem, 5vw, 2.5rem);
   text-transform: uppercase;
 }

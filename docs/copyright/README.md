@@ -36,3 +36,8 @@ permission status and every extraction fix are recorded in
 [`na-step-working-guides.md`](na-step-working-guides.md) and
 [`CONTENT_SOURCES.md`](../../CONTENT_SOURCES.md#na-step-working-guides-used-by-permission). The source
 PDF is not committed.
+
+## Landscape and charm art
+
+Provenance, the tradition-to-landscape mapping and the imagery rules for the page-header
+landscapes and the milestone charms are in [`landscape-art.md`](landscape-art.md).

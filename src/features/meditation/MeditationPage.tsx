@@ -1,3 +1,4 @@
+import { LandscapeBand } from '../../components/LandscapeBand';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
@@ -174,7 +175,7 @@ export function MeditationPage() {
 
   return (
     <div className="page-stack">
-      <header className="page-header"><div><p className="eyebrow">A gentle practice, if it helps</p><h1>Meditation studio.</h1><p>No special breathing is required. Stop, pause, or return to your natural breath at any time.</p></div><span className="pill"><Wind size={13} aria-hidden="true" /> Silent by default</span></header>
+      <header className="page-header has-landscape"><LandscapeBand /><div><p className="eyebrow">A gentle practice, if it helps</p><h1>Meditation studio.</h1><p>No special breathing is required. Stop, pause, or return to your natural breath at any time.</p></div><span className="pill"><Wind size={13} aria-hidden="true" /> Silent by default</span></header>
 
       {completed?.status === 'completed' && !active ? <section className="card completion-card" aria-labelledby="completion-title">
         <div className="completion-sunrise"><Check size={30} aria-hidden="true" /></div><p className="eyebrow">A quiet moment, completed</p><h2 id="completion-title">You showed up for this moment.</h2><p>{completed.exerciseName} · {completed.plannedMinutes} minutes · saved {formatLocalDate(completed.completedAt ?? new Date())}</p>

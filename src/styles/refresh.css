@@ -1,0 +1,338 @@
+/*
+ * Visual refresh (November 2026).
+ *
+ * Loaded last so it can settle earlier rules without !important. Selectors repeat the
+ * `:root[data-color-theme]` prefix where an earlier palette rule uses it, so the narrow-screen
+ * layout wins for every palette.
+ */
+
+/* ---------------------------------------------------------------------------------------------
+ * 1. Today hero, header and the floating mobile Home button
+ * ------------------------------------------------------------------------------------------- */
+
+:root {
+  /* The floating Home button on phones, and the gap below it. */
+  --mobile-nav-height: 58px;
+  --mobile-nav-offset: 12px;
+  --mobile-nav-clearance: calc(var(--mobile-nav-height) + var(--mobile-nav-offset) + env(safe-area-inset-bottom, 0px));
+}
+
+/* The hero is three areas: the counter, the ring with the next milestone, and the actions. */
+:root[data-color-theme] .today-page .sobriety-hero,
+.today-page .sobriety-hero {
+  grid-template-columns: minmax(0, 1.35fr) minmax(150px, .65fr);
+  grid-template-areas: 'copy progress' 'actions progress';
+  row-gap: 4px;
+}
+.today-page .sobriety-hero .sobriety-copy { grid-area: copy; min-width: 0; }
+.today-page .sobriety-hero .sobriety-progress { grid-area: progress; min-width: 0; }
+.today-page .sobriety-hero .sobriety-actions { grid-area: actions; position: relative; z-index: 1; margin-top: 0; }
+.today-page .sobriety-hero .sobriety-actions .button { white-space: nowrap; }
+
+@media (max-width: 700px) {
+  :root[data-color-theme] .today-page .sobriety-hero,
+  .today-page .sobriety-hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: 'copy' 'progress' 'actions';
+    row-gap: 16px;
+  }
+  :root[data-color-theme] .today-page .sobriety-hero .sobriety-progress,
+  .today-page .sobriety-hero .sobriety-progress {
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start; align-items: center; gap: 14px;
+    padding-top: 14px; border-top: 1px solid var(--border);
+  }
+  :root[data-color-theme] .today-page .sobriety-hero .milestone-copy,
+  .today-page .sobriety-hero .milestone-copy { text-align: left; min-width: 0; }
+  .today-page .sobriety-hero .milestone-copy strong { overflow-wrap: break-word; }
+}
+
+@media (max-width: 480px) {
+  .today-page .sobriety-hero .sobriety-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+  .today-page .sobriety-hero .sobriety-actions .button { min-width: 0; padding-inline: 10px; }
+}
+
+/* The header pause button keeps its words on wide screens and becomes an icon on phones. */
+.today-header-actions .today-moment-button { white-space: nowrap; background: var(--surface); }
+.today-header-actions .icon-button { background: var(--surface); }
+@media (max-width: 700px) {
+  .today-page .today-header { flex-wrap: nowrap; align-items: flex-start; }
+  .today-page .today-header-actions { width: auto; flex: 0 0 auto; flex-wrap: nowrap; }
+  .today-page .today-header-actions .button { flex: 0 0 auto; }
+}
+@media (max-width: 480px) {
+  .today-header-actions .today-moment-button { width: var(--target-min); min-width: var(--target-min); height: var(--target-min); padding: 0; gap: 0; }
+  .today-header-actions .today-moment-button svg { width: 19px; height: 19px; }
+  /* Visually hidden, still the link's accessible name. */
+  .today-header-actions .today-moment-label {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden;
+    clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .today-header-actions .icon-button { width: var(--target-min); height: var(--target-min); }
+}
+
+/* The sky drawing sits under the header text, clear of the buttons (its moon used to show through them). */
+.today-header .daypart-sky { top: auto; bottom: -4px; height: 76px; }
+.today-header .today-header-actions { z-index: 1; }
+
+/* Phones: reserve the Home button's space at the end of every page, and keep focused or
+   scrolled-to content clear of it and of the header. */
+@media (max-width: 700px) {
+  html {
+    scroll-padding-top: calc(72px + env(safe-area-inset-top, 0px));
+    scroll-padding-bottom: calc(var(--mobile-nav-clearance) + 16px);
+  }
+  .page-content { padding-bottom: calc(var(--mobile-nav-clearance) + 32px); }
+  .mobile-home-fab { width: var(--mobile-nav-height); height: var(--mobile-nav-height); bottom: calc(var(--mobile-nav-offset) + env(safe-area-inset-bottom, 0px)); }
+  .toast-region { bottom: calc(var(--mobile-nav-clearance) + 12px); }
+}
+@media (max-width: 700px) {
+  :root[data-color-theme] .today-page .sobriety-hero .progress-ring,
+  .today-page .sobriety-hero .progress-ring { width: 88px; height: 88px; }
+  .today-page .sobriety-hero .progress-ring::before { inset: 8px; }
+}
+
+
+/* ---------------------------------------------------------------------------------------------
+ * 2. Type scale (tokens.css) applied: labels, titles, body and fine print
+ * ------------------------------------------------------------------------------------------- */
+
+.eyebrow,
+:root[data-color-theme] .sobriety-hero .eyebrow,
+:root[data-color-theme] .na-reader-copy .eyebrow { font-size: var(--text-label); letter-spacing: var(--tracking-label); line-height: 1.35; }
+
+.page-header h1 { font-family: var(--font-display); font-size: var(--step-4); font-optical-sizing: auto; }
+.page-header p { font-size: var(--step-0); }
+.card-header h2, .card h2 { font-family: var(--font-display); font-size: var(--step-2); }
+.card h3 { font-size: var(--step-0); }
+.card-header p:not(.eyebrow) { font-size: var(--step-0); }
+.card-header p.eyebrow, .card .eyebrow { font-size: var(--text-label); margin-top: 0; }
+.card .fine-print, .fine-print { font-size: var(--step--1); }
+
+/* Labels, captions and helper text: nothing smaller than 12px. */
+.pill,
+.metric-label,
+.activity-bar small,
+.charm-spin-hint,
+.charm-card small,
+.today-charm strong,
+.today-charm small,
+.sobriety-duration span,
+.milestone-copy small,
+.reflection-art span,
+.principle-callout span,
+.reflection-details strong,
+.content-integrity,
+.scripture-ref,
+.quick-action small,
+.inline-link,
+.activity-legend,
+.timeline li small,
+.filter-chip,
+.collection-count small,
+.charm-progress-wrap small,
+.charm-memory,
+.journal-entry-top small,
+.session-history-item small,
+.draft-saved,
+.prompt-row,
+.goal-item small,
+.storage-note,
+.signature-link strong,
+.signature-link small,
+.text-button,
+.phase-caption,
+.audio-toggle,
+.safety-note p,
+.session-history-item p,
+.duration-option span,
+.exercise-preview ol,
+.field-source-card small,
+.contact-card small,
+.personal-milestone-item small,
+.charm-memory > p strong,
+.charm-memory > p span,
+.reset-practice small,
+.contact-choice-panel p,
+.contact-choice-panel small,
+.reset-prayer small,
+.form-help,
+.garden-style-controls,
+.garden-stat span,
+.garden-charm-hint,
+.garden-seed,
+.palette-option small,
+.sobriety-hero .counter-subunits small,
+.na-reader-date,
+.na-reader-note,
+.na-reader-stamp > span,
+.na-reader-stamp small,
+.na-reader-link,
+:root[data-color-theme] .sobriety-hero .counter-subunits small,
+:root[data-color-theme] .na-reader-date,
+:root[data-color-theme] .na-reader-note,
+:root[data-color-theme] .na-reader-stamp > span,
+:root[data-color-theme] .na-reader-link,
+.today-quick-start__copy strong,
+.today-quick-start__copy small,
+.community-teaser,
+.community-disclosure p,
+.community-comment-meta,
+.community-comment-actions .text-button,
+.community-form-meta,
+.community-consent,
+.community-manage-item small,
+.meeting-reminder-toggle strong,
+.meeting-reminder-toggle small,
+.meeting-reminder-unavailable { font-size: var(--text-label); }
+
+/* ---------------------------------------------------------------------------------------------
+ * 3. Landscape header band (Today, Library, Meditation)
+ *
+ * The art fills the space above the header text; the scrim reaches --band-scrim of the canvas
+ * colour before the first line of text (the eyebrow) begins, then fades fully into the canvas.
+ * src/styles/contrast.test.ts composites every colour in every landscape, with each time-of-day
+ * tint, under that scrim and checks the header text colours at 4.5:1 for all palettes.
+ * ------------------------------------------------------------------------------------------- */
+
+:root {
+  --band-scrim: 98%;
+  --band-bleed-top: 36px;
+  --band-bleed-x: clamp(24px, 4vw, 58px);
+  --band-reveal: clamp(84px, 10vw, 132px);
+}
+@media (min-width: 701px) and (max-width: 900px) { :root { --band-bleed-x: 25px; } }
+@media (max-width: 700px) {
+  :root { --band-bleed-top: calc(84px + env(safe-area-inset-top, 0px)); --band-bleed-x: 17px; --band-reveal: 92px; }
+}
+
+.page-header.has-landscape { position: relative; isolation: isolate; padding-top: var(--band-reveal); }
+.page-header > .landscape-band {
+  position: absolute; z-index: -1; pointer-events: none; overflow: hidden;
+  top: calc(-1 * var(--band-bleed-top)); left: calc(-1 * var(--band-bleed-x)); right: calc(-1 * var(--band-bleed-x)); bottom: -28px;
+}
+.landscape-band__art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 64%; }
+.landscape-soft-bokeh .landscape-band__art { object-position: center 40%; }
+.landscape-ocean-dusk .landscape-band__art, .landscape-still-lake .landscape-band__art { object-position: center 46%; }
+.landscape-band__tint, .landscape-band__scrim { position: absolute; inset: 0; }
+
+/* Time of day: a faint wash over the art (none by day). */
+.landscape-band-dawn .landscape-band__tint { background: rgba(250, 196, 150, .26); }
+.landscape-band-dusk .landscape-band__tint { background: rgba(214, 130, 140, .24); }
+.landscape-band-night .landscape-band__tint { background: rgba(90, 100, 170, .18); }
+.dark .landscape-band__art { filter: brightness(.5); }
+.dark .landscape-band-night .landscape-band__tint { background: rgba(10, 16, 40, .40); }
+
+.landscape-band__scrim {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--canvas) 0%, transparent) 0,
+    color-mix(in srgb, var(--canvas) 20%, transparent) calc(var(--band-bleed-top) + var(--band-reveal) * .45),
+    color-mix(in srgb, var(--canvas) var(--band-scrim), transparent) calc(var(--band-bleed-top) + var(--band-reveal) - 10px),
+    var(--canvas) 100%);
+}
+
+/* The sun or moon rides in the open sky above the text, never behind it. */
+.landscape-band .daypart-sky {
+  display: block; z-index: auto; top: calc(var(--band-bleed-top) * .35); right: 6%; left: auto; bottom: auto;
+  width: min(36%, 260px); height: calc(var(--band-bleed-top) * .65 + var(--band-reveal) * .7); opacity: .95;
+}
+.landscape-band .daypart-sky .sky-hill, .landscape-band .daypart-sky .sky-arc { display: none; }
+.landscape-band .daypart-sky-night .sky-moon-shadow { display: none; } /* a full moon: no crescent, which could read as a religious symbol */
+.landscape-band .daypart-sky-night .sky-body circle:first-child { fill: #f1f3fb; filter: drop-shadow(0 0 6px rgba(241, 243, 251, .8)); }
+@media (max-width: 760px) { .landscape-band .daypart-sky { display: block; } }
+
+/* High contrast: no art behind text at all. */
+.high-contrast .landscape-band { display: none; }
+.high-contrast .page-header.has-landscape { padding-top: 0; }
+/* The band bleeds 28px below the header; keep the next block painted above it so its top edge is not washed out. */
+.page-header.has-landscape + * { position: relative; }
+
+/* ---------------------------------------------------------------------------------------------
+ * 4. Gentle progress: a path to the next milestone and a week of practice-presence dots
+ * ------------------------------------------------------------------------------------------- */
+
+:root { --practice-meditation: var(--primary); --practice-journal: #a56f1f; --practice-reflection: #5d62a8; }
+.dark { --practice-journal: #e0b468; --practice-reflection: #aab0f0; }
+
+.progress-path-card { display: grid; gap: var(--space-5); }
+.progress-path-card .card-header { margin-bottom: 0; }
+.progress-path { --path-today: 0%; position: relative; height: 64px; margin: var(--space-2) 14px 0; }
+.progress-path__track, .progress-path__walked { position: absolute; top: 30px; left: 0; height: 6px; border-radius: var(--radius-pill); }
+.progress-path__track { right: 0; background: repeating-linear-gradient(90deg, var(--border) 0 10px, transparent 10px 16px); background-color: transparent; border: 0; }
+.progress-path__track::after { content: ''; position: absolute; inset: 2px 0; border-radius: inherit; background: var(--primary-soft); }
+.progress-path__walked { width: var(--path-today); background: linear-gradient(90deg, var(--sage, #7fa58a), var(--primary)); transform-origin: left center; animation: stillpoint-path-walk var(--motion-slow) var(--ease-out-soft) both; }
+.progress-path__milestone { position: absolute; top: 28px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: var(--surface); border: 2px solid var(--primary); }
+.progress-path__today { position: absolute; top: 21px; left: var(--path-today); width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 6px var(--primary-soft); }
+.progress-path__today > span { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--ink); font-size: var(--text-label); font-weight: 650; }
+.progress-path__goal { position: absolute; top: 23px; right: -10px; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--primary); background: var(--surface); }
+.progress-path__ends { display: flex; justify-content: space-between; gap: var(--space-4); margin-top: -6px; color: var(--muted); font-size: var(--text-label); }
+.progress-path__ends span:last-child { text-align: right; }
+@keyframes stillpoint-path-walk { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.reduce-motion .progress-path__walked { animation: none; }
+@media (prefers-reduced-motion: reduce) { .progress-path__walked { animation: none; } }
+/* Keep the "Today" label inside the card near either end. */
+.progress-path.is-near-start .progress-path__today > span { left: -6px; transform: none; }
+.progress-path.is-near-end .progress-path__today > span { left: auto; right: -6px; transform: none; }
+
+.practice-week-wrap { display: grid; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--border); }
+.practice-week-wrap h3 { margin: 0; font-size: var(--step-0); }
+.practice-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-2); margin: 0; padding: 0; list-style: none; }
+.practice-week li { display: grid; justify-items: center; gap: 6px; padding: 10px 2px; border-radius: var(--radius-md); }
+.practice-week li.is-today { background: var(--primary-soft); }
+.practice-week__dots { display: grid; gap: 5px; }
+.practice-week__day { color: var(--muted); font-size: var(--text-label); }
+.practice-week li.is-today .practice-week__day { color: var(--ink); font-weight: 650; }
+.practice-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--border); background: transparent; }
+.practice-dot.is-present { border-color: transparent; }
+.practice-dot--meditation.is-present { background: var(--practice-meditation); }
+.practice-dot--journal.is-present { background: var(--practice-journal); }
+.practice-dot--reflection.is-present { background: var(--practice-reflection); }
+.practice-legend { display: flex; flex-wrap: wrap; gap: var(--space-4); margin: 0; color: var(--muted); font-size: var(--text-label); }
+.practice-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.high-contrast .practice-dot { border-color: currentColor; }
+
+.progress-path-empty { grid-template-columns: minmax(140px, 240px) minmax(0, 1fr); align-items: center; gap: var(--space-6); }
+.progress-path-empty h2 { margin: 0 0 var(--space-2); }
+.progress-path-empty .muted { margin: 0 0 var(--space-4); max-width: 52ch; }
+.progress-path-empty__art { width: 100%; height: auto; }
+.progress-path-empty__art .trail { fill: none; stroke: var(--sage, #7fa58a); stroke-width: 4; stroke-linecap: round; stroke-dasharray: 2 10; }
+.progress-path-empty__art .trail-start { fill: var(--primary); }
+.progress-path-empty__art .trail-dot { fill: var(--surface); stroke: var(--sage, #7fa58a); stroke-width: 2; }
+@media (max-width: 600px) {
+  .progress-path-empty { grid-template-columns: 1fr; }
+  .progress-path-empty__art { max-width: 220px; }
+}
+
+/* ---------- Charms up front: a dimmed next charm on Today, recently earned on Progress ----------
+   Stillpoint's own Journey Collection art only; no fellowship keytag colours or marks. */
+.charm-medallion--hero { --medallion-size: 56px; }
+.charm-medallion--strip { --medallion-size: 52px; }
+.charm-medallion.is-still { cursor: default; pointer-events: none; }
+.charm-medallion.is-still:hover { filter: none; }
+
+.today-next-charm { display: flex; align-items: center; gap: var(--space-3); padding-top: var(--space-2); border-top: 1px solid var(--border); }
+.today-next-charm .charm-medallion { opacity: .6; }
+.today-next-charm p { display: grid; gap: 2px; margin: 0; }
+.today-next-charm small { color: var(--muted); font-size: var(--text-label); }
+.today-next-charm strong { font-size: var(--step--1); }
+.dark .today-next-charm .charm-medallion { opacity: .5; }
+.high-contrast .today-next-charm .charm-medallion { opacity: 1; }
+
+.recent-charms .card-header { align-items: center; }
+.recent-charms__all { display: inline-flex; align-items: center; gap: 4px; }
+.recent-charms__list { display: flex; flex-wrap: wrap; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.recent-charms__item { display: flex; align-items: center; gap: var(--space-3); min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--ink); text-decoration: none; transition: background-color 160ms ease, border-color 160ms ease; }
+.recent-charms__item:hover { background: var(--primary-soft); }
+.recent-charms__item span { display: grid; gap: 2px; }
+.recent-charms__item strong { font-size: var(--step--1); }
+.recent-charms__item small { color: var(--muted); font-size: var(--text-label); }
+
+.reduce-motion .recent-charms__item { transition: none; }
+@media (prefers-reduced-motion: reduce) { .recent-charms__item { transition: none; } }
+
+/* Page-header pills ("Silent by default") keep to one line; on phones they drop below the title instead of squeezing it. */
+.page-header > .pill { flex: none; white-space: nowrap; }
+@media (max-width: 520px) {
+  .page-header:has(> .pill) { flex-wrap: wrap; row-gap: var(--space-3, 12px); }
+  .page-header:has(> .pill) > div { flex: 1 1 100%; }
+}

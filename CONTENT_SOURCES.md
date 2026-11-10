@@ -69,6 +69,10 @@ declining day (Quran 103), a dew-drop on a blade of grass (Uttarādhyayana X.2),
 hills, a promontory in the waves (Meditations IV.49). No crosses, crescents, Om, dharma wheels,
 Jain hands or other sacred symbols are used as decoration.
 
+The page-header landscapes on Today, Library and Meditation reuse the five existing background
+illustrations, chosen by today's tradition; the mapping, their provenance and the imagery rules are
+in [`docs/copyright/landscape-art.md`](docs/copyright/landscape-art.md).
+
 ## Existing content (unchanged)
 
 - The 90 original *Stillpoint reflections* (`src/data/reflections.ts`) are original text by the
@@ -97,3 +101,24 @@ and in Settings → About. Answers people write stay in their own browser and ar
 
 If the written permission is not granted, or its scope differs (for example, no in-app answer
 boxes, or no offline copy), remove or change this feature before release.
+
+## Fonts (SIL Open Font License 1.1)
+
+The interface self-hosts two variable fonts from `public/assets/fonts/`. No font service is
+contacted at runtime; the files are served from Stillpoint's own origin (CSP `font-src 'self'`) and
+precached for offline use.
+
+| Font | Used for | Copyright | License | File(s) |
+| --- | --- | --- | --- | --- |
+| Fraunces (variable: `opsz` 9–144, `wght` 100–900; upright only) | Titles, the counter, readings | Copyright 2020 The Fraunces Project Authors (https://github.com/undercasetype/Fraunces) | SIL OFL 1.1 — [`public/assets/fonts/OFL-Fraunces.txt`](public/assets/fonts/OFL-Fraunces.txt). No Reserved Font Name. | `fraunces-latin-var-normal.woff2` |
+| Inter (variable: `wght` 100–900; normal) | Body text and controls | Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter) | SIL OFL 1.1 — [`public/assets/fonts/OFL-Inter.txt`](public/assets/fonts/OFL-Inter.txt). No Reserved Font Name. | `inter-latin-var-normal.woff2` |
+
+- **Source:** the Google Fonts builds as packaged by Fontsource (`@fontsource-variable/fraunces`
+  5.3.0, `@fontsource-variable/inter` 5.3.0), Latin subset.
+- **Modification:** subset further with fontTools `pyftsubset` to basic Latin, Latin-1 and common
+  punctuation (the `unicode-range` in `src/styles/tokens.css`), keeping kerning, ligatures and
+  numeral features; Fraunces keeps its `opsz` and `wght` axes (`SOFT` 0 and `WONK` 0 are fixed).
+  Font names and copyright notices are unchanged. Neither font has a Reserved Font Name, so the
+  subsets may keep their names under OFL §3.
+- The fonts are **not** covered by the MIT License; they remain under the OFL, whose text ships
+  beside them. Characters outside the subset fall back to the system font stack.

@@ -1,5 +1,5 @@
 import { charmDefinitions } from '../data/charms';
-import type { CharmDefinition, JournalEntry, MeditationSession, ScriptureActivity, UserPreferences } from './types';
+import type { CharmDefinition, EarnedCharm, JournalEntry, MeditationSession, ScriptureActivity, UserPreferences } from './types';
 
 export interface ActivitySnapshot {
   preferences: UserPreferences;
@@ -52,4 +52,29 @@ export function charmProgress(charm: CharmDefinition, snapshot: ActivitySnapshot
     'year-of-growth': { current: snapshot.sobrietyDays, target: 365, label: 'Days since selected recovery date' },
   };
   return values[charm.id] ?? { current: 0, target: 1, label: charm.criteria };
+}
+
+/** Describe a milestone-charm day count in plain words ("7 days", "1 year"). */
+export function milestoneCharmLabel(days: number): string {
+  if (days > 0 && days % 365 === 0) return days === 365 ? '1 year' : `${days / 365} years`;
+  return `${days} ${days === 1 ? 'day' : 'days'}`;
+}
+
+/** The first time-based charm not yet reached at `sobrietyDays`, or null when none remain. */
+export function nextMilestoneCharm(sobrietyDays: number, definitions: CharmDefinition[] = charmDefinitions): (CharmDefinition & { milestoneDays: number }) | null {
+  const upcoming = definitions
+    .filter((charm): charm is CharmDefinition & { milestoneDays: number } => typeof charm.milestoneDays === 'number' && charm.milestoneDays > sobrietyDays)
+    .sort((a, b) => a.milestoneDays - b.milestoneDays);
+  return upcoming[0] ?? null;
+}
+
+/** The latest earned charms, newest first, paired with their definitions (unknown IDs are skipped). */
+export function recentlyEarnedCharms(earned: EarnedCharm[], limit = 3, definitions: CharmDefinition[] = charmDefinitions): Array<{ award: EarnedCharm; charm: CharmDefinition }> {
+  return [...earned]
+    .sort((a, b) => b.earnedAt.localeCompare(a.earnedAt))
+    .flatMap((award) => {
+      const charm = definitions.find((item) => item.id === award.charmId);
+      return charm ? [{ award, charm }] : [];
+    })
+    .slice(0, Math.max(0, limit));
 }
