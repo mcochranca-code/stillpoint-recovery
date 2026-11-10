@@ -6,6 +6,8 @@
   <p>
     <a href="https://stillpoint-recovery.vercel.app/"><strong>▶ Open the live app</strong></a>
     &nbsp; · &nbsp;
+    <a href="https://stillpoint-mcvk9f6m.manus.space/">Manus app</a>
+    &nbsp; · &nbsp;
     <a href="#install-on-your-phone">Install on your phone</a>
     &nbsp; · &nbsp;
     <a href="#our-privacy-promise">Privacy promise</a>
@@ -78,7 +80,7 @@ Recovery is personal. A lot of apps turn it into a score. Stillpoint makes room 
 ## Key features
 
 - **Today** — a live, adjustable (or hideable) day counter, an original daily reflection, optional scripture, and a link to the official NA *Just for Today* reading, plus quick shortcuts to a quiet practice, meetings, and the journal.
-- **90 original daily reflections** — each with a principle, a small practice, and a question to carry. Written for Stillpoint; not presented as fellowship literature.
+- **90 original daily reflections** — each with a principle, a small practice, and a question to carry. Written for Stillpoint; not presented as fellowship literature. Love a reflection with the heart control and find it again in the Library **Favorites** tab.
 - **Private journal** — gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing, with editing, search, and recoverable drafts.
 - **Meditation Studio** — ten gentle practices in 2, 5, 10, or 20 minute sessions, pause and resume, and three bundled soundscapes (rain, woodland, shoreline) with a working volume control. Box Breathing follows a highlighted sphere in phase with the cues.
 - **90-second Reset, Living Garden, and Field Guide** — a brief grounding flow, non-punitive visual growth, and user-built coping notes.
