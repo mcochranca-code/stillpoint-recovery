@@ -8,8 +8,6 @@
     &nbsp; · &nbsp;
     <a href="https://stillpoint-recovery.vercel.app/"><strong>Vercel deployment</strong></a>
     &nbsp; · &nbsp;
-    <a href="https://stillpoint-recovery-demo.netlify.app/">Netlify demo</a>
-    &nbsp; · &nbsp;
     <a href="#screenshots">Screenshots</a>
     &nbsp; · &nbsp;
     <a href="#quick-start">Run it locally</a>
