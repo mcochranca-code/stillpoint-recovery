@@ -1,12 +1,14 @@
 <div align="center">
   <img src="public/assets/branding/app-icon.svg" alt="Stillpoint Recovery mark" width="76" height="76">
   <h1>Stillpoint Recovery</h1>
-  <p><strong>A local-first, privacy-focused, faith-centered sobriety and recovery PWA.</strong></p>
-  <p>Daily reflection, gentle meditation, private journaling, and local meeting samples, kept in your own browser. No account. No streak pressure. One day at a time.</p>
+  <p><strong>A quieter place to meet this day.</strong></p>
+  <p>A private, local-first companion for recovery: pause, reflect, notice your progress, and choose one kind next step. No account, required recovery date, or streak pressure.</p>
   <p>
-    <a href="https://stillpoint-mcvk9f6m.manus.space/"><strong>▶ Try the live demo</strong></a>
+    <a href="https://stillpoint-mcvk9f6m.manus.space/"><strong>▶ Open the Manus app</strong></a>
     &nbsp; · &nbsp;
-    <a href="https://stillpoint-recovery.vercel.app/"><strong>Live app (Vercel)</strong></a>
+    <a href="https://stillpoint-recovery.vercel.app/"><strong>Vercel deployment</strong></a>
+    &nbsp; · &nbsp;
+    <a href="https://stillpoint-recovery-demo.netlify.app/">Netlify demo</a>
     &nbsp; · &nbsp;
     <a href="#screenshots">Screenshots</a>
     &nbsp; · &nbsp;
@@ -30,28 +32,28 @@
 
 ---
 
-## Why Stillpoint
+## Recovery, without the scorecard
 
-Recovery is personal. Most tracking apps turn it into a score; Stillpoint makes room for reflection and supportive routines instead. There is no leaderboard, guilt loop, forced streak, or requirement to share your story, and the core app works without an account or a recovery date.
+Recovery is personal, and it rarely moves in a straight line. Stillpoint is designed to feel less like a scoreboard and more like a steady place to return: a daily reflection, a quiet practice, a private journal, a meeting finder, and a record of the progress that matters to you. Start without an account or even a recovery date. There are no leaderboards, guilt loops, or penalties for missed days.
 
-- **Private by default.** Your journal, dates, and history live in your browser's IndexedDB, not on a server.
-- **Works offline.** Install it as a PWA; the app shell and bundled content are cached on your device.
-- **Gentle by design.** Reduced-motion aware, keyboard accessible, with text scaling, high contrast, and a discreet display.
-- **Faith-friendly and selectable.** A local Faith-neutral preset hides Scripture-specific and Christian-extra sections without deleting saved data or removing unrelated recovery tools.
+- **Your story stays yours.** Journals, recovery dates, preferences, and activity are stored locally in your browser. Stillpoint does not require an account, run ads, or send private journal content to an AI service.
+- **Ready for offline moments.** Install the PWA and use its app shell and bundled recovery content without a connection. Maps and explicitly enabled community notes are optional online features.
+- **A pace that respects you.** Gentle visual design, reduced-motion settings, text scaling, high contrast, and a discreet display help make the app easier to use in your own way.
+- **Faith content is optional.** Choose the Faith-neutral preset to hide Scripture-specific and Christian-extra sections without deleting saved data or removing other recovery tools.
 
-## Key features
+## Small practices, thoughtfully brought together
 
-- **Today** — a live, adjustable (or hideable) day counter, an original daily reflection, optional scripture, and a link to the official NA *Just for Today* reading, plus quick shortcuts to a quiet practice, meetings, and the journal.
-- **90 original daily reflections** — each with a principle, a small practice, and a question to carry. Written for Stillpoint; not presented as fellowship literature.
-- **Private journal** — gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing, with editing, search, and recoverable drafts.
-- **Meditation Studio** — ten gentle practices in 2, 5, 10, or 20 minute sessions, pause and resume, and three bundled soundscapes (rain, woodland, shoreline) with a working volume control. Box Breathing follows a highlighted sphere in phase with the cues.
-- **90-second Reset, Living Garden, and Field Guide** — a brief grounding flow, non-punitive visual growth, and user-built coping notes.
-- **Progress and Journey Collection** — calendar milestones, activity, meditation time, personal goals, and a dedicated Tokens tab with interactive AA medallion/NA keytag virtual 3D designs for only the latest reached milestone. These are not official fellowship issuances; editing your recovery date never erases journals, sessions, or earned charms.
-- **Meetings** — an offline, source-linked sample of public AA/NA schedules for Stanislaus, Fresno, Mariposa, and Merced counties, plus one Fresno Food Addicts (FA) listing, with on-device filters and an optional map. Coverage is partial; see [meeting sources](docs/meeting-sources.md) and confirm with official directories.
-- **Make it yours** — fifteen palettes (Stillpoint, Catppuccin, Monokai, Obsidian, Lucide, Ocean Calm, Lavender Haze, Terra Cotta, Meadow, Morning Dawn, Midnight Blue, Rosewater, Alpine Air, Golden Hour, and Slate), accessibility controls, and a matching browser/app icon for the selected theme when saving or installing.
-- **Wayfinding** — Home and Settings stay available while mobile destinations can be shown/hidden or expanded/collapsed with motion-aware controls.
-- **Backups you control** — export and restore versioned JSON backups on-device, and opt-in milestone sharing that you preview first.
-- **Optional community notes** — off by default; enable them in Settings if you want a first-class, account-free navigation destination with a separate shared board. Notes are fetched only after you explicitly open the board, and posting is a separate choice (see [Data and privacy](#data-and-privacy)).
+- **A steady Today page** — an adjustable, hideable recovery counter, one of 90 original daily reflections, optional scripture, the official NA *Just for Today* link, and quick ways into meditation, meetings, or your journal.
+- **Reflections worth returning to** — love a reading with the heart control and find your saved favorites in a dedicated Library tab. Reflections are original to Stillpoint, selected by local calendar day, and never presented as fellowship literature.
+- **A private place to write** — capture gratitude, emotions, triggers, coping strategies, prayers, milestones, or free writing. Search and edit entries, recover drafts, and keep writing on this device.
+- **Meditation at your pace** — ten gentle practices in 2, 5, 10, or 20 minutes, with pause/resume and bundled rain, woodland, and shoreline soundscapes. Box Breathing uses a calm breathing-orb visual in phase with its cues; ambient volume is adjustable.
+- **Tools for difficult moments** — a short 90-second grounding flow, a Living Garden that never withers when you miss a day, and a Recovery Field Guide built from the support strategies you choose.
+- **Progress without pressure** — explore activity and personal milestones, plus interactive virtual AA-style medallion and NA-style keytag designs for your latest reached recovery milestone. These are illustrative, not official fellowship-issued tokens; changing a recovery date does not erase your journals, sessions, or earned charms.
+- **Local meeting references** — browse an offline, source-linked sample of AA/NA meetings in Stanislaus, Fresno, Mariposa, and Merced counties, alongside one Fresno Food Addicts (FA) listing. Coverage is partial; check [meeting sources](docs/meeting-sources.md) and confirm details with official directories.
+- **A space that feels like yours** — choose from 15 palettes (Stillpoint, Catppuccin, Monokai, Obsidian, Lucide, Ocean Calm, Lavender Haze, Terra Cotta, Meadow, Morning Dawn, Midnight Blue, Rosewater, Alpine Air, Golden Hour, and Slate), accessibility controls, and matching browser/install icons.
+- **Easy wayfinding** — keep a circular Home button within reach; the mobile header gets out of the way as you scroll and returns when you scroll up. Open the side menu from the left; Settings and accessibility stay at the top-right.
+- **Backups you control** — export and restore versioned JSON backups on-device, and preview any milestone share before choosing to share it.
+- **Community, only if you opt in** — account-free Community Notes are off by default, live on a separate board, load only after you open it, and require a separate choice before posting. See [Data and privacy](#data-and-privacy).
 
 ## Screenshots
 
@@ -78,7 +80,7 @@ Recovery is personal. Most tracking apps turn it into a score; Stillpoint makes 
   </tr>
 </table>
 
-<p align="center"><a href="docs/media/settings.webp"><img src="docs/media/settings.webp" alt="Settings screen with five color palettes and accessibility controls" width="720"></a></p>
+  <p align="center"><a href="docs/media/settings.webp"><img src="docs/media/settings.webp" alt="Settings screen with color palette and accessibility controls" width="720"></a></p>
 
 <details>
 <summary><strong>Optional motion previews</strong> (slow, soft, non-flashing)</summary>
