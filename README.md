@@ -62,6 +62,15 @@
 
 <p align="center"><sub>Screens use illustrative sample values from a fresh test profile. No personal recovery information is shown. Captured with <code>pnpm screenshots</code>.</sub></p>
 
+<p align="center"><sub>More screens: <a href="docs/media/library.webp">Library</a> · <a href="docs/media/settings.webp">Settings, palettes, and accessibility</a></sub></p>
+
+<details>
+<summary><strong>Optional motion previews</strong> (slow, soft, non-flashing)</summary>
+<p><img src="docs/media/hero.gif" alt="A gentle motion preview of the Stillpoint dashboard and progress ring" width="100%"></p>
+<p><img src="docs/media/breathing.gif" alt="A softly expanding meditation orb with the words at your pace" width="720"></p>
+<p>Both are rendered from source-controlled HTML and CSS in <a href=".github/readme-media/">.github/readme-media/</a>.</p>
+</details>
+
 ---
 
 ## Why Stillpoint
@@ -74,7 +83,7 @@ Recovery is personal. A lot of apps turn it into a score. Stillpoint makes room 
 - **Milestone charms.** Twelve illustrated charms, from First Light to Year of Growth. Today shows the next one ahead, Progress shows the ones you have earned, and the whole collection has its own page.
 - **"I need a moment."** One tap from the menu (and an install shortcut) opens a 90-second pause: name what you feel if that helps, then breathe, ground yourself, write a few words, read a short prayer, or see the trusted people you saved. It is honest about what it is: a pause, not a promise, and not an emergency service.
 - **Meditation studio.** Ten gentle practices in 2, 5, 10, or 20 minute sessions, with pause and resume and three bundled soundscapes. Silent by default.
-- **Works offline, installs like an app.** It is a PWA: add it to your home screen and the app shell and bundled content are cached on your device.
+- **Works offline, installs like an app.** It is a PWA: add it to your home screen and the app shell and bundled content are cached on your device. Maps and explicitly enabled community notes are optional online features.
 - **Accessible by design.** Reduced motion, high contrast, an adjustable text size (85% to 130%), discreet mode, full keyboard access, and screen-reader support through labelled controls and text equivalents for every visual. Automated axe and contrast checks run in the test suite, and Lighthouse runs in CI.
 
 ## Key features
@@ -87,7 +96,7 @@ Recovery is personal. A lot of apps turn it into a score. Stillpoint makes room 
 - **Progress and Journey Collection** — a gentle path to the next milestone, a week of practice, activity, meditation time, personal goals, the charm collection, and a dedicated Tokens tab with interactive AA medallion/NA keytag virtual 3D designs for only the latest reached milestone. These are not official fellowship issuances; editing your recovery date never erases journals, sessions, or earned charms.
 - **Meetings** — an offline, source-linked sample of public AA/NA schedules for Stanislaus, Fresno, Mariposa, and Merced counties, plus one Fresno Food Addicts (FA) listing, with on-device filters and an optional map. Coverage is partial; see [meeting sources](docs/meeting-sources.md) and confirm with official directories.
 - **Make it yours** — fifteen palettes (Stillpoint, Catppuccin, Monokai, Obsidian, Lucide, Ocean Calm, Lavender Haze, Terra Cotta, Meadow, Morning Dawn, Midnight Blue, Rosewater, Alpine Air, Golden Hour, and Slate), accessibility controls, and a matching browser/app icon for the selected theme when saving or installing.
-- **Wayfinding** — Home and Settings stay available while mobile destinations can be shown/hidden or expanded/collapsed with motion-aware controls.
+- **Wayfinding** — on mobile, a circular Home button stays within reach, the header gets out of the way as you scroll down and returns when you scroll up, the side menu opens from the left, and Settings and accessibility options stay at the top right. Mobile destinations can be shown/hidden or expanded/collapsed with motion-aware controls.
 - **Backups you control** — export and restore versioned JSON backups on-device, and opt-in milestone sharing that you preview first.
 - **Optional community notes** — off by default; enable them in Settings if you want a first-class, account-free navigation destination with a separate shared board. Notes are fetched only after you explicitly open the board, and posting is a separate choice (see [Our privacy promise](#our-privacy-promise)).
 
@@ -96,6 +105,7 @@ Recovery is personal. A lot of apps turn it into a score. Stillpoint makes room 
 - **People in recovery** who want a quiet daily companion that keeps their reflections private and works without signing up.
 - **Peer support specialists** who want something simple to recommend that asks a person for nothing: no account, no email, no data handed over.
 - **Counselors and clinicians** looking for a between-sessions tool for reflection and grounding that does not collect client data.
+- **Members of 12-step and peer fellowships** looking for a link to the daily NA reading and local AA/NA/FA meeting samples in California's Central Valley.
 - **Faith communities** of many traditions, including recovery ministries, who want readings that respect a person's own faith, or none.
 - **Recovery programs** that want a free, open-source companion to offer participants, with partial Central Valley meeting samples built in.
 
