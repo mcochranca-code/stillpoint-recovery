@@ -4,13 +4,16 @@ import { DEFAULT_CONTENT_PRESET, isContentPreset } from '../domain/content-prese
 import { isTraditionPreference, normalizeTraditionPreference } from '../domain/traditions';
 import { colorThemePresets } from '../data/themes';
 
-const STORE_NAMES = [
+export const STORE_NAMES = [
   'preferences', 'recoveryProfiles', 'recoveryDateHistory', 'dailyReflections', 'scriptureActivity',
   'journalEntries', 'journalDrafts', 'meditationSessions', 'activeSessions', 'earnedCharms',
   'dailyActivity', 'personalGoals', 'personalMilestones', 'milestoneRecords', 'fieldGuideNotes', 'resetRecords',
   'meetingReminders', 'stepWorkAnswers', 'readerProgress',
 ] as const;
-const CLEARABLE_STORE_NAMES = [...STORE_NAMES, 'communityCredentials'] as const;
+export type BackupStoreName = typeof STORE_NAMES[number];
+const CLEARABLE_STORE_NAMES = [...STORE_NAMES, 'communityCredentials', 'quarantine'] as const;
+/** Quarantined records are exported for safekeeping but never imported back automatically. */
+const QUARANTINE_EXPORT_KEY = 'quarantine';
 const SINGLETON_STORES = new Set<string>(['preferences', 'recoveryProfiles']);
 export const MAX_BACKUP_FILE_BYTES = 15_000_000;
 const SHA256_HEX = /^[a-f0-9]{64}$/;
@@ -27,11 +30,22 @@ const STEP_QUESTION_ID = /^s([1-9]|1[0-2])-q\d{3}$/;
 const READER_CHAPTER_ID = /^(preface|step-([1-9]|1[0-2]))$/;
 const READER_TEXT_SIZES = new Set(['small', 'default', 'large', 'larger']);
 
-/** Export every supported local table as a versioned JSON-ready payload. */
+/**
+ * Export every supported local table as a versioned JSON-ready payload.
+ * Quarantined records, when any exist, ride along under their own key so they are never lost;
+ * restore ignores that key, so they are not re-inserted into the stores they broke.
+ */
 export async function createBackup(): Promise<BackupPayload> {
   const tables: Record<string, unknown[]> = {};
   for (const name of STORE_NAMES) tables[name] = await db.table(name).toArray();
-  const payload = { application: 'stillpoint-recovery' as const, schemaVersion: CURRENT_SCHEMA_VERSION, exportedAt: new Date().toISOString(), tables };
+  const quarantined = await db.quarantine.toArray();
+  if (quarantined.length) tables[QUARANTINE_EXPORT_KEY] = quarantined;
+  return createBackupFromTables(tables);
+}
+
+/** Wrap already-read tables in the standard backup envelope with a checksum. */
+export async function createBackupFromTables(tables: Record<string, unknown[]>, schemaVersion = CURRENT_SCHEMA_VERSION): Promise<BackupPayload> {
+  const payload = { application: 'stillpoint-recovery' as const, schemaVersion, exportedAt: new Date().toISOString(), tables };
   return { ...payload, checksum: await checksumFor(payload) };
 }
 
@@ -112,6 +126,14 @@ function isMeetingReminderArray(value: unknown): boolean {
 
 function isCount(value: unknown, min = 0, max = 1_000_000): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= min && value <= max;
+}
+
+/**
+ * Check one record against the table-specific shape rules used for restore.
+ * Shared with the local integrity scan so both paths agree on what a readable record is.
+ */
+export function isValidStoreRecord(name: string, value: unknown): value is Record<string, unknown> {
+  return validRecord(name, value);
 }
 
 function validRecord(name: string, value: unknown): value is Record<string, unknown> {

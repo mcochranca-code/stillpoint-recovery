@@ -40,4 +40,37 @@ describe('IndexedDB schema migrations', () => {
     expect((await upgraded.recoveryProfiles.get('recovery-profile'))?.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
     upgraded.close();
   });
+
+  it('upgrades a version-7 install to v8, adding an empty quarantine table without touching records', async () => {
+    const v7 = new Dexie(NAME);
+    v7.version(7).stores({
+      preferences: 'id', recoveryProfiles: 'id', journalEntries: 'id, type, createdAt, updatedAt, *tags',
+      stepWorkAnswers: 'id, stepNumber, updatedAt', readerProgress: 'id',
+    });
+    await v7.open();
+    const at = '2026-11-01T12:00:00.000Z';
+    const note = { id: 'journal:keep', type: 'free-writing', title: 'Kept', body: 'Still here', createdAt: at, updatedAt: at, tags: ['calm'], gratitude: [] };
+    await v7.table('preferences').put({ id: 'preferences', schemaVersion: 7, highContrast: true });
+    await v7.table('recoveryProfiles').put({ id: 'recovery-profile', schemaVersion: 7, startAt: at });
+    await v7.table('journalEntries').put(note);
+    await v7.table('stepWorkAnswers').put({ id: 's1-q001', questionId: 's1-q001', stepNumber: 1, text: 'Mine', createdAt: at, updatedAt: at });
+    v7.close();
+
+    const upgraded = new StillpointDatabase(NAME);
+    await upgraded.open();
+    try {
+      expect(CURRENT_SCHEMA_VERSION).toBe(8);
+      expect(upgraded.verno).toBe(8);
+      expect(upgraded.tables.map((table) => table.name)).toContain('quarantine');
+      expect(await upgraded.quarantine.count()).toBe(0);
+      expect(await upgraded.journalEntries.get('journal:keep')).toEqual(note);
+      expect(await upgraded.stepWorkAnswers.count()).toBe(1);
+      expect(await upgraded.preferences.get('preferences')).toMatchObject({ schemaVersion: 8, highContrast: true });
+      expect(await upgraded.recoveryProfiles.get('recovery-profile')).toMatchObject({ schemaVersion: 8, startAt: at });
+      await upgraded.quarantine.put({ id: 'journalEntries:x', store: 'journalEntries', originalKey: 'x', record: { id: 'x' }, reason: 'test', quarantinedAt: at });
+      expect(await upgraded.quarantine.where('store').equals('journalEntries').count()).toBe(1);
+    } finally {
+      upgraded.close();
+    }
+  });
 });

@@ -114,9 +114,10 @@ describe('schema migration to v7', () => {
     legacy.close();
 
     await db.open();
-    expect(db.verno).toBe(7);
-    expect(CURRENT_SCHEMA_VERSION).toBe(7);
-    expect(await db.preferences.get('preferences')).toMatchObject({ schemaVersion: 7, highContrast: true });
+    // v7 introduced the step-work tables; later versions (v8 quarantine) must keep them intact.
+    expect(db.verno).toBe(CURRENT_SCHEMA_VERSION);
+    expect(CURRENT_SCHEMA_VERSION).toBeGreaterThanOrEqual(7);
+    expect(await db.preferences.get('preferences')).toMatchObject({ schemaVersion: CURRENT_SCHEMA_VERSION, highContrast: true });
     expect(await db.journalEntries.get('journal:keep')).toMatchObject({ body: 'Still here' });
     expect(await db.stepWorkAnswers.count()).toBe(0);
     expect(await db.readerProgress.count()).toBe(0);

@@ -1,4 +1,4 @@
-import Dexie, { type Table } from 'dexie';
+import Dexie, { type Table, type Transaction } from 'dexie';
 import type {
   ActiveMeditationSession,
   CommunityCommentCredential,
@@ -22,7 +22,7 @@ import type {
 } from '../domain/types';
 import { normalizeTraditionPreference } from '../domain/traditions';
 
-export const CURRENT_SCHEMA_VERSION = 7;
+export const CURRENT_SCHEMA_VERSION = 8;
 
 export interface MilestoneRecord {
   id: string;
@@ -30,6 +30,21 @@ export interface MilestoneRecord {
   label: string;
   startAt: string;
   reachedAt: string;
+}
+
+/**
+ * A record that failed integrity checks and was moved aside, with the person's confirmation,
+ * so it no longer breaks the screens that read its store. The original value is kept unchanged
+ * so it can still be exported in a backup.
+ */
+export interface QuarantinedRecord {
+  /** `${store}:${originalKey}` so quarantining the same record twice never duplicates it. */
+  id: string;
+  store: string;
+  originalKey: string;
+  record: unknown;
+  reason: string;
+  quarantinedAt: string;
 }
 
 const databaseSchema = {
@@ -54,6 +69,19 @@ const reminderDatabaseSchema = { ...databaseSchema, meetingReminders: 'id, meeti
 const communityDatabaseSchema = { ...reminderDatabaseSchema, communityCredentials: 'id, readingKey, createdAt' };
 // v7: private NA Step Working Guide answers and the reader's resume position (both local-only).
 const stepWorkDatabaseSchema = { ...communityDatabaseSchema, stepWorkAnswers: 'id, stepNumber, updatedAt', readerProgress: 'id' };
+// v8: a local quarantine for records the person chose to move aside after a data-health check.
+const quarantineDatabaseSchema = { ...stepWorkDatabaseSchema, quarantine: 'id, store, quarantinedAt' };
+
+async function stampSingletons(transaction: Transaction, version: number): Promise<void> {
+  await Promise.all([
+    transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
+      preferences.schemaVersion = version;
+    }),
+    transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
+      profile.schemaVersion = version;
+    }),
+  ]);
+}
 
 export class StillpointDatabase extends Dexie {
   preferences!: Table<UserPreferences, string>;
@@ -76,6 +104,7 @@ export class StillpointDatabase extends Dexie {
   communityCredentials!: Table<CommunityCommentCredential, string>;
   stepWorkAnswers!: Table<StepWorkAnswer, string>;
   readerProgress!: Table<ReaderProgress, string>;
+  quarantine!: Table<QuarantinedRecord, string>;
 
   constructor(name = 'StillpointRecovery') {
     super(name);
@@ -132,14 +161,11 @@ export class StillpointDatabase extends Dexie {
     // v7: adds two empty local tables (step-work answers, reader position). Existing records are untouched
     // apart from the schema stamp on the two singleton records.
     this.version(7).stores(stepWorkDatabaseSchema).upgrade(async (transaction) => {
-      await Promise.all([
-        transaction.table('preferences').toCollection().modify((preferences: UserPreferences) => {
-          preferences.schemaVersion = CURRENT_SCHEMA_VERSION;
-        }),
-        transaction.table('recoveryProfiles').toCollection().modify((profile: RecoveryProfile) => {
-          profile.schemaVersion = CURRENT_SCHEMA_VERSION;
-        }),
-      ]);
+      await stampSingletons(transaction, 7);
+    });
+    // v8: adds an empty quarantine table. No existing record is moved, rewritten or removed by this migration.
+    this.version(8).stores(quarantineDatabaseSchema).upgrade(async (transaction) => {
+      await stampSingletons(transaction, CURRENT_SCHEMA_VERSION);
     });
   }
 }
