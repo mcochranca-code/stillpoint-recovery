@@ -244,6 +244,8 @@
 /* High contrast: no art behind text at all. */
 .high-contrast .landscape-band { display: none; }
 .high-contrast .page-header.has-landscape { padding-top: 0; }
+/* The band bleeds 28px below the header; keep the next block painted above it so its top edge is not washed out. */
+.page-header.has-landscape + * { position: relative; }
 
 /* ---------------------------------------------------------------------------------------------
  * 4. Gentle progress: a path to the next milestone and a week of practice-presence dots
@@ -327,3 +329,10 @@
 
 .reduce-motion .recent-charms__item { transition: none; }
 @media (prefers-reduced-motion: reduce) { .recent-charms__item { transition: none; } }
+
+/* Page-header pills ("Silent by default") keep to one line; on phones they drop below the title instead of squeezing it. */
+.page-header > .pill { flex: none; white-space: nowrap; }
+@media (max-width: 520px) {
+  .page-header:has(> .pill) { flex-wrap: wrap; row-gap: var(--space-3, 12px); }
+  .page-header:has(> .pill) > div { flex: 1 1 100%; }
+}
