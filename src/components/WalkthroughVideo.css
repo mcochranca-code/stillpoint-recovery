@@ -1,0 +1,40 @@
+/* Self-hosted walkthrough video: a centered 9:16 frame with rounded corners and an always-visible Play/Pause control. */
+.walkthrough { margin: var(--space-5) auto; width: 100%; max-width: 375px; }
+.walkthrough-compact { max-width: 232px; }
+.walkthrough-frame {
+  position: relative;
+  aspect-ratio: 9 / 16;
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-xl, 24px);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.walkthrough-video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top center; background: var(--surface); }
+.walkthrough-toggle {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid rgba(255, 255, 255, .55);
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(22, 42, 34, .82);
+  color: #fff;
+  font: 600 0.875rem/1 var(--font-sans);
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+}
+.walkthrough-toggle:hover { background: rgba(22, 42, 34, .94); }
+.walkthrough-toggle:focus-visible { outline: 3px solid var(--focus-ring, #245444); outline-offset: 3px; }
+.walkthrough-toggle.is-paused { right: 50%; bottom: 50%; transform: translate(50%, 50%); min-height: 52px; padding: 0 var(--space-5); font-size: 1rem; }
+.walkthrough-caption { margin-top: var(--space-3); color: var(--muted); font-size: 0.8125rem; line-height: 1.55; text-align: center; }
+.walkthrough-transcript { margin-top: var(--space-2); text-align: left; }
+.walkthrough-transcript summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--ink); }
+.walkthrough-transcript ol { margin: var(--space-2) 0 0; padding-left: 1.25rem; list-style: decimal; display: grid; gap: var(--space-1); }

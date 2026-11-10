@@ -64,6 +64,14 @@
 
 <p align="center"><sub>More screens: <a href="docs/media/library.webp">Library</a> · <a href="docs/media/settings.webp">Settings, palettes, and accessibility</a></sub></p>
 
+## See it in motion
+
+<p align="center">
+  <a href="https://stillpoint-recovery.vercel.app"><img src="docs/media/walkthrough.webp" alt="A 30-second silent tour of Stillpoint on a phone, using sample data: the Today screen with 97 days in recovery and the next milestone, the day's reflection, the Meditation studio, the Progress path with a week of practice and recently earned charms, the Journal marked as stored on this device, and the Today screen again in dark mode" width="300"></a>
+</p>
+
+<p align="center"><sub>A calm, silent tour with sample data. Tap it to open the live app. The same video is in the app on the welcome screen and under <strong>Settings → Take the tour</strong>, served by Stillpoint itself: no YouTube embed, no third-party player, no tracking, and it never autoplays when Reduced motion is on. Recorded with <code>pnpm walkthrough</code>.</sub></p>
+
 <details>
 <summary><strong>Optional motion previews</strong> (slow, soft, non-flashing)</summary>
 <p><img src="docs/media/hero.gif" alt="A gentle motion preview of the Stillpoint dashboard and progress ring" width="100%"></p>
@@ -84,6 +92,7 @@ Recovery is personal. A lot of apps turn it into a score. Stillpoint makes room 
 - **"I need a moment."** One tap from the menu (and an install shortcut) opens a 90-second pause: name what you feel if that helps, then breathe, ground yourself, write a few words, read a short prayer, or see the trusted people you saved. It is honest about what it is: a pause, not a promise, and not an emergency service.
 - **Meditation studio.** Ten gentle practices in 2, 5, 10, or 20 minute sessions, with pause and resume and three bundled soundscapes. Silent by default.
 - **Works offline, installs like an app.** It is a PWA: add it to your home screen and the app shell and bundled content are cached on your device. Maps and explicitly enabled community notes are optional online features.
+- **A built-in tour, without the tracking.** A 30-second silent walkthrough plays on the welcome screen and in Settings → Take the tour. It is served by Stillpoint itself rather than a video site, loads nothing until it is on screen, has a text description, and waits for you to press Play when Reduced motion is on.
 - **Accessible by design.** Reduced motion, high contrast, an adjustable text size (85% to 130%), discreet mode, full keyboard access, and screen-reader support through labelled controls and text equivalents for every visual. Automated axe and contrast checks run in the test suite, and Lighthouse runs in CI.
 
 ## Key features
@@ -217,6 +226,8 @@ Open `http://localhost:3000`. `pnpm dev` runs Vite on port 3000 and the communit
 | `pnpm check:coverage` | Per-file thresholds for critical modules |
 | `pnpm build` | Typecheck, production bundle, and precache manifest |
 | `pnpm verify:pwa` | Manifest, routes, service worker, and precache checks |
+| `pnpm screenshots` | Capture the README phone screenshots with sample data |
+| `pnpm walkthrough` | Record the in-app walkthrough video and README animation with sample data (needs Chromium and ffmpeg) |
 | `pnpm preview` | Serve the production build on port 3000 |
 | `pnpm start` | Run the community API (`server/index.mjs`) |
 | `pnpm check:server` | Syntax-check the server modules and the Vercel and Netlify Functions |

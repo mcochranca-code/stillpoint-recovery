@@ -45,8 +45,13 @@ describe('axe: key screens have no detectable accessibility violations', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 
-  it('onboarding', async () => {
+  it('onboarding, including the walkthrough video on the welcome step', async () => {
     const { container } = render(<MemoryRouter><Onboarding /></MemoryRouter>);
+    const tour = container.querySelector('video')!;
+    expect(tour).toHaveAccessibleName(/Stillpoint walkthrough/);
+    // The video sits above the buttons and never replaces them.
+    expect(tour.compareDocumentPosition(screen.getByRole('button', { name: /Make this space yours/ })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Play the walkthrough video' })).toBeInTheDocument();
     expect(await axeViolations(container)).toEqual([]);
   });
 
@@ -77,8 +82,10 @@ describe('axe: key screens have no detectable accessibility violations', () => {
     expect(await axeViolations(container)).toEqual([]);
   });
 
-  it('settings', async () => {
+  it('settings, including the Take the tour walkthrough video', async () => {
     const { container } = render(<MemoryRouter><SettingsPage /></MemoryRouter>);
+    expect(screen.getByRole('heading', { name: 'Take the tour' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Play the walkthrough video' })).toBeInTheDocument();
     expect(await axeViolations(container)).toEqual([]);
   });
 
