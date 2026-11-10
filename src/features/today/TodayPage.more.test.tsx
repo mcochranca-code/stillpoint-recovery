@@ -1,4 +1,4 @@
-import { act, cleanup, configure, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, configure, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
@@ -189,7 +189,7 @@ describe('TodayPage reflection actions', () => {
 describe('TodayPage recovery date dialog', () => {
   it('begins again today with a private note and offers next support choices', async () => {
     renderToday();
-    fireEvent.click(screen.getByRole('button', { name: /Begin again today/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Begin again' }));
 
     const dialog = await screen.findByRole('dialog', { name: 'Begin again today' });
     expect(dialog).toHaveTextContent('A fresh start, with your story intact');
@@ -198,7 +198,7 @@ describe('TodayPage recovery date dialog', () => {
     expect(keep).toBeChecked();
     expect(screen.getByLabelText('Start date')).toHaveValue(localDateKey(new Date()));
 
-    fireEvent.click(screen.getByRole('button', { name: 'Begin again' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Begin again' }));
     await waitFor(() => expect(mocks.notify).toHaveBeenCalledWith('Today is a new beginning. Everything you saved is still yours.'));
     const [history] = await db.recoveryDateHistory.toArray();
     expect(history).toMatchObject({ note: 'began-again', previousStartAt: datedProfile().startAt });
@@ -211,7 +211,7 @@ describe('TodayPage recovery date dialog', () => {
 
   it('lets the support choices be skipped or closed', async () => {
     renderToday();
-    fireEvent.click(screen.getByRole('button', { name: 'Adjust recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Adjust date' }));
     fireEvent.change(screen.getByLabelText('Start date'), { target: { value: '2026-10-01' } });
     fireEvent.change(screen.getByLabelText('Optional start time'), { target: { value: '' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save date' }));
@@ -225,7 +225,7 @@ describe('TodayPage recovery date dialog', () => {
 
   it('refuses empty and future dates without saving', async () => {
     renderToday();
-    fireEvent.click(screen.getByRole('button', { name: 'Adjust recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Adjust date' }));
     const dateInput = screen.getByLabelText('Start date');
     const form = dateInput.closest('form')!;
 
@@ -245,7 +245,7 @@ describe('TodayPage recovery date dialog', () => {
 
   it('reports an invalid time instead of saving', async () => {
     renderToday();
-    fireEvent.click(screen.getByRole('button', { name: 'Adjust recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Adjust date' }));
     const timeInput = screen.getByLabelText('Optional start time') as HTMLInputElement;
     // jsdom sanitizes time inputs, so force a malformed value the way an older browser might submit it.
     Object.defineProperty(timeInput, 'value', { configurable: true, get: () => '99:99', set: () => {} });
@@ -263,12 +263,12 @@ describe('TodayPage recovery date dialog', () => {
     expect(screen.getByRole('img', { name: 'No recovery date set yet' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Begin again today/ })).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Set a recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Set a date' }));
     expect(screen.getByLabelText('Start date')).toHaveValue(localDateKey(new Date()));
     fireEvent.click(screen.getByRole('button', { name: 'Close date editor' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
 
-    fireEvent.click(screen.getByRole('button', { name: 'Set a recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Set a date' }));
     fireEvent.change(screen.getByLabelText('Start date'), { target: { value: '2026-10-01' } });
     fireEvent.click(screen.getByRole('checkbox', { name: /Keep a local date-change record/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Save date' }));
@@ -280,7 +280,7 @@ describe('TodayPage recovery date dialog', () => {
   it('works without a stored profile at all', async () => {
     setContext({}, null);
     renderToday();
-    fireEvent.click(screen.getByRole('button', { name: 'Set a recovery date' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Set a date' }));
     fireEvent.change(screen.getByLabelText('Start date'), { target: { value: '2026-10-01' } });
     fireEvent.click(screen.getByRole('button', { name: 'Save date' }));
     await waitFor(async () => expect(await db.recoveryProfiles.get('recovery-profile')).toMatchObject({ focus: '', intention: '' }));

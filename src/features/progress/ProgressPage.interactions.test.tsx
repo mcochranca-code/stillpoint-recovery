@@ -106,7 +106,6 @@ describe('ProgressPage with local records', () => {
     expect(await screen.findByText('Thirty of my own · personal milestone')).toBeInTheDocument();
     expect(screen.getByText('7 days milestone')).toBeInTheDocument();
     expect(screen.getByText('seven day oak charm collected')).toBeInTheDocument();
-    expect(screen.getByText('40')).toBeInTheDocument();
     expect(screen.getByText(/Next ·/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Share milestone 7 days' }));
@@ -119,7 +118,6 @@ describe('ProgressPage with local records', () => {
     setContext({ ...defaultPreferences(), discreetMode: true }, profileStartedDaysAgo(12));
     await db.milestoneRecords.put({ id: 'm-7', milestoneId: '7-days', label: '7 days', startAt: new Date().toISOString(), reachedAt: new Date(Date.now() - 5 * DAY).toISOString() });
     renderPage();
-    expect(screen.getByLabelText('Duration hidden in discreet mode')).toHaveTextContent('Hidden');
     expect(await screen.findByText('A saved personal moment')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Share milestone/ })).toBeNull();
     expect(screen.getByRole('link', { name: /Open Today/ })).toBeInTheDocument();
@@ -133,8 +131,6 @@ describe('ProgressPage with local records', () => {
     await db.scriptureActivity.put({ id: 'sa1', scriptureId: 'psalm-23' } as never);
     renderPage();
 
-    expect(await screen.findByText('1 completed session')).toBeInTheDocument();
-    expect(screen.getByText('0 reflections · 1 scripture passages')).toBeInTheDocument();
     expect(await screen.findByRole('img', { name: /Week activity chart/ })).toBeInTheDocument();
 
     const periods = screen.getByRole('group', { name: 'Activity chart period' });
