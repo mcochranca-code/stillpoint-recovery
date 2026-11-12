@@ -1,67 +1,92 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useLiveQuery } from 'dexie-react-hooks';
-import { Flower2, Leaf, Sprout, TreePine } from 'lucide-react';
-import { useAppContext } from '../../app/AppContext';
-import { db } from '../../db/database';
-import { charmDefinitions } from '../../data/charms';
-import type { GardenStyle } from '../../domain/types';
-import { CharmMedallion } from '../../components/CharmMedallion';
+import { Download, ExternalLink, Flower2 } from 'lucide-react';
 
-/** Render the non-punitive garden visualization derived from supportive activity. */
+const artworks = [
+  {
+    id: 'sunlight-after-rain',
+    title: 'Sunlight After Rain',
+    image: '/assets/garden/sunlight-after-rain.jpg',
+    alt: 'An original post-impressionist painting of sunflowers along a path at golden dawn after rain.',
+    downloadName: 'stillpoint-sunlight-after-rain.jpg',
+    inspiration: 'Vincent van Gogh’s Sunflowers, 1888–1889',
+    historicalContext: 'The Van Gogh Museum says the Sunflowers paintings were made in Arles in 1888 and 1889, and that Vincent wrote they communicated “gratitude.”',
+    stillpointMeaning: 'This new image was made to hold gratitude gently. It does not ask anyone to feel cheerful; it offers a place to notice a little light after a hard stretch.',
+    sourceUrl: 'https://www.vangoghmuseum.nl/en/collection/s0031v1962',
+    sourceLabel: 'Van Gogh Museum · Sunflowers',
+  },
+  {
+    id: 'first-blossom',
+    title: 'First Blossom',
+    image: '/assets/garden/first-blossom.jpg',
+    alt: 'An original post-impressionist painting of pale spring blossoms reaching into a broad blue morning sky.',
+    downloadName: 'stillpoint-first-blossom.jpg',
+    inspiration: 'Vincent van Gogh’s Almond Blossom, 1890',
+    historicalContext: 'The Van Gogh Museum describes almond blossom as an early-spring symbol of new life. Van Gogh gave the painting to his brother Theo and sister-in-law Jo after their son was born.',
+    stillpointMeaning: 'This image is an invitation to be patient with beginnings. Hope can appear quietly, before everything has changed or come into bloom.',
+    sourceUrl: 'https://www.vangoghmuseum.nl/en/collection/s0176v1962',
+    sourceLabel: 'Van Gogh Museum · Almond Blossom',
+  },
+  {
+    id: 'room-to-rest',
+    title: 'Room to Rest',
+    image: '/assets/garden/room-to-rest.jpg',
+    alt: 'An original post-impressionist painting of a quiet room with a lamp, a chair, a blanket, and an open garden window.',
+    downloadName: 'stillpoint-room-to-rest.jpg',
+    inspiration: 'Vincent van Gogh’s The Bedroom, 1888',
+    historicalContext: 'The Van Gogh Museum says Van Gogh intended the bright colors in The Bedroom to express repose or sleep, and that he deliberately flattened the room’s perspective.',
+    stillpointMeaning: 'This new image is a reminder that rest is care, not a prize earned by productivity. A pause can be worthwhile without proving anything.',
+    sourceUrl: 'https://www.vangoghmuseum.nl/en/collection/s0047v1962',
+    sourceLabel: 'Van Gogh Museum · The Bedroom',
+  },
+] as const;
+
+/** A free art garden: no points, streaks, unlocks, or recovery data are needed. */
 export function GardenPage() {
-  const { preferences, updatePreferences } = useAppContext();
-  const gardenSceneRef = useRef<HTMLElement>(null);
-  const [sceneVisible, setSceneVisible] = useState(false);
-  const [pageVisible, setPageVisible] = useState(true);
-  const activities = useLiveQuery(() => db.dailyActivity.toArray(), []) ?? [];
-  const sessions = useLiveQuery(() => db.meditationSessions.where('status').equals('completed').toArray(), []) ?? [];
-  const awardsQuery = useLiveQuery(() => db.earnedCharms.toArray(), []);
-  const awards = useMemo(() => awardsQuery ?? [], [awardsQuery]);
-  const journals = useLiveQuery(() => db.journalEntries.count(), []) ?? 0;
-  const reflections = activities.reduce((sum, item) => sum + item.reflectionsCompleted, 0);
-  const minutes = sessions.reduce((sum, item) => sum + item.plannedMinutes, 0);
-  const gardenPoints = reflections + journals + sessions.length + awards.length * 3;
-  const stage = gardenPoints === 0 ? 'A place to begin' : gardenPoints < 5 ? 'First leaves' : gardenPoints < 15 ? 'New roots' : gardenPoints < 35 ? 'A growing grove' : 'A landscape shaped by care';
-  const plantCount = Math.min(12, Math.max(gardenPoints === 0 ? 1 : 2, Math.floor(gardenPoints / 2) + 1));
-  const earnedDefinitions = useMemo(() => awards.map((award) => charmDefinitions.find((charm) => charm.id === award.charmId)).filter(Boolean), [awards]);
-  const woodland = preferences?.gardenStyle !== 'desert-bloom';
-
-  useEffect(() => {
-    const scene = gardenSceneRef.current;
-    if (!scene || !('IntersectionObserver' in window)) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      setSceneVisible(Boolean(entry?.isIntersecting));
-    }, { threshold: 0.1 });
-    observer.observe(scene);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const updateVisibility = () => setPageVisible(document.visibilityState === 'visible');
-    updateVisibility();
-    document.addEventListener('visibilitychange', updateVisibility);
-    return () => document.removeEventListener('visibilitychange', updateVisibility);
-  }, []);
-
   return (
-    <div className="page-stack">
-      <header className="page-header"><div><p className="eyebrow">Growth that does not ask for a streak</p><h1>The Living Garden.</h1><p>A visual record of care you chose to give. Missed days never make anything here wither.</p></div><span className="pill">{stage}</span></header>
-      <section ref={gardenSceneRef} className={`garden-scene ${woodland ? 'woodland' : 'desert-bloom'}${sceneVisible && pageVisible ? ' motion-active' : ''}`} aria-label={`${woodland ? 'Woodland' : 'Desert bloom'} garden, ${stage}`}>
-        <img className="garden-landscape" src={woodland ? '/assets/backgrounds/forest-path.svg' : '/assets/backgrounds/sunrise-hills.svg'} alt="" />
-        <div className="garden-sun" aria-hidden="true" />
-        <div className="garden-plants" aria-hidden="true">
-          {Array.from({ length: plantCount }, (_, index) => {
-            const Icon = index % 5 === 0 ? TreePine : index % 3 === 0 ? Flower2 : index % 2 === 0 ? Sprout : Leaf;
-            return <div className={`garden-plant plant-${index % 6}`} key={index}><span className="garden-plant-motion"><Icon size={index % 5 === 0 ? 44 : 30 + index % 4 * 5} strokeWidth={1.35} /></span></div>;
-          })}
+    <div className="page-stack garden-gallery-page">
+      <header className="page-header garden-gallery-header">
+        <div>
+          <p className="eyebrow">A gift for simply being here</p>
+          <h1>The Living Garden.</h1>
+          <p>We the people are the flowers in this garden; our stories are the aroma. Take a piece of art with you, with no milestone to reach and no feeling you have to prove.</p>
         </div>
-        <div className="garden-scene-label"><span>{woodland ? 'WOODLAND' : 'DESERT BLOOM'}</span><strong>{stage}</strong></div>
+        <span className="pill"><Flower2 size={14} aria-hidden="true" /> Art, not a score</span>
+      </header>
+
+      <section className="card garden-gallery-intro" aria-label="About the Living Garden">
+        <h2>A place to pause, look, and keep what speaks to you.</h2>
+        <p>Every artwork here is free to download. There are no points, streaks, activity requirements, or locked rewards. The starter collection contains original AI-generated Stillpoint artworks inspired by three Van Gogh paintings; they are not Van Gogh originals and are not member-submitted pieces.</p>
+        <p>Members’ artwork and stories are not collected or uploaded by this gallery. Your own recovery story remains yours.</p>
       </section>
-      <div className="garden-style-controls" role="group" aria-label="Choose Living Garden style"><span>Choose a landscape</span><button className={`filter-chip${woodland ? ' selected' : ''}`} aria-pressed={woodland} onClick={() => void updatePreferences({ gardenStyle: 'woodland' as GardenStyle })}>Woodland</button><button className={`filter-chip${!woodland ? ' selected' : ''}`} aria-pressed={!woodland} onClick={() => void updatePreferences({ gardenStyle: 'desert-bloom' as GardenStyle })}>Desert bloom</button></div>
-      <div className="garden-summary-grid"><article className="card garden-stat"><Leaf size={19} aria-hidden="true" /><strong>{reflections}</strong><span>reflections · leaves</span></article><article className="card garden-stat"><Sprout size={19} aria-hidden="true" /><strong>{journals}</strong><span>journal entries · tended soil</span></article><article className="card garden-stat"><Flower2 size={19} aria-hidden="true" /><strong>{minutes}</strong><span>meditation minutes · water</span></article><article className="card garden-stat"><TreePine size={19} aria-hidden="true" /><strong>{awards.length}</strong><span>milestones & charms · new growth</span></article></div>
-      <section className="card garden-story"><div><p className="eyebrow">A personal landscape</p><h2>Every practice can leave a gentle trace.</h2><p>Reflections grow leaves, journaling enriches the soil, meditation adds water, and meaningful milestones make room for new plants. These elements are based on cumulative practices and achievements saved on this device—not a daily streak.</p><p>Nothing dies when you take time away. If your path changes or you adjust your date, your earlier growth and earned charms remain yours.</p></div><div className="garden-charm-collection"><p className="garden-charm-hint">Milestones gathered · tap a charm to spin it</p><div className="garden-charm-row" role="group" aria-label="Collected garden charms">{earnedDefinitions.length ? earnedDefinitions.slice(0, 6).map((charm) => charm && <CharmMedallion key={charm.id} name={charm.name} image={charm.image} size="garden" />) : <span className="garden-seed"><Sprout size={22} aria-hidden="true" /> Your first garden detail will appear when you choose a recovery-supportive activity.</span>}</div></div></section>
-      <div className="signature-links"><Link to="/reset" className="signature-link"><span><Leaf size={19} aria-hidden="true" /></span><strong>I need a moment<small>Take a gentle pause</small></strong></Link><Link to="/progress" className="signature-link"><span><TreePine size={19} aria-hidden="true" /></span><strong>Notice your journey<small>Open Progress</small></strong></Link><Link to="/field-guide" className="signature-link"><span><Sprout size={19} aria-hidden="true" /></span><strong>Recovery Field Guide<small>Your private playbook</small></strong></Link></div>
+
+      <section className="garden-artwork-list" aria-label="Downloadable Living Garden artwork">
+        {artworks.map((artwork) => (
+          <article className="card garden-artwork-card" key={artwork.id} aria-labelledby={`${artwork.id}-title`}>
+            <figure className="garden-artwork-figure">
+              <img src={artwork.image} alt={artwork.alt} loading="lazy" decoding="async" />
+              <figcaption>Original AI-generated artwork for Stillpoint · not a Van Gogh original</figcaption>
+            </figure>
+            <div className="garden-artwork-copy">
+              <p className="eyebrow">A freely downloadable art gift</p>
+              <h2 id={`${artwork.id}-title`}>{artwork.title}</h2>
+              <p className="garden-artwork-inspiration">Inspired by {artwork.inspiration}. This is a new image, not a reproduction.</p>
+              <section className="garden-beholder" aria-labelledby={`${artwork.id}-beholder-title`}>
+                <h3 id={`${artwork.id}-beholder-title`}>From the Eye of the Beholder</h3>
+                <h4>Historical context</h4>
+                <p>{artwork.historicalContext}</p>
+                <h4>A Stillpoint interpretation</h4>
+                <p>{artwork.stillpointMeaning}</p>
+                <a href={artwork.sourceUrl} target="_blank" rel="noopener noreferrer">
+                  Read the source work’s museum notes: {artwork.sourceLabel} <ExternalLink size={14} aria-hidden="true" />
+                </a>
+              </section>
+              <a className="button button-primary garden-download" href={artwork.image} download={artwork.downloadName} aria-label={`Download the artwork ${artwork.title}`}>
+                <Download size={16} aria-hidden="true" /> Download this art gift
+              </a>
+              <p className="fine-print">Free for anyone using the app. No streak, milestone, account, or activity threshold.</p>
+            </div>
+          </article>
+        ))}
+      </section>
     </div>
   );
 }

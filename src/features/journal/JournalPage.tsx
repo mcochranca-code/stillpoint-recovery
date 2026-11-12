@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen, Download, FilePlus2, Search, Trash2, X } from 'lucide-react';
 import { useAppContext } from '../../app/AppContext';
 import { useDialogFocus } from '../../app/useDialogFocus';
 import { db } from '../../db/database';
 import { awardEligibleCharms } from '../../db/achievements';
+import { checkInMoods, DAILY_CHECK_IN_FEELING_PREFIX, DAILY_CHECK_IN_TAG } from '../../db/checkIns';
 import { returnedAfterActivityBreak, updateDailyActivity } from '../../db/repository';
 import { elapsedParts, formatLocalDate, localDateKey } from '../../domain/time';
+import { getEmotionTerm } from '../../data/emotion-vocabulary';
 import type { JournalDraft, JournalEntry, JournalType, Mood } from '../../domain/types';
 
 const types: Array<{ id: JournalType; label: string }> = [
@@ -21,12 +24,20 @@ const prompts = [
   'What situation challenged my recovery?', 'What helped me respond constructively?',
   'Who can I reach out to for support?', 'What does taking recovery one day at a time mean to me today?',
 ];
-const moods: Array<{ id: Mood; label: string }> = [
-  { id: 'peaceful', label: 'Peaceful' }, { id: 'hopeful', label: 'Hopeful' }, { id: 'steady', label: 'Steady' },
-  { id: 'anxious', label: 'Anxious' }, { id: 'sad', label: 'Sad' }, { id: 'angry', label: 'Angry' },
-  { id: 'tired', label: 'Tired' }, { id: 'grateful', label: 'Grateful' },
-];
+const moods = checkInMoods;
 const typeLabel = (type: JournalType) => types.find((item) => item.id === type)?.label ?? 'Journal entry';
+
+type EmotionReflectionHandoff = { prompt: string; title: string; mood: Mood; tags: string[] };
+type JournalNavigationState = { emotionReflection?: EmotionReflectionHandoff };
+
+function displayTag(tag: string): string {
+  if (tag === DAILY_CHECK_IN_TAG) return 'Daily check-in';
+  if (tag.startsWith(DAILY_CHECK_IN_FEELING_PREFIX)) {
+    const id = tag.slice(DAILY_CHECK_IN_FEELING_PREFIX.length);
+    return `Feeling: ${getEmotionTerm(id)?.label ?? id}`;
+  }
+  return tag;
+}
 
 function toLocalDateTime(value?: string): string {
   const date = value ? new Date(value) : new Date();
@@ -37,19 +48,26 @@ function toLocalDateTime(value?: string): string {
 /** Render private journal entry creation, search, editing, and draft recovery. */
 export function JournalPage() {
   const { preferences, notify } = useAppContext();
+  const location = useLocation();
+  const initialReflection = (location.state as JournalNavigationState | null)?.emotionReflection;
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (initialReflection) navigate(`${location.pathname}${location.search}${location.hash}`, { replace: true, state: null });
+  }, [initialReflection, location.hash, location.pathname, location.search, navigate]);
   const entriesQuery = useLiveQuery(() => db.journalEntries.orderBy('createdAt').reverse().toArray(), []);
   const entries = useMemo(() => entriesQuery ?? [], [entriesQuery]);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<JournalType | 'all'>('all');
   const [editing, setEditing] = useState<JournalEntry | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
+  const [creationReflection, setCreationReflection] = useState<EmotionReflectionHandoff | undefined>(() => initialReflection);
+  const [isCreating, setIsCreating] = useState(Boolean(initialReflection));
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return entries.filter((entry) => (typeFilter === 'all' || entry.type === typeFilter) && (!query || [entry.title, entry.body, ...entry.tags, entry.trigger ?? '', entry.copingStrategy ?? ''].join(' ').toLowerCase().includes(query)));
   }, [entries, search, typeFilter]);
 
-  function createEntry() { setEditing(null); setIsCreating(true); }
-  function closeEditor() { setIsCreating(false); setEditing(null); }
+  function createEntry() { setEditing(null); setCreationReflection(undefined); setIsCreating(true); }
+  function closeEditor() { setIsCreating(false); setEditing(null); setCreationReflection(undefined); }
 
   async function deleteEntry(entry: JournalEntry) {
     if (!window.confirm(`Permanently delete “${entry.title || 'this entry'}” from this device? This cannot be undone.`)) return;
@@ -79,31 +97,31 @@ export function JournalPage() {
         {filtered.length ? filtered.map((entry) => <article key={entry.id} className="card journal-entry">
           <div className="journal-entry-top"><div><span className="pill pill-sage">{preferences?.discreetMode ? 'Private entry' : typeLabel(entry.type)}</span><h2>{preferences?.discreetMode ? 'Personal writing' : entry.title || 'Untitled entry'}</h2><small>{preferences?.discreetMode ? 'Details hidden while discreet display is on' : `${formatLocalDate(entry.createdAt, { month: 'short', day: 'numeric', year: 'numeric' })} · ${new Date(entry.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hourCycle: preferences?.timeFormat === '24h' ? 'h23' : 'h12' })}${entry.mood ? ` · ${moods.find((mood) => mood.id === entry.mood)?.label}` : ''}`}</small></div><div className="entry-actions"><button className="button button-small button-secondary" onClick={() => { setEditing(entry); setIsCreating(false); }} aria-label={`Edit ${preferences?.discreetMode ? 'private journal entry' : entry.title || 'journal entry'}`}>Edit</button><button className="icon-button danger-icon" onClick={() => void deleteEntry(entry)} aria-label={`Delete ${preferences?.discreetMode ? 'private journal entry' : entry.title || 'journal entry'}`}><Trash2 size={16} aria-hidden="true" /></button></div></div>
           <p className="journal-body-preview">{preferences?.discreetMode ? 'Writing is hidden while discreet display is on.' : entry.body}</p>
-          {!preferences?.discreetMode && entry.tags.length > 0 && <div className="tag-row">{entry.tags.map((tag) => <span className="pill" key={tag}>{tag}</span>)}</div>}
+          {!preferences?.discreetMode && entry.tags.length > 0 && <div className="tag-row">{entry.tags.map((tag) => <span className="pill" key={tag}>{displayTag(tag)}</span>)}</div>}
           {!preferences?.discreetMode && entry.trigger && <p className="fine-print"><strong>Situation noted:</strong> {entry.trigger}</p>}
           {!preferences?.discreetMode && entry.copingStrategy && <p className="fine-print"><strong>What helped:</strong> {entry.copingStrategy}</p>}
         </article>) : <div className="card empty-state"><BookOpen size={26} aria-hidden="true" /><h2>{search || typeFilter !== 'all' ? 'No entries found' : 'Your journal is here when you are'}</h2><p>{search || typeFilter !== 'all' ? 'Try another search or entry type.' : 'A few lines can be enough. Your entries remain private on this device and are never shared unless you choose to export them.'}</p>{!search && typeFilter === 'all' && <button className="button button-primary" onClick={createEntry}>Write a first entry</button>}</div>}
       </section>
-      {(isCreating || editing) && <JournalEditor key={editing?.id ?? 'new'} entry={editing ?? undefined} onClose={closeEditor} onSaved={closeEditor} />}
+      {(isCreating || editing) && <JournalEditor key={editing?.id ?? 'new'} entry={editing ?? undefined} initialReflection={editing ? undefined : creationReflection} onClose={closeEditor} onSaved={closeEditor} />}
     </div>
   );
 }
 
-function JournalEditor({ entry, onClose, onSaved }: { entry?: JournalEntry; onClose: () => void; onSaved: () => void }) {
+function JournalEditor({ entry, initialReflection, onClose, onSaved }: { entry?: JournalEntry; initialReflection?: EmotionReflectionHandoff; onClose: () => void; onSaved: () => void }) {
   const { profile, notify } = useAppContext();
   const dialogRef = useDialogFocus<HTMLElement>(true, onClose);
-  const [type, setType] = useState<JournalType>(entry?.type ?? 'free-writing');
-  const [title, setTitle] = useState(entry?.title ?? '');
-  const [body, setBody] = useState(entry?.body ?? '');
+  const [type, setType] = useState<JournalType>(entry?.type ?? (initialReflection ? 'emotional-check-in' : 'free-writing'));
+  const [title, setTitle] = useState(entry?.title ?? initialReflection?.title ?? '');
+  const [body, setBody] = useState(entry?.body ?? (initialReflection ? `${initialReflection.prompt}\n\n` : ''));
   const [dateTimeLocal, setDateTimeLocal] = useState(() => toLocalDateTime(entry?.createdAt));
-  const [mood, setMood] = useState<Mood | ''>(entry?.mood ?? '');
-  const [tags, setTags] = useState(entry?.tags.join(', ') ?? '');
+  const [mood, setMood] = useState<Mood | ''>(entry?.mood ?? initialReflection?.mood ?? '');
+  const [tags, setTags] = useState(entry?.tags.join(', ') ?? initialReflection?.tags.join(', ') ?? '');
   const [gratitude, setGratitude] = useState(entry?.gratitude.join('\n') ?? '');
   const [trigger, setTrigger] = useState(entry?.trigger ?? '');
   const [copingStrategy, setCopingStrategy] = useState(entry?.copingStrategy ?? '');
   const [savedAt, setSavedAt] = useState('');
   const [saving, setSaving] = useState(false);
-  const [prompt, setPrompt] = useState('');
+  const [prompt, setPrompt] = useState(initialReflection?.prompt ?? '');
   const fieldsRef = useRef({ title, body });
   const latestDraftRef = useRef<JournalDraft | null>(null);
   const savedDraftRef = useRef(false);

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { axeViolations } from '../../../tests/axe';
@@ -46,12 +46,16 @@ afterEach(() => { db.close(); });
 const daysAgo = (days: number) => localDateKey(new Date(Date.now() - days * 86_400_000));
 
 describe('daily check-in', () => {
-  it('saves with one tap, exposes pressed state, and offers a pause for heavier days', async () => {
+  it('confirms an emotion word, exposes pressed state, and offers a pause for heavier days', async () => {
     const { container } = render(<MemoryRouter><DailyCheckIn /></MemoryRouter>);
     expect(screen.getByRole('heading', { name: 'How are you arriving today?' })).toBeInTheDocument();
-    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Anxious' })); });
+    const anxious = within(screen.getByRole('group', { name: 'Choose a broad feeling to explore' })).getByRole('button', { name: 'Anxious' });
+    await waitFor(() => expect(anxious).toBeEnabled());
+    fireEvent.click(anxious);
+    fireEvent.click(screen.getByRole('button', { name: 'Yes, this fits for now' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save today’s check-in' }));
     await screen.findByRole('heading', { name: 'You checked in today.' });
-    expect(screen.getByRole('button', { name: /Anxious/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(anxious).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('link', { name: /Take a 90-second pause/ })).toHaveAttribute('href', '/reset');
     await waitFor(() => expect(mocks.notify).toHaveBeenCalledWith(expect.stringMatching(/^Checked in as anxious/)));
     expect(await db.journalEntries.count()).toBe(1);
