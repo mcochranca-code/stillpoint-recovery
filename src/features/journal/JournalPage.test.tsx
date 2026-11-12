@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { db } from '../../db/database';
+import { DAILY_CHECK_IN_FEELING_PREFIX, DAILY_CHECK_IN_TAG } from '../../db/checkIns';
 import { defaultPreferences, defaultRecoveryProfile } from '../../db/repository';
 import type { JournalDraft, JournalEntry } from '../../domain/types';
 import { JournalPage } from './JournalPage';
@@ -40,9 +42,13 @@ afterEach(async () => {
   db.close();
 });
 
+function renderJournal(state?: { emotionReflection?: { prompt: string; title: string; mood: 'sad'; tags: string[] } }) {
+  return render(<MemoryRouter initialEntries={[{ pathname: '/journal', state }]}><JournalPage /></MemoryRouter>);
+}
+
 describe('JournalPage data mutations', () => {
   it('creates a gratitude entry, updates activity, and removes its saved draft', async () => {
-    render(<JournalPage />);
+    renderJournal();
     fireEvent.click(screen.getByRole('button', { name: 'New entry' }));
 
     fireEvent.change(screen.getByLabelText('Entry type'), { target: { value: 'gratitude' } });
@@ -85,7 +91,7 @@ describe('JournalPage data mutations', () => {
     };
     await db.journalDrafts.add(draft);
 
-    render(<JournalPage />);
+    renderJournal();
     fireEvent.click(screen.getByRole('button', { name: 'New entry' }));
 
     expect(await screen.findByText(/Draft recovered/)).toBeTruthy();
@@ -99,7 +105,7 @@ describe('JournalPage data mutations', () => {
 
   it('edits an existing record in place without counting a second journal entry', async () => {
     await db.journalEntries.add(existingEntry);
-    render(<JournalPage />);
+    renderJournal();
 
     fireEvent.click(await screen.findByRole('button', { name: 'Edit A saved thought' }));
     fireEvent.change(screen.getByLabelText('Your words'), { target: { value: 'A clearer version of my words.' } });
@@ -111,10 +117,25 @@ describe('JournalPage data mutations', () => {
     expect(await db.dailyActivity.count()).toBe(0);
   });
 
+  it('renders saved check-in and feeling tags as readable labels in the private journal', async () => {
+    const now = new Date().toISOString();
+    await db.journalEntries.add({
+      id: 'journal:check-in-with-feelings', type: 'emotional-check-in', title: 'Check-in · Sad', body: '',
+      createdAt: now, updatedAt: now, mood: 'sad',
+      tags: [DAILY_CHECK_IN_TAG, `${DAILY_CHECK_IN_FEELING_PREFIX}sad`, `${DAILY_CHECK_IN_FEELING_PREFIX}melancholy`],
+      gratitude: [],
+    });
+    renderJournal();
+
+    expect(await screen.findByText('Daily check-in')).toBeInTheDocument();
+    expect(screen.getByText('Feeling: Sad')).toBeInTheDocument();
+    expect(screen.getByText('Feeling: Melancholy')).toBeInTheDocument();
+  });
+
   it('requires deletion confirmation and removes an entry only after approval', async () => {
     await db.journalEntries.add(existingEntry);
     const confirm = vi.spyOn(window, 'confirm').mockReturnValueOnce(false).mockReturnValueOnce(true);
-    render(<JournalPage />);
+    renderJournal();
 
     fireEvent.click(await screen.findByRole('button', { name: 'Delete A saved thought' }));
     expect(await db.journalEntries.count()).toBe(1);
@@ -123,5 +144,19 @@ describe('JournalPage data mutations', () => {
     await waitFor(async () => expect(await db.journalEntries.count()).toBe(0), { timeout: 5000 });
     expect(confirm).toHaveBeenCalledTimes(2);
     confirm.mockRestore();
+  });
+
+  it('opens a gentle reflection prompt from the feelings check-in without saving automatically', async () => {
+    const prompt = 'I am noticing sad, melancholy. What might these feelings be asking me to notice?';
+    renderJournal({ emotionReflection: { title: 'A moment with my feelings', prompt, mood: 'sad', tags: ['feeling:sad', 'feeling:melancholy'] } });
+
+    expect(await screen.findByRole('dialog')).toBeTruthy();
+    expect((screen.getByLabelText('Entry type') as HTMLSelectElement).value).toBe('emotional-check-in');
+    expect((screen.getByLabelText(/Title/) as HTMLInputElement).value).toBe('A moment with my feelings');
+    expect((screen.getByLabelText('Your words') as HTMLTextAreaElement).value).toContain(prompt);
+    expect((screen.getByLabelText(/Mood/) as HTMLSelectElement).value).toBe('sad');
+    expect((screen.getByLabelText(/Tags/) as HTMLInputElement).value).toBe('feeling:sad, feeling:melancholy');
+    expect(screen.getAllByText(prompt).length).toBeGreaterThan(0);
+    expect(await db.journalEntries.count()).toBe(0);
   });
 });

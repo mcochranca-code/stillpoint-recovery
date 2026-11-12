@@ -28,6 +28,21 @@ describe('one-tap daily check-in', () => {
     expect(activity?.journalEntries).toBe(1);
   });
 
+  it('stores up to three paired feeling words in the existing journal tags and updates them in place', async () => {
+    const now = new Date();
+    const first = await saveDailyCheckIn('sad', now, ['sad', 'melancholy', 'apathetic', 'bored']);
+    expect(first.created).toBe(true);
+    expect(first.entry.tags).toEqual([DAILY_CHECK_IN_TAG, 'feeling:sad', 'feeling:melancholy', 'feeling:apathetic']);
+
+    const next = await saveDailyCheckIn('anxious', now, ['anxious', 'restless']);
+    expect(next.created).toBe(false);
+    expect(next.entry.tags).toEqual([DAILY_CHECK_IN_TAG, 'feeling:anxious', 'feeling:restless']);
+    expect(await db.journalEntries.count()).toBe(1);
+    expect((await getTodayCheckIn(now))?.mood).toBe('anxious');
+    const backup = await createBackup();
+    expect(backup.tables.journalEntries).toEqual(expect.arrayContaining([expect.objectContaining({ tags: expect.arrayContaining(['feeling:restless']) })]));
+  });
+
   it('starts fresh on a new day without touching earlier check-ins', async () => {
     await saveDailyCheckIn('tired', new Date('2026-11-01T09:00:00'));
     expect(await getTodayCheckIn(new Date('2026-11-02T09:00:00'))).toBeUndefined();

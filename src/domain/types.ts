@@ -11,7 +11,7 @@ export type JournalType =
   | 'free-writing'
   | 'meditation'
   | 'victory';
-export type Mood = 'peaceful' | 'hopeful' | 'steady' | 'anxious' | 'sad' | 'angry' | 'tired' | 'grateful';
+export type Mood = 'peaceful' | 'hopeful' | 'steady' | 'anxious' | 'sad' | 'angry' | 'tired' | 'grateful' | 'lonely' | 'numb' | 'overwhelmed' | 'ashamed';
 export type CharmCategory = 'sobriety' | 'reflection' | 'journaling' | 'meditation' | 'gratitude' | 'scripture' | 'resilience';
 export type MeditationVisual = 'orb' | 'box' | 'ripples' | 'horizon' | 'particles';
 export type SessionStatus = 'running' | 'paused' | 'completed' | 'ended';
