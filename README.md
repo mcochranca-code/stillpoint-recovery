@@ -1,8 +1,8 @@
 <div align="center">
   <img src="public/assets/branding/app-icon.svg" alt="Stillpoint Recovery mark" width="76" height="76">
   <h1>Stillpoint Recovery</h1>
-  <p><strong>A private, faith-friendly recovery companion. No account. Your data stays on your phone.</strong></p>
-  <p>Daily readings you choose, gentle meditation, a private journal, and local meeting samples, all kept in your own browser. No streak pressure. One day at a time.</p>
+  <p><strong>A private recovery companion for feelings that are layered, changing, or hard to name. No account. Personal reflections stay on this device.</strong></p>
+  <p>Start with a broad feeling, explore gentle definitions for words such as melancholy, apathetic, or bored, and hold up to three feelings together—or leave a word uncertain. A journal prompt is there if writing helps, alongside readings you choose, meditation, and local meeting samples. One day at a time.</p>
   <p>
     <a href="https://stillpoint-recovery.vercel.app/"><strong>▶ Open the live app</strong></a>
     &nbsp; · &nbsp;
@@ -83,7 +83,7 @@
 
 ## Why Stillpoint
 
-Recovery is personal. A lot of apps turn it into a score. Stillpoint makes room for reflection and steady routines instead: no leaderboard, no guilt loop, no forced streak, and no need to share your story. The core app works without an account and without a recovery date.
+Recovery is personal, and feelings can be layered, changing, or hard to name. Stillpoint makes room for reflection and steady routines instead of turning recovery into a score. There is no leaderboard, guilt loop, forced streak, or pressure to share your story. The core app works without an account or recovery date.
 
 - **Your data stays on your device.** Journals, dates, readings, meditation sessions, and charms are stored in your browser's IndexedDB. There is no account, no cloud sync, no ads, and no analytics. See [Our privacy promise](#our-privacy-promise) for exactly what can leave the device, and when.
 - **Readings you choose, from seven traditions.** Christian, Buddhist, Hindu, Muslim, Jain, Red Road (Native wellbriety), and Spiritual but not religious. Pick one, a few that take turns, or rotate through all of them. Nothing is preselected for you, and a Faith-neutral preset hides Scripture-specific sections without deleting anything.
@@ -99,7 +99,7 @@ Recovery is personal. A lot of apps turn it into a score. Stillpoint makes room 
 
 - **Today** — a live, adjustable (or hideable) day counter, an original daily reflection, optional scripture, and a link to the official NA *Just for Today* reading, plus quick shortcuts to a quiet practice, meetings, and the journal.
 - **90 original daily reflections** — each with a principle, a small practice, and a question to carry. Written for Stillpoint; not presented as fellowship literature. Love a reflection with the heart control and find it again in the Library **Favorites** tab.
-- **A more precise way to name a feeling** — begin with a broad emotion, explore plain-language definitions for more specific words, and keep up to three feelings together when more than one is true. Each choice is optional, private, and never a diagnosis; a gentle journal prompt is there if writing helps.
+- **A gentle place to get curious about a feeling** — start with a broad emotion, then try words such as melancholy, apathetic, or bored. Read a plain-language definition, decide whether it fits (or stay unsure), and hold up to three feelings together. A journal prompt is optional; there is no diagnosis or “right” answer.
 - **Private journal** — gratitude, emotions, triggers, coping strategies, prayers, milestones, and free writing, with editing, search, and recoverable drafts.
 - **Meditation Studio** — ten gentle practices in 2, 5, 10, or 20 minute sessions, pause and resume, and three bundled soundscapes (rain, woodland, shoreline) with a working volume control. Box Breathing follows a highlighted sphere in phase with the cues.
 - **The Living Garden** — three free, original AI-generated paintings inspired by Van Gogh works, with museum-linked historical context and a separate Stillpoint reading. Download any gift without a streak, milestone, or activity requirement; the images are clearly identified as homages, not Van Gogh originals or member submissions.

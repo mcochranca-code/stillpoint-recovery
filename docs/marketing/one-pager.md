@@ -1,6 +1,6 @@
 # Stillpoint Recovery: a one-page overview for programs and funders
 
-**A private, faith-friendly recovery companion. Free, open source, no accounts. Data stays on the person's phone.**
+**A private recovery companion for the feelings that can be hard to name. Free, open source, no accounts. Personal reflections stay on the person's device.**
 
 Live app: <https://stillpoint-recovery.vercel.app/> · Source: <https://github.com/mcochranca-code/stillpoint-recovery>
 
@@ -10,7 +10,7 @@ People in recovery are often asked to hand over personal information to get supp
 
 ## What Stillpoint is
 
-Stillpoint is a web app that installs on a phone like a regular app. It offers daily readings, gentle meditation, a private journal, a short "I need a moment" pause, and a calm view of progress. It asks for nothing to get started: no account, no email, and not even a recovery date. Everything a person writes or records is kept in the browser on their own device.
+Stillpoint is a web app that installs on a phone like a regular app. It offers daily readings, gentle meditation, a private journal, a short "I need a moment" pause, a calm view of progress, and an emotional check-in for feelings that are layered or difficult to name. People can explore plain-language words, keep up to three feelings together, or stay unsure without needing a perfect answer. It asks for nothing to get started: no account, no email, and not even a recovery date. Everything a person writes or records is kept in the browser on their own device.
 
 It is a personal reflection companion. It is **not** medical care, treatment, diagnosis, or an emergency service, and it does not replace professional or peer support.
 
@@ -18,7 +18,9 @@ It is a personal reflection companion. It is **not** medical care, treatment, di
 
 - **Readings from seven traditions,** chosen by the person: Christian, Buddhist, Hindu, Muslim, Jain, Red Road (Native wellbriety), and Spiritual but not religious. One, a few in turn, or all in rotation. Nothing is preselected, and a Faith-neutral preset hides Scripture-specific sections.
 - **90 original daily reflections,** each with a principle, a small practice, and a question to carry, plus a link to the official NA *Just for Today* reading.
+- **A layered emotion check-in.** Start with a broad feeling, try words such as melancholy, apathetic, or bored, and read a clear, everyday definition. Keep up to three feelings together, change your mind, or stay unsure; an optional private journal prompt offers room to reflect without diagnosis or scoring.
 - **No streak pressure.** Progress is a gentle path to the next milestone with a week of practice shown as dots. A missed day breaks nothing. Twelve illustrated milestone charms mark the way.
+- **The Living Garden.** Three free, original AI-generated art gifts inspired by Van Gogh paintings, with museum-linked historical context and a separate Stillpoint interpretation. No activity threshold is required; the images are not Van Gogh originals or member submissions.
 - **"I need a moment":** a 90-second pause with breathing, grounding, writing, a short prayer, or a look at the person's own trusted contacts. It is plain that it is a pause, not a promise, and points to emergency services when needed.
 - **Meditation studio:** ten gentle practices in 2, 5, 10, or 20 minutes, with pause, resume, and three bundled soundscapes.
 - **Private journal** with search, drafts, and editing.
